@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        html {
+            background-color: floralwhite;
+            border: 8px solid darkred;
+            height: -webkit-fill-available;
+            padding: 20px;
+        }
+        body {
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        h1 {
+            letter-spacing: 16px;
+            color: firebrick;
+            margin: 20px;
+            font-size: 4em;
+        }
+
+        h2 {
+            color: darkslategray;
+            font-weight: 400;
+        }
+
+        div#index {
+    display: inline-flex;
+    width: 100%;
+}
+
+div.index section {
+    /*
+    display: inline-block;
+    align-items: center;
+    justify-items: center;
+    */
+    width: inherit;
+    padding: 30px;
+    margin: 8px;
+    background-color: antiquewhite;
+}
+
+        form.name-submit {
+            margin: 60px;
+        }
+
+        div.name-field {
+            margin: 16px;
+            
+        }
+
+        label {
+            text-align: left;
+            margin-bottom: 6px;
+            font-family: sans-serif;
+            color: rgba(0,0,0,0.6);
+            font-size: small;
+        }
+
+        input {
+            display: block;
+            height: 30px;
+            font-size: small;
+            text-align: center;
+            margin: 12px 0;
+            width: 100%;
+            font-family: sans-serif;
+        }
+
+        input:hover {
+            border: 2px solid darkslategray;
+        }
+
+        button:hover {
+            background-color: firebrick;
+        }
+
+        button {
+            width: 100px;
+            height: 36px;
+            font-size: small;
+            background-color: darkred;
+            color: white;
+            font-weight: 600;
+            border-radius: 6px;
+        }
+
+        select {
+            font-size: small;
+            width: 50px;
+            height: 36px;
+            margin: 0 0 12px 4px;
+        }
+
+        #testsquare {
+            height: 40px;
+            width: 40px;
+            margin: auto;
+            /* background-color: darkslateblue; */
+        }
+    </style>
+    <!--
+        <link href="scrabble.css" type="text/css">
+
+
+        enctype="application/x-www-form-urlencoded
+
+target="" method="POST""
+    -->
+    
+</head>
+
+<body>
+
+    <!--
+
+<form action="naming" enctype="application/x-www-form-urlencoded method="POST" class="name-submit">
+        <div class="name-field">
+            <input type="text" name="name" id="name" placeholder="Enter your name" aria-placeholder="Enter your name" required>
+        </div>
+        
+        <button id='namesubmit'>Start</button>
+    </form>
+        
+    -->
+
+    <h1>SCRABBLE</h1>
+
+    <div id="index" class="index">
+
+        <section class='start'>
+            <h2>Start a Game</h2>
+            <input type="text" name="namestart" id="namestart" placeholder="Enter your name" aria-placeholder="Enter your name">
+            <div >
+                <label for="numOfPlayers">Players:</label>
+            <select id="numOfPlayers">
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            </div>
+            
+            <button id='start'>Start</button>
+        </section>
+        
+        <section class='join'>
+            <h2>Join a Game</h2>
+            <input type="text" name="namejoin" id="namejoin" placeholder="Enter your name" aria-placeholder="Enter your name">
+            <input type="text" name="codejoin" id="codejoin" placeholder="Enter game code" aria-placeholder="Enter game code">
+            <button id='join'>Join</button>
+        </section>
+
+    </div>
+    
+
+    <p id='generatedlink'></p>
+
+    <script src="/index.js"></script>
+
+    <!--
+        <script>
+        fetch('naming', {
+            method : 'POST',
+            body: JSON.stringify({})
+        })
+    </script>
+    -->
+
+
+    
+</body>
+
+</html>
