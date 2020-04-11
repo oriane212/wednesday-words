@@ -118,36 +118,9 @@ document.addEventListener('click', (e) => {
             return res.json();
         }).then((res) => {
 
-            // TODO: this is all a repeat of what start renders. create a function for both.
-
             currentGame = res;
-
-            let playerlist = document.createElement('div');
-            playerlist.setAttribute('id', 'playerlist');
-
-            let div = document.createElement('div');
-            /*
-            let h2 = document.createElement('h2');
-            h2.setAttribute('id', 'player1');
-            let h2_2 = document.createElement('h2');
-            h2_2.setAttribute('id', 'player2');
-
-            h2.innerText = `Player 1: ${currentGame.player1.name}`;
-            h2_2.innerText = `Player 2: ${currentGame.player2.name}`;
-            */
-
-            let p = document.createElement('p');
-
-            p.innerText = `Game code: ${currentGame.id}`;
-
-            //let testsquare = createTestSquare(res.testSquareColor);
-            let testsquare = createTestSquare(currentGame.testSquareColor);
-
-            div.append(playerlist, p, testsquare);
-            let inner = div.innerHTML;
-            document.body.innerHTML = inner;
-
-            refreshGameInterval = setInterval(refreshGame, 2000);
+            createPlayerList(currentGame);
+            refreshGameInterval = setInterval(refreshGame, 2000, currentGame);
 
         })
 
@@ -172,38 +145,9 @@ document.addEventListener('click', (e) => {
         }).then((res) => {
             console.log('res: ', res);
 
-            // save active game to global current game
             currentGame = res;
-
-            let playerlist = document.createElement('div');
-            playerlist.setAttribute('id', 'playerlist');
-
-            let div = document.createElement('div');
-            /*
-            let h2 = document.createElement('h2');
-            h2.setAttribute('id', 'player1');
-            let h2_2 = document.createElement('h2');
-            h2_2.setAttribute('id', 'player2');
-
-            h2.innerText = `Player 1: ${currentGame.player1.name}`;
-            if (currentGame.player2 !== '') {
-                h2_2.innerText = `Player 2: ${currentGame.player1.name}`;
-            } else {
-                h2_2.innerText = `Player 2: (status...)`;
-            }
-            */
-            let p = document.createElement('p');
-
-            p.innerText = `Game code: ${currentGame.id}`;
-
-            //let testsquare = createTestSquare(res.testSquareColor);
-            let testsquare = createTestSquare(currentGame.testSquareColor);
-
-            div.append(playerlist, p, testsquare);
-            let inner = div.innerHTML;
-            document.body.innerHTML = inner;
-
-            refreshGameInterval = setInterval(refreshGame, 2000);
+            createPlayerList(currentGame);
+            refreshGameInterval = setInterval(refreshGame, 2000, currentGame);
 
         })
 
@@ -212,7 +156,24 @@ document.addEventListener('click', (e) => {
     }
 })
 
-function refreshGame() {
+function createPlayerList(currentGame) {
+
+    let div = document.createElement('div');
+
+    let playerlist = document.createElement('div');
+    playerlist.setAttribute('id', 'playerlist');
+
+    let p = document.createElement('p');
+    p.innerText = `Game code: ${currentGame.id}`;
+
+    let testsquare = createTestSquare(currentGame.testSquareColor);
+
+    div.append(playerlist, p, testsquare);
+    let inner = div.innerHTML;
+    document.body.innerHTML = inner;
+}
+
+function refreshGame(currentGame) {
     let request = new Request('refresh', {
         method: 'POST',
         body: `{
@@ -240,13 +201,18 @@ function refreshGame() {
         let status = document.createElement('div');
         status.setAttribute('id', 'status');
 
+        let board = document.createElement('div');
+
         if (currentGame.ready) {
             status.innerHTML = `All players have joined!`
+
+            board = createBoard(currentGame);
+
         } else {
             status.innerHTML = `Waiting for players to join...`
         }
 
-        playerlist.append(status);
+        playerlist.append(status, board);
 
         let testsquare = document.getElementById('testsquare');
         testsquare.style.cssText = `background-color: ${currentGame.testSquareColor}`;
@@ -255,8 +221,21 @@ function refreshGame() {
     })
 }
 
-function sayHi() {
-    console.log('hello hello helllo');
+function createBoard(currentGame) {
+    let container = document.createElement('div');
+    container.classList.add('board');
+
+    currentGame.board.cellsAll.forEach((row) => {
+        let $row = document.createElement('section');
+        row.forEach((cell) => {
+            let div2 = document.createElement('div');
+            div2.innerText = cell;
+            div2.classList.add('cell', cell);
+            $row.append(div2);
+        })
+        container.append($row);
+    })
+    return container;
 }
 
 function createTestSquare(tsc) {

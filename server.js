@@ -13,10 +13,50 @@ function generateCode(length) {
     return code;
 }
 
+
+
+
+class Board {
+    constructor() {
+        this.cellsUpperLeft = [
+            ['TW', '-', '-', 'DL', '-', '-', '-'],
+            ['-', 'DW', '-', '-', '-', 'TL', '-'],
+            ['-', '-', 'DW', '-', '-', '-', 'DL'],
+            ['DL', '-', '-', 'DW', '-', '-', '-'],
+            ['-', '-', '-', '-', 'DW', '-', '-'],
+            ['-', 'TL', '-', '-', '-', 'TL', '-'],
+            ['-', '-', 'DL', '-', '-', '-', 'DL']
+        ]
+        this.cellsAll = this.generateFullBoardArray();
+    }
+
+    generateFullBoardArray() {
+        let lowerLeft = this.cellsUpperLeft.slice();
+        lowerLeft.reverse();
+
+        let leftHalf = this.cellsUpperLeft.concat([this.cellsUpperLeft[0]], lowerLeft);
+
+        let full = leftHalf.map((row) => {
+            let rowcopy = row.slice();
+            rowcopy.reverse();
+            let fullRow = row.concat(row[0], rowcopy);
+            return fullRow;
+        })
+
+        full[7][7] = '*';
+        return full;
+    }
+}
+
+
+
+
+
 class Player {
     constructor(name){
         this.name = name;
         this.score = 0;
+        this.rack = [];
     }
 
     addToScore(pointsFromPlay) {
@@ -26,27 +66,15 @@ class Player {
 
 class Game {
     constructor(player1, numOfPlayers) {
-        this.id = generateCode(6);
+        this.id = generateCode(4);
         this.numOfPlayers = Number(numOfPlayers);
         this.players = [player1];
-        //this.player1 = player1;
-        //this.player2 = '';
-        this.board = '';
-        this.turn = this.player1;
-        this.testSquareColor = 'red';
         this.ready = false;
+        this.turn = 0;
+        this.testSquareColor = 'red';
+        this.board = new Board();
+        this.tiles = [];
     }
-
-    /*
-    initArray() {
-        let players = [];
-        players.push(player1);
-        for (let i=1; i < numOfPlayers; i++) {
-            players.push("");
-        }
-        return players;
-    }
-    */
 
     readyToStart() {
         if (this.numOfPlayers === this.players.length) {
@@ -57,10 +85,10 @@ class Game {
     }
     
     updateTurn() {
-        if (this.turn === this.player1) {
-            this.turn = this.player2
+        if (this.turn < this.players.length-1) {
+            this.turn += 1;
         } else {
-            this.turn = this.player1;
+            this.turn = 0;
         }
     }
 

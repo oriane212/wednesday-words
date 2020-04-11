@@ -12,6 +12,7 @@
             height: -webkit-fill-available;
             padding: 20px;
         }
+
         body {
             text-align: center;
             margin-top: 60px;
@@ -30,21 +31,21 @@
         }
 
         div#index {
-    display: inline-flex;
-    width: 100%;
-}
+            display: inline-flex;
+            width: 100%;
+        }
 
-div.index section {
-    /*
+        div.index section {
+            /*
     display: inline-block;
     align-items: center;
     justify-items: center;
     */
-    width: inherit;
-    padding: 30px;
-    margin: 8px;
-    background-color: antiquewhite;
-}
+            width: inherit;
+            padding: 30px;
+            margin: 8px;
+            background-color: antiquewhite;
+        }
 
         form.name-submit {
             margin: 60px;
@@ -52,14 +53,14 @@ div.index section {
 
         div.name-field {
             margin: 16px;
-            
+
         }
 
         label {
             text-align: left;
             margin-bottom: 6px;
             font-family: sans-serif;
-            color: rgba(0,0,0,0.6);
+            color: rgba(0, 0, 0, 0.6);
             font-size: small;
         }
 
@@ -104,6 +105,34 @@ div.index section {
             margin: auto;
             /* background-color: darkslateblue; */
         }
+
+        div.cell {
+            /* display: inline-block; */
+            width: 40px;
+            height: 40px;
+            margin: 2px;
+            background-color: rgb(211, 192, 168);
+            font-size: smaller;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        div.TW {
+            background-color: red;
+        }
+
+        div.DL {
+            background-color: lightblue;
+        }
+
+        div.DW {
+            background-color: rgb(248, 163, 163);
+        }
+
+        div.TL {
+            background-color: rgb(48, 167, 247);
+        }
     </style>
     <!--
         <link href="scrabble.css" type="text/css">
@@ -113,7 +142,7 @@ div.index section {
 
 target="" method="POST""
     -->
-    
+
 </head>
 
 <body>
@@ -136,28 +165,31 @@ target="" method="POST""
 
         <section class='start'>
             <h2>Start a Game</h2>
-            <input type="text" name="namestart" id="namestart" placeholder="Enter your name" aria-placeholder="Enter your name">
-            <div >
+            <input type="text" name="namestart" id="namestart" placeholder="Enter your name"
+                aria-placeholder="Enter your name">
+            <div>
                 <label for="numOfPlayers">Players:</label>
-            <select id="numOfPlayers">
-                <option value="2" selected>2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-            </select>
+                <select id="numOfPlayers">
+                    <option value="2" selected>2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
             </div>
-            
+
             <button id='start'>Start</button>
         </section>
-        
+
         <section class='join'>
             <h2>Join a Game</h2>
-            <input type="text" name="namejoin" id="namejoin" placeholder="Enter your name" aria-placeholder="Enter your name">
-            <input type="text" name="codejoin" id="codejoin" placeholder="Enter game code" aria-placeholder="Enter game code">
+            <input type="text" name="namejoin" id="namejoin" placeholder="Enter your name"
+                aria-placeholder="Enter your name">
+            <input type="text" name="codejoin" id="codejoin" placeholder="Enter game code"
+                aria-placeholder="Enter game code">
             <button id='join'>Join</button>
         </section>
 
     </div>
-    
+
 
     <p id='generatedlink'></p>
 
@@ -173,7 +205,7 @@ target="" method="POST""
     -->
 
 
-    
+
 </body>
 
 </html>
