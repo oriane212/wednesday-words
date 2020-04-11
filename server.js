@@ -71,7 +71,7 @@ class Game {
         this.players = [player1];
         this.ready = false;
         this.turn = 0;
-        this.testSquareColor = 'red';
+        this.testSquareColor = 'blue';
         this.board = new Board();
         this.tiles = [];
     }

@@ -9,7 +9,7 @@ document.addEventListener('click', (e) => {
 
         console.log(e.target);
         console.log("testsquare clicked");
-        const colors = ["red", "green", "blue", "orange", "black", "gray"];
+        const colors = ["green", "orange", "black", "gray"];
         let i = Math.floor(Math.random() * Math.floor(colors.length));
         let color = colors[i];
         console.log('randomly picked color: ', color);
@@ -56,8 +56,8 @@ document.addEventListener('click', (e) => {
         }).then((res) => {
 
             currentGame = res;
-            createPlayerList(currentGame);
-            refreshGameInterval = setInterval(refreshGame, 2000, currentGame);
+            //createPlayerList(currentGame);
+            refreshGameInterval = setInterval(refreshGame, 1000, currentGame);
 
         })
 
@@ -83,8 +83,8 @@ document.addEventListener('click', (e) => {
             console.log('res: ', res);
 
             currentGame = res;
-            createPlayerList(currentGame);
-            refreshGameInterval = setInterval(refreshGame, 2000, currentGame);
+            //createPlayerList(currentGame);
+            refreshGameInterval = setInterval(refreshGame, 1000, currentGame);
 
         })
 
@@ -107,14 +107,26 @@ function createPlayerList(currentGame) {
     let playerlist = document.createElement('div');
     playerlist.setAttribute('id', 'playerlist');
 
-    let p = document.createElement('p');
-    p.innerText = `Game code: ${currentGame.id}`;
+    let h2 = document.createElement('h2');
+    h2.innerHTML = `Players`;
+
+    playerlist.append(h2);
+
+    // show each player
+    for (let player of currentGame.players) {
+
+        let playertext = document.createElement('p');
+        playertext.innerHTML = `${player.name}`;
+        playerlist.append(playertext);
+    }
 
     let testsquare = createTestSquare(currentGame.testSquareColor);
 
-    div.append(playerlist, p, testsquare);
-    let inner = div.innerHTML;
-    document.body.innerHTML = inner;
+    div.append(playerlist, testsquare);
+    //let inner = div.innerHTML;
+    //document.body.innerHTML = inner;
+
+    return div;
 }
 
 
@@ -131,36 +143,68 @@ function refreshGame(currentGame) {
         currentGame = res;
         console.log('currentGame: ', currentGame);
 
-        let playerlist = document.getElementById('playerlist');
+        let gameContainer = document.getElementById('gameContainer');
+        let game = document.createElement('main');
+        game.setAttribute('id', 'game');
 
-        playerlist.innerHTML = '';
+        let playerDash = document.createElement('section');
+        playerDash.classList.add('playerDash');
+
+        let playerList = createPlayerList(currentGame);
+        playerDash.append(playerList);
+
+        //let playerlist = document.getElementById('playerlist');
+
+        //playerlist.innerHTML = '';
 
         // show each player
+        /*
         for (let player of currentGame.players) {
 
             let playertext = document.createElement('p');
             playertext.innerHTML = `Player: ${player.name}`;
             playerlist.append(playertext);
         }
+        */
 
-        let status = document.createElement('div');
-        status.setAttribute('id', 'status');
+        let boardContainer = document.createElement('section');
+        boardContainer.setAttribute('id', "boardcontainer");
 
-        let board = document.createElement('div');
+        let board = createBoard(currentGame);
 
-        if (currentGame.ready) {
-            status.innerHTML = `All players have joined!`
+        boardContainer.append(board);
 
-            board = createBoard(currentGame);
+        if (!currentGame.ready) {
+            let p = document.createElement('p');
+            p.innerText = `Game code: ${currentGame.id}`;
 
-        } else {
-            status.innerHTML = `Waiting for players to join...`
+            let p2 = document.createElement('p');
+            p2.innerHTML = `Waiting for players to join...`;
+
+            let status = document.createElement('div');
+            status.setAttribute('id', 'status');
+
+            status.append(p, p2);
+            //status.innerHTML = `Waiting for players to join...`;
+
+            boardContainer.append(status);
         }
 
-        playerlist.append(status, board);
+        //playerlist.append(boardContainer);
 
-        let testsquare = document.getElementById('testsquare');
-        testsquare.style.cssText = `background-color: ${currentGame.testSquareColor}`;
+        //let testsquare = document.getElementById('testsquare');
+        //testsquare.style.cssText = `background-color: ${currentGame.testSquareColor}`;
+
+        game.append(playerDash, boardContainer);
+
+        let disposableContainer = document.createElement('div');
+        disposableContainer.append(game);
+
+        let disposableContainerInner = disposableContainer.innerHTML;
+
+        gameContainer.innerHTML =  disposableContainerInner;
+
+        //document.body.innerHTML = disposableContainerInner;
 
         console.log("refreshed!")
     })
@@ -169,7 +213,7 @@ function refreshGame(currentGame) {
 
 function createBoard(currentGame) {
     let container = document.createElement('div');
-    container.classList.add('board');
+    container.setAttribute('id', 'board');
 
     currentGame.board.cellsAll.forEach((row) => {
         let $row = document.createElement('section');
