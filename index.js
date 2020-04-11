@@ -1,70 +1,7 @@
 
 
-/*
-window.onload = () => {
-    console.log('hi');
-}
-
-const input = [
-    {'type': 'text'},
-    {}
-]
-
-function init() {
-    let input_start = document.createElement('input');
-    input_start.set
-}
-*/
-
-function render(name) {
-    let container = document.createElement('div');
-    container.innerHTML = name;
-    return container;
-}
-/*
-let genlink = document.getElementById('generatedlink');
-genlink.innerHTML = 'testing testing';
-
-let test = document.createElement('div');
-test.innerHTML = 'test123';
-
-document.body.append(test);
-*/
-
-//const start = document.getElementById('start');
-
-/*
-start.addEventListener('click', () => {
-    console.log('clicked!');
-    const input_name = document.getElementById('namestart').value;
-    console.log(input_name);
-    // request to new game route with name as parameter
-    let request1 = new Request('start', { method: 'POST', body: `{"player1": "${input_name}" }` });
-    fetch(request1).then((res) => {
-        return res.json();
-    }).then((res) => {
-
-        let div = document.createElement('div');
-        let h2 = document.createElement('h2');
-        h2.innerText = `Hi ${res.player1.name}`;
-        let p = document.createElement('p');
-        p.innerText = `Game code: ${res.id}`;
-
-        let testsquare = createTestSquare();
-
-        div.append(h2, p, testsquare);
-        let inner = div.innerHTML;
-        document.body.innerHTML = inner;
-        console.log(res);
-    })
-    // server responds with game id
-    // request to join game
-    // server responds with game 
-})
-*/
-
-
 let currentGame = '';
+let refreshGameInterval = '';
 
 document.addEventListener('click', (e) => {
 
@@ -156,6 +93,13 @@ document.addEventListener('click', (e) => {
     }
 })
 
+function render(name) {
+    let container = document.createElement('div');
+    container.innerHTML = name;
+    return container;
+}
+
+
 function createPlayerList(currentGame) {
 
     let div = document.createElement('div');
@@ -172,6 +116,7 @@ function createPlayerList(currentGame) {
     let inner = div.innerHTML;
     document.body.innerHTML = inner;
 }
+
 
 function refreshGame(currentGame) {
     let request = new Request('refresh', {
@@ -221,6 +166,7 @@ function refreshGame(currentGame) {
     })
 }
 
+
 function createBoard(currentGame) {
     let container = document.createElement('div');
     container.classList.add('board');
@@ -238,6 +184,7 @@ function createBoard(currentGame) {
     return container;
 }
 
+
 function createTestSquare(tsc) {
     let testsquare = document.createElement('div');
     testsquare.setAttribute('id', 'testsquare');
@@ -245,4 +192,37 @@ function createTestSquare(tsc) {
     return testsquare;
 }
 
-let refreshGameInterval = '';
+/*
+    Notes
+
+    Key info a player needs...
+        - waiting for players to join:
+            - game code
+            - status (waiting, which players have joined, etc.)
+            - board (greyed out behind status div)
+            - empty rack
+        - during game:
+            - list of players and scores
+            - status / whose turn it is
+            - interactive rack of tiles
+            - interactive board
+            - play button
+    Key player actions...
+        - start or join a game
+        - enter a word on the board
+            - place a tile from rack on board?
+            - select a tile and type word? (would need to check that word uses only letters from rack)
+
+    Key automatic game actions...
+        - calculate scores
+        - distribute tiles
+        - update turn (color coded background, with noise, and indicator next to name; )
+        - store all words currently on the board
+            - option 1: changes div class from cell to tile and updates label AFTER calculating score?
+                - but what if player doesn't want to play that word after placing it on the board? you'd have to temporarily store the cells until the word is played.
+            - option 2: create another board of empty tiles instead of cells all with a z-index lower than the board cells? 
+                - when a tile is placed, the z-index for the empty tile is set higher to hide the board cell from view, and the tile is updated to be the tile from the rack.
+                - both boards would need to be absolutely postioned?
+                - would keep a record of each position on the board (cell and tile), compared to option 1, but is it necessary?
+
+*/
