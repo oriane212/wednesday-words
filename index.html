@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script defer src="https://use.fontawesome.com/releases/v5.7.2/js/all.js" integrity="sha384-0pzryjIRos8mFBWMzSSZApWtPl/5++eIfzYmTgBBmXYdhvxPc+XcFEk+zJwDgWbP" crossorigin="anonymous"></script>    
     <title>Document</title>
     <style>
         html {
@@ -13,24 +14,30 @@
             */
             background-color: darkred;
             height: -webkit-fill-available;
-            padding: 20px;
+            padding: 0 12px;
         }
 
         body {
-            /* text-align: center; */
+            /* 
+            text-align: center;
             margin-top: 60px;
+            */
+            width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         h1 {
             letter-spacing: 16px;
             /* color: firebrick; */
             color: white;
-            margin: 20px;
+            margin: 10px;
             font-size: 4em;
             text-align: center;
+            font-style: italic;
         }
 
-        h2 {
+        h2, h3 {
             color: darkslategray;
             font-weight: 400;
         }
@@ -128,6 +135,10 @@
             align-items: center;
         }
 
+        div.blank {
+            color:  rgb(211, 192, 168);
+        }
+
         div.TW {
             background-color: red;
         }
@@ -166,12 +177,69 @@
         }
 
         section.playerDash {
-            background-color: linen;
-            width: 220px;
+            background-color: burlywood;
+            width: 320px;
             height: 608px;
             padding: 30px;
             margin-right: 12px;
         }
+
+        #gameContainer {
+            width: 1060px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        div.rack {
+            /* background-color: saddlebrown; */
+            width: 100%;
+            height: 42px;
+            display: inline-flex;
+            justify-content: space-between;
+            border-bottom: 2px solid brown;
+        }
+
+        div.tile {
+            width: 40px;
+            height: 40px;
+            margin: 2px;
+            background-color: linen;
+            font-size: larger;
+            font-weight: 500;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        div.blank-tile {
+            color: linen;
+        }
+
+        div.cell.star {
+            font-size: x-small;
+            color: darkslategrey;
+            height: 39.5px;
+        }
+
+        #playerlist {
+            margin: 42px 0;
+        }
+
+        div.playerdiv {
+            display: inline-flex;
+            justify-content: space-evenly;
+            align-items: center;
+            width: 100%;
+            height: 30px;
+        }
+
+        div.playerdiv.turn {
+            /* border: 4px solid firebrick; */
+            border-radius: 6px;
+            background: cadetblue;
+            color: white;
+        }
+
     </style>
     <!--
         <link href="scrabble.css" type="text/css">
