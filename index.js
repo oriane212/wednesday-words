@@ -385,18 +385,10 @@ function onDrop(event) {
     const draggableEl = document.getElementById(id);
     let dropzone = event.target;
 
-    // first append just so el doesn't also remain in the rack
-    dropzone.append(draggableEl);
-
-    /*
-    dropzone.className = draggableEl.className;
-    dropzone.innerHTML = draggableEl.innerHTML;
-    */
-
-    if (dropzone.classList.contains('star')) {
+    if (dropzone.classList.contains('fa-star') || dropzone.parentNode.classList.contains('fa-star')) {
         let starcell = document.querySelector('div.star');
-        starcell.parentNode.insertBefore(draggableEl, starcell);
-        starcell.remove();
+        console.log(starcell);
+        starcell.parentNode.replaceChild(draggableEl, starcell);
     } else {
         dropzone.parentNode.replaceChild(draggableEl, dropzone);
     }
