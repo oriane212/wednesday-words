@@ -1,6 +1,8 @@
 
 let playername = '';
+let playerid = '';
 let currentGame = '';
+//let currentGameClone = currentGame;
 let refreshGameInterval = '';
 
 document.addEventListener('click', (e) => {
@@ -58,7 +60,11 @@ document.addEventListener('click', (e) => {
         }).then((res) => {
 
             currentGame = res;
-            //createPlayerList(currentGame);
+            for (let player of currentGame.players) {
+                if (playername === player.name) {
+                    playerid = player.id;
+                }
+            }
             refreshGameInterval = setInterval(refreshGame, 1000, currentGame);
 
         })
@@ -87,13 +93,17 @@ document.addEventListener('click', (e) => {
             console.log('res: ', res);
 
             currentGame = res;
-            //createPlayerList(currentGame);
+            for (let player of currentGame.players) {
+                if (playername === player.name) {
+                    playerid = player.id;
+                }
+            }
             refreshGameInterval = setInterval(refreshGame, 1000, currentGame);
 
         })
 
-
-
+    } else if (e.target.classList.contains('tile') || e.target.classList.contains('letter') || e.target.classList.contains('ptvalue') ){
+        console.log('tile clicked');
     }
 })
 
@@ -113,13 +123,15 @@ function createPlayerList(currentGame) {
 
     
     let h3 = document.createElement('h3');
-    //h3.innerHTML = `Playing`;
+    h3.innerHTML = `Players joining...`;
     
-
     playerlist.append(h3);
 
     // show each player
     let i = 0;
+    let playerdivsContainer = document.createElement('div');
+    playerdivsContainer.setAttribute('id', 'playerdivscontainer');
+
     for (let player of currentGame.players) {
 
         let playerdiv = document.createElement('div');
@@ -134,7 +146,7 @@ function createPlayerList(currentGame) {
             */
            playerdiv.classList.add('turn');
            if (player.name === playername) {
-            h3.innerHTML = `Your turn`;
+            h3.innerHTML = `Your turn!`;
            } else {
             h3.innerHTML = `${player.name}'s turn`;
            }
@@ -155,12 +167,14 @@ function createPlayerList(currentGame) {
 
         playerdiv.append(player_name, playerscore);
 
-        playerlist.append(playerdiv);
+        playerdivsContainer.append(playerdiv);
 
         i++;
     }
 
     let testsquare = createTestSquare(currentGame.testSquareColor);
+
+    playerlist.append(playerdivsContainer);
 
     div.append(playerlist);
     //let inner = div.innerHTML;
@@ -219,18 +233,41 @@ function refreshGame(currentGame) {
 
         gameContainer.innerHTML = disposableContainerInner;
 
-        console.log("refreshed!")
+        if (currentGame.ready) {
+            clearInterval(refreshGameInterval);
+            console.log('refreshed and cleared');
+        } else {
+            console.log("refreshed!")
+        }
+
+        
     })
 }
 
 function playerDashboard(playername, currentGame) {
 
-    let playerInstance = '';
+    //let playerInstance = '';
+
+    /*
     for (let player of currentGame.players) {
         if (player.name === playername) {
             playerInstance = player;
+            if (player === currentGame.turn_player) {
+                
+            }
         }
     }
+    */
+
+    /*
+    if (currentGame.turn_player == playerInstance) {
+        console.log("TRUE UTRE");
+    } else {
+        console.log("FALSEYY");
+    }
+    console.log(`currentGame.turn_player: `, currentGame.turn_player);
+    console.log(`playerInstance: `, playerInstance);
+*/
 
     let playerDash = document.createElement('section');
     playerDash.classList.add('playerDash');
@@ -240,7 +277,7 @@ function playerDashboard(playername, currentGame) {
 
     let playerList = createPlayerList(currentGame);
 
-    let rack = renderRack(playerInstance);
+    let rack = renderRack(currentGame, playerid);
 
     playerDash.append(name, rack, playerList);
 
@@ -256,6 +293,10 @@ function renderBoard(currentGame) {
         let $row = document.createElement('section');
         row.forEach((cell) => {
             let div2 = document.createElement('div');
+
+            div2.setAttribute('ondragover', 'onDragOver(event);');
+            div2.setAttribute('ondrop', `onDrop(event);`)
+
             div2.setAttribute('id', cell.id);
             if (cell.tile === '') {
                 if (cell.type === '-') {
@@ -283,17 +324,38 @@ function renderBoard(currentGame) {
     return container;
 }
 
-function renderRack(playerInstance) {
+function renderRack(currentGame, playerid) {
     let rack = document.createElement('div');
     rack.classList.add('rack');
 
-    playerInstance.rack.forEach((tile) => {
+    currentGame.players[playerid].rack.forEach((tile, index) => {
         let div = document.createElement('div');
         div.classList.add('tile');
+        div.setAttribute('id', `tile_${index}`);
+        div.setAttribute('draggable', 'true');
+        div.setAttribute('ondragstart', 'onDragStart(event);')
+
+        let letter = document.createElement('span');
+        letter.classList.add('letter');
+
+        let ptvalue = document.createElement('span');
+        ptvalue.classList.add('ptvalue');
+
         if (tile.letter === '-') {
             div.classList.add('blank-tile');
         }
-        div.innerHTML = tile.letter;
+
+        if (currentGame.turn === playerid) {
+            div.classList.add('selectable');
+            console.log("EQUAL");
+        }
+
+        letter.innerHTML = tile.letter;
+        ptvalue.innerHTML = tile.points;
+
+        div.append(letter, ptvalue);
+
+        //div.innerHTML = tile.letter;
         rack.append(div);
     })
 
@@ -306,6 +368,29 @@ function createTestSquare(tsc) {
     testsquare.setAttribute('id', 'testsquare');
     testsquare.style.cssText = `background-color: ${tsc}`;
     return testsquare;
+}
+
+function selected(target) {
+    target.classList.add('selected');
+}
+
+function onDragStart(event) {
+    event.dataTransfer.setData('text/plain', event.target.id);
+    event.currentTarget.style.backgroundColor = 'yellow';
+}
+
+function onDragOver(event) {
+    event.preventDefault();
+}
+
+function onDrop(event) {
+    const id = event.dataTransfer.getData('text');
+    const draggableEl = document.getElementById(id);
+    const dropzone = event.target;
+
+    dropzone.append(draggableEl);
+
+    event.dataTransfer.clearData();
 }
 
 /*

@@ -22,7 +22,7 @@
             text-align: center;
             margin-top: 60px;
             */
-            width: 1000px;
+            width: 1060px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -196,23 +196,46 @@
             height: 42px;
             display: inline-flex;
             justify-content: space-between;
-            border-bottom: 2px solid brown;
+            /* border-bottom: 2px solid brown; */
         }
 
         div.tile {
             width: 40px;
             height: 40px;
             margin: 2px;
-            background-color: linen;
+            background-color: peru;
             font-size: larger;
             font-weight: 500;
             display: inline-flex;
             justify-content: center;
             align-items: center;
+            font-family: sans-serif;
+        }
+
+        div.tile.selectable {
+            border: 2px solid saddlebrown;
+        }
+
+        div.tile.selectable:hover {
+            border: 2px solid blanchedalmond;
+        }
+
+        div.tile.selected {
+            background-color: blanchedalmond;
+        }
+
+        div.tile.selected.blank-tile {
+            color: blanchedalmond;
+        }
+
+        span.ptvalue {
+            font-size: x-small;
+            align-self: flex-end;
+            margin-bottom: 4px;
         }
 
         div.blank-tile {
-            color: linen;
+            color: peru;
         }
 
         div.cell.star {
@@ -225,17 +248,24 @@
             margin: 42px 0;
         }
 
+        #playerdivscontainer {
+            background-color: bisque;
+            width: 80%;
+            border-radius: 2px;
+        }
+
         div.playerdiv {
             display: inline-flex;
-            justify-content: space-evenly;
+            justify-content: space-between;
             align-items: center;
-            width: 100%;
+            width: -webkit-fill-available;
             height: 30px;
+            padding: 4px 56px 4px 24px;
         }
 
         div.playerdiv.turn {
             /* border: 4px solid firebrick; */
-            border-radius: 6px;
+            border-radius: 2px;
             background: cadetblue;
             color: white;
         }

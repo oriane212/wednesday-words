@@ -83,20 +83,26 @@ class Player {
         this.score = 0;
         this.word = '';
         this.rack = [];
+        this.id;
     }
 
     addToScore(pointsFromPlay) {
         this.score += pointsFromPlay;
     }
+
+    updateID(index) {
+        this.id = index;
+    }
 }
 
 class Game {
-    constructor(player1, numOfPlayers) {
+    constructor(numOfPlayers) {
         this.id = generateCode(4);
         this.numOfPlayers = Number(numOfPlayers);
-        this.players = [player1];
+        this.players = [];
         this.ready = false;
         this.turn = 0;
+        //this.turn_player = this.players[this.turn];
         this.testSquareColor = 'blue';
         this.board = new Board();
         this.tiles = [
@@ -129,6 +135,12 @@ class Game {
             { letter: 'Z', distributed: 0, tiles: 1, points: 10 }
         ];
         this.distributedAll = [];
+    }
+
+    addPlayer(name) {
+        let playerToAdd = new Player(name);
+        this.players.push(playerToAdd);
+        playerToAdd.updateID(this.players.length-1);
     }
 
     readyToStart() {
@@ -196,6 +208,7 @@ http.createServer(function (req, res) {
 
     // TO DO: add stylesheet
 
+    /*
     if (req.url.includes('naming')) {
         //res.end(console.log(req.url));
         //return;
@@ -211,6 +224,7 @@ http.createServer(function (req, res) {
         //res.end(`<div>Welcome ${player1.name}!!</div>`);
         return name;
     }
+    */
 
 
     if (req.url.endsWith('start')) {
@@ -223,8 +237,9 @@ http.createServer(function (req, res) {
             let parsedBody = JSON.parse(body);
             console.log(parsedBody);
             let numOfPlayers = parsedBody.numOfPlayers;
-            let player = new Player(parsedBody.player);
-            let newGame = new Game(player, numOfPlayers);
+            //let player = new Player(parsedBody.player);
+            let newGame = new Game(numOfPlayers);
+            newGame.addPlayer(parsedBody.player);
             activeGames.push(newGame);
             console.log(activeGames);
             res.end(JSON.stringify(newGame));
@@ -245,8 +260,9 @@ http.createServer(function (req, res) {
             console.log(parsedBody);
             let matchingGame = findMatchingGameCode(parsedBody.codejoin);
             if (matchingGame !== 'undefined') {
-                let player = new Player(parsedBody.player);
-                matchingGame.players.push(player);
+                //let player = new Player(parsedBody.player);
+                //matchingGame.players.push(player);
+                matchingGame.addPlayer(parsedBody.player);
                 if (matchingGame.readyToStart()) {
                     matchingGame.ready = true;
                 };
