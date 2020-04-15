@@ -374,7 +374,6 @@ function selected(target) {
 
 function onDragStart(event) {
     event.dataTransfer.setData('text/plain', event.target.id);
-    //event.currentTarget.style.backgroundColor = 'yellow';
 }
 
 function onDragOver(event) {
@@ -389,9 +388,19 @@ function onDrop(event) {
     // first append just so el doesn't also remain in the rack
     dropzone.append(draggableEl);
 
+    /*
     dropzone.className = draggableEl.className;
     dropzone.innerHTML = draggableEl.innerHTML;
+    */
 
+    if (dropzone.classList.contains('star')) {
+        let starcell = document.querySelector('div.star');
+        starcell.parentNode.insertBefore(draggableEl, starcell);
+        starcell.remove();
+    } else {
+        dropzone.parentNode.replaceChild(draggableEl, dropzone);
+    }
+   
     event.dataTransfer.clearData();
 }
 
