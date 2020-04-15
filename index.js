@@ -2,7 +2,6 @@
 let playername = '';
 let playerid = '';
 let currentGame = '';
-//let currentGameClone = currentGame;
 let refreshGameInterval = '';
 
 document.addEventListener('click', (e) => {
@@ -332,8 +331,6 @@ function renderRack(currentGame, playerid) {
         let div = document.createElement('div');
         div.classList.add('tile');
         div.setAttribute('id', `tile_${index}`);
-        div.setAttribute('draggable', 'true');
-        div.setAttribute('ondragstart', 'onDragStart(event);')
 
         let letter = document.createElement('span');
         letter.classList.add('letter');
@@ -347,7 +344,8 @@ function renderRack(currentGame, playerid) {
 
         if (currentGame.turn === playerid) {
             div.classList.add('selectable');
-            console.log("EQUAL");
+            div.setAttribute('draggable', 'true');
+            div.setAttribute('ondragstart', 'onDragStart(event);')
         }
 
         letter.innerHTML = tile.letter;
@@ -376,7 +374,7 @@ function selected(target) {
 
 function onDragStart(event) {
     event.dataTransfer.setData('text/plain', event.target.id);
-    event.currentTarget.style.backgroundColor = 'yellow';
+    //event.currentTarget.style.backgroundColor = 'yellow';
 }
 
 function onDragOver(event) {
@@ -386,9 +384,13 @@ function onDragOver(event) {
 function onDrop(event) {
     const id = event.dataTransfer.getData('text');
     const draggableEl = document.getElementById(id);
-    const dropzone = event.target;
+    let dropzone = event.target;
 
+    // first append just so el doesn't also remain in the rack
     dropzone.append(draggableEl);
+
+    dropzone.className = draggableEl.className;
+    dropzone.innerHTML = draggableEl.innerHTML;
 
     event.dataTransfer.clearData();
 }
