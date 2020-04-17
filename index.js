@@ -1,8 +1,8 @@
 
 let playername = '';
 let playerid = '';
-let currentGame = '';
 let refreshGameInterval = '';
+
 
 document.addEventListener('click', (e) => {
 
@@ -64,7 +64,8 @@ document.addEventListener('click', (e) => {
                     playerid = player.id;
                 }
             }
-            refreshGameInterval = setInterval(refreshGame, 1000, currentGame);
+
+            refreshGameInterval = setInterval(refreshGame, 5000, currentGame);
 
         })
 
@@ -97,11 +98,11 @@ document.addEventListener('click', (e) => {
                     playerid = player.id;
                 }
             }
-            refreshGameInterval = setInterval(refreshGame, 1000, currentGame);
+            refreshGameInterval = setInterval(refreshGame, 5000, currentGame);
 
         })
 
-    } else if (e.target.classList.contains('tile') || e.target.classList.contains('letter') || e.target.classList.contains('ptvalue') ){
+    } else if (e.target.classList.contains('tile') || e.target.classList.contains('letter') || e.target.classList.contains('ptvalue')) {
         console.log('tile clicked');
     }
 })
@@ -120,10 +121,10 @@ function createPlayerList(currentGame) {
     let playerlist = document.createElement('div');
     playerlist.setAttribute('id', 'playerlist');
 
-    
+
     let h3 = document.createElement('h3');
     h3.innerHTML = `Players joining...`;
-    
+
     playerlist.append(h3);
 
     // show each player
@@ -143,12 +144,12 @@ function createPlayerList(currentGame) {
             playerturn.setAttribute('id','turn');
             playerturn.innerHTML = `<i class="fas fa-long-arrow-alt-right"></i>`;
             */
-           playerdiv.classList.add('turn');
-           if (player.name === playername) {
-            h3.innerHTML = `Your turn!`;
-           } else {
-            h3.innerHTML = `${player.name}'s turn`;
-           }
+            playerdiv.classList.add('turn');
+            if (player.name === playername) {
+                h3.innerHTML = `Your turn!`;
+            } else {
+                h3.innerHTML = `${player.name}'s turn`;
+            }
         }
 
         let player_name = document.createElement('div');
@@ -160,7 +161,7 @@ function createPlayerList(currentGame) {
             player_name.innerHTML = player.name;
         }
         */
-        
+
         let playerscore = document.createElement('div');
         playerscore.innerHTML = player.score;
 
@@ -232,14 +233,16 @@ function refreshGame(currentGame) {
 
         gameContainer.innerHTML = disposableContainerInner;
 
+        /*
         if (currentGame.ready) {
             clearInterval(refreshGameInterval);
             console.log('refreshed and cleared');
         } else {
             console.log("refreshed!")
         }
+        */
 
-        
+
     })
 }
 
@@ -293,11 +296,12 @@ function renderBoard(currentGame) {
         row.forEach((cell) => {
             let div2 = document.createElement('div');
 
-            div2.setAttribute('ondragover', 'onDragOver(event);');
-            div2.setAttribute('ondrop', `onDrop(event);`)
-
-            div2.setAttribute('id', cell.id);
             if (cell.tile === '') {
+
+                div2.setAttribute('ondragover', 'onDragOver(event);');
+                div2.setAttribute('ondrop', `onBoardDrop(event);`)
+                div2.setAttribute('id', cell.id);
+
                 if (cell.type === '-') {
                     div2.classList.add('cell', 'blank');
                     div2.innerHTML = cell.type;
@@ -308,13 +312,16 @@ function renderBoard(currentGame) {
                     div2.classList.add('cell', cell.type);
                     div2.innerHTML = cell.type;
                 }
+
             } else {
-                div2.classList.add('tile');
-                if (tile.letter === '-') {
-                    div2.classList.add('blank-tile');
+
+                div2 = renderTile(cell.tile);
+                
+                if (currentGame.turn === playerid && cell.tile.inplay) {
+                    div2.classList.add('selectable');
+                    div2.setAttribute('draggable', 'true');
+                    div2.setAttribute('ondragstart', 'onDragStart(event);')
                 }
-                div2.innerHTML = cell.tile.letter;
-                // TODO: add point value text
             }
             $row.append(div2);
         })
@@ -326,40 +333,55 @@ function renderBoard(currentGame) {
 function renderRack(currentGame, playerid) {
     let rack = document.createElement('div');
     rack.classList.add('rack');
+    rack.setAttribute('ondragover', 'onDragOver(event);');
+    rack.setAttribute('ondrop', `onRackDrop(event);`)
 
-    currentGame.players[playerid].rack.forEach((tile, index) => {
-        let div = document.createElement('div');
-        div.classList.add('tile');
-        div.setAttribute('id', `tile_${index}`);
+    currentGame.players[playerid].rack.forEach((tile) => {
 
-        let letter = document.createElement('span');
-        letter.classList.add('letter');
+        if (tile.inplay === false) {
 
-        let ptvalue = document.createElement('span');
-        ptvalue.classList.add('ptvalue');
+            let div = renderTile(tile);
 
-        if (tile.letter === '-') {
-            div.classList.add('blank-tile');
+            if (currentGame.turn === playerid) {
+                div.classList.add('selectable');
+                div.setAttribute('draggable', 'true');
+                div.setAttribute('ondragstart', 'onDragStart(event);')
+            }
+
+            rack.append(div);
+
         }
 
-        if (currentGame.turn === playerid) {
-            div.classList.add('selectable');
-            div.setAttribute('draggable', 'true');
-            div.setAttribute('ondragstart', 'onDragStart(event);')
-        }
 
-        letter.innerHTML = tile.letter;
-        ptvalue.innerHTML = tile.points;
-
-        div.append(letter, ptvalue);
-
-        //div.innerHTML = tile.letter;
-        rack.append(div);
     })
 
     return rack;
 }
 
+function renderTile(tile) {
+
+    let div = document.createElement('div');
+    div.classList.add('tile');
+    div.setAttribute('id', tile.id);
+
+    let letter = document.createElement('span');
+    letter.classList.add('letter');
+
+    let ptvalue = document.createElement('span');
+    ptvalue.classList.add('ptvalue');
+
+    if (tile.letter === '-') {
+        div.classList.add('blank-tile');
+    }
+
+    letter.innerHTML = tile.letter;
+    ptvalue.innerHTML = tile.points;
+
+    div.append(letter, ptvalue);
+
+    return div;
+
+}
 
 function createTestSquare(tsc) {
     let testsquare = document.createElement('div');
@@ -380,7 +402,7 @@ function onDragOver(event) {
     event.preventDefault();
 }
 
-function onDrop(event) {
+function onBoardDrop(event) {
     const id = event.dataTransfer.getData('text');
     const draggableEl = document.getElementById(id);
     let dropzone = event.target;
@@ -388,12 +410,55 @@ function onDrop(event) {
     if (dropzone.classList.contains('fa-star') || dropzone.parentNode.classList.contains('fa-star')) {
         let starcell = document.querySelector('div.star');
         console.log(starcell);
-        starcell.parentNode.replaceChild(draggableEl, starcell);
-    } else {
-        dropzone.parentNode.replaceChild(draggableEl, dropzone);
-    }
-   
+        dropzone = starcell;
+        //starcell.parentNode.replaceChild(draggableEl, starcell);
+    } 
+    
+    dropzone.parentNode.replaceChild(draggableEl, dropzone);
+
+    /*else {
+        
+    }*/
+
+    sendTileMoveToServer(draggableEl.id, dropzone.id);
     event.dataTransfer.clearData();
+    
+    
+}
+
+function onRackDrop(event) {
+
+    const id = event.dataTransfer.getData('text');
+    const draggableEl = document.getElementById(id);
+    let dropzone = event.target;
+
+    dropzone.append(draggableEl);
+
+    sendTileMoveToServer(draggableEl.id, dropzone.id);
+    event.dataTransfer.clearData();
+    
+
+}
+
+// // // TODO: fix tile move from board back to rack
+
+function sendTileMoveToServer(tileid, cellid) {
+
+    let request = new Request('tilemove', {
+        method: 'POST',
+        body: `{
+            "id": "${currentGame.id}",
+            "tileid": "${tileid}",
+            "cellid": "${cellid}"
+        }`
+    });
+
+    fetch(request).then((res) => {
+        return res.json();
+    }).then((res) => {
+        currentGame = res;
+    })
+
 }
 
 /*
@@ -428,5 +493,20 @@ function onDrop(event) {
                 - when a tile is placed, the z-index for the empty tile is set higher to hide the board cell from view, and the tile is updated to be the tile from the rack.
                 - both boards would need to be absolutely postioned?
                 - would keep a record of each position on the board (cell and tile), compared to option 1, but is it necessary?
+
+
+    Flow for player turn:
+        1. drag tile to board cell
+        2. send new 'rackTileOnBoard' request to server that will rackTileOnBoard(tileid, boardcellid);
+
+
+    *** reminder: make only tiles on board that are currently from player's rack (during player's turn) draggable. Once the player is done taking their turn, tiles should no longer be draggable.
+
+
+    *** bugs:
+    FIXED - tiles are not separate instances - if 2 players have tiles with the same letters, they have literally the same tile and it gets updated for both!!
+        - need to generate an array of arrays of separate letter instances, either upfront, or as game is played?
+
+    FIXED - first tile dropped is fine, for both players. then the second letter dropped results in the first tile showing in both spots on the board, AND the two tiles back in the players rack. 
 
 */

@@ -37,9 +37,12 @@ class Board {
         this.cellsAll = this.init();
     }
 
-    addTileToBoard(tile, id) {
-        let pos = id.split('_');
-        let cell = this.cellsAll[pos[0], pos[2]];
+    // works for adding or removing a tile on board
+    updateCell_tile(tile, cellid) {
+        let pos = cellid.split('_');
+        //console.log('pos: ', pos);
+        let cell = this.cellsAll[Number(pos[0])][Number(pos[1])];
+        //console.log('cell: ', cell);
         cell.tile = tile;
     }
 
@@ -75,8 +78,6 @@ class Board {
 
 
 
-
-
 class Player {
     constructor(name) {
         this.name = name;
@@ -95,6 +96,18 @@ class Player {
     }
 }
 
+
+class Tile {
+    constructor(letter, points, creationID) {
+        this.letter = letter;
+        this.points = points;
+        this.creationID = creationID;
+        this.id = '';
+        this.inplay = false;
+        this.used = false;
+    }
+}
+
 class Game {
     constructor(numOfPlayers) {
         this.id = generateCode(4);
@@ -105,7 +118,7 @@ class Game {
         //this.turn_player = this.players[this.turn];
         this.testSquareColor = 'blue';
         this.board = new Board();
-        this.tiles = [
+        this.letters = [
             { letter: '-', distributed: 0, tiles: 2, points: 0 },
             { letter: 'A', distributed: 0, tiles: 9, points: 1 },
             { letter: 'B', distributed: 0, tiles: 2, points: 3 },
@@ -134,7 +147,21 @@ class Game {
             { letter: 'Y', distributed: 0, tiles: 2, points: 4 },
             { letter: 'Z', distributed: 0, tiles: 1, points: 10 }
         ];
-        this.distributedAll = [];
+        this.tiles = [];
+        this.tiles_drawn = [];
+        //this.distributedAll = [];
+    }
+
+    generateAllTiles() {
+        let count = 0;
+        this.letters.map((letter) => {
+            for (let i=0; i < letter.tiles; i++) {
+                let newtile = new Tile(letter.letter, letter.points, count);
+                count += 1;
+                this.tiles.push(newtile);
+            }
+          
+        })
     }
 
     addPlayer(name) {
@@ -143,7 +170,40 @@ class Game {
         playerToAdd.updateID(this.players.length-1);
     }
 
+    /*
+    updateRackTile_used(tileid) {
+        let tile = this.players[this.turn].rack[tileid];
+        if (tile.used === true) {
+            tile.used = false;
+        } else {
+            tile.used = true;
+        }
+    }
+    */
+
+    updateRackTile_inplay(i) {
+        let tile = this.players[this.turn].rack[i];
+        if (tile.inplay === true) {
+            tile.inplay = false;
+        } else {
+            tile.inplay = true;
+        }
+    }
+
+    // for adding or removing tile from board during a player's turn
+    rackTileOnBoard(tileid, cellid) {
+        //let tileindex = Number(tileid.charAt(-1));
+        let tileidsplit = tileid.split('_');
+        let tileindex = Number(tileidsplit[1]);
+        console.log('tileindex: ', tileindex);
+        let tile = this.players[this.turn].rack[tileindex];
+        console.log('tile: ', tile);
+        this.board.updateCell_tile(tile, cellid);
+        this.updateRackTile_inplay(tileindex);
+    }
+
     readyToStart() {
+        this.generateAllTiles();
         if (this.numOfPlayers === this.players.length) {
             this.distribute_init();
             return true;
@@ -160,19 +220,26 @@ class Game {
 
     distributeTilesToPlayer(player) {
         let n = 7 - player.rack.length;
-        console.log('n = ', n);
+        //console.log('n = ', n);
         for (let i = 0; i < n; i++) {
             let index = Math.floor(Math.random() * this.tiles.length);
             let tiledrawn = this.tiles[index];
 
             player.rack.push(tiledrawn);
+            player.rack[i].id = `tile_${i}`;
 
+            this.tiles_drawn.push(tiledrawn);
+            this.tiles.splice(index, 1);
+
+            /*
             tiledrawn.distributed += 1;
             if (tiledrawn.distributed === tiledrawn.tiles) {
                 this.distributedAll.push(tiledrawn);
                 this.tiles.splice(index, 1);
             }
+
             console.log('i = ', i);
+            */
         }
     }
 
@@ -203,8 +270,8 @@ let fs = require('fs');
 let querystring = require('querystring');
 
 http.createServer(function (req, res) {
-    console.log('req: ', req.url);
-    console.log("listening on: 3000");
+    //console.log('req: ', req.url);
+    //console.log("listening on: 3000");
 
     // TO DO: add stylesheet
 
@@ -235,13 +302,13 @@ http.createServer(function (req, res) {
         })
         req.on('end', () => {
             let parsedBody = JSON.parse(body);
-            console.log(parsedBody);
+            //console.log(parsedBody);
             let numOfPlayers = parsedBody.numOfPlayers;
             //let player = new Player(parsedBody.player);
             let newGame = new Game(numOfPlayers);
             newGame.addPlayer(parsedBody.player);
             activeGames.push(newGame);
-            console.log(activeGames);
+            //console.log(activeGames);
             res.end(JSON.stringify(newGame));
             return;
         })
@@ -257,7 +324,7 @@ http.createServer(function (req, res) {
         })
         req.on('end', () => {
             let parsedBody = JSON.parse(body);
-            console.log(parsedBody);
+            //console.log(parsedBody);
             let matchingGame = findMatchingGameCode(parsedBody.codejoin);
             if (matchingGame !== 'undefined') {
                 //let player = new Player(parsedBody.player);
@@ -286,12 +353,33 @@ http.createServer(function (req, res) {
         })
         req.on('end', () => {
             let parsedBody = JSON.parse(body);
-            console.log(parsedBody);
+            //console.log(parsedBody);
             let matchingGame = findMatchingGameCode(parsedBody.id);
 
             matchingGame.testSquareColor = parsedBody.testSquareColor;
-            console.log('updated matchingGame: ', matchingGame);
+            //console.log('updated matchingGame: ', matchingGame);
             //console.log(activeGames);
+            res.end(JSON.stringify(matchingGame));
+            return;
+        })
+
+        return;
+    }
+
+    if (req.url.endsWith('tilemove')) {
+        let body = '';
+
+        req.on('data', (chunk) => {
+            body += chunk;
+        })
+        req.on('end', () => {
+            let parsedBody = JSON.parse(body);
+            console.log('tilemove body: ', parsedBody);
+            let matchingGame = findMatchingGameCode(parsedBody.id);
+            //console.log('tilemove found matchingGame: ', matchingGame);
+
+            matchingGame.rackTileOnBoard(parsedBody.tileid, parsedBody.cellid);
+
             res.end(JSON.stringify(matchingGame));
             return;
         })
@@ -307,11 +395,11 @@ http.createServer(function (req, res) {
         })
         req.on('end', () => {
             let parsedBody = JSON.parse(body);
-            console.log(parsedBody);
+            //console.log(parsedBody);
             let matchingGame = findMatchingGameCode(parsedBody.id);
 
             //matchingGame.testSquareColor = parsedBody.testSquareColor;
-            console.log('refresh found matchingGame: ', matchingGame);
+            //console.log('refresh found matchingGame: ', matchingGame);
             //console.log(activeGames);
             res.end(JSON.stringify(matchingGame));
             return;
