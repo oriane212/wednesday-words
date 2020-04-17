@@ -65,7 +65,7 @@ document.addEventListener('click', (e) => {
                 }
             }
 
-            refreshGameInterval = setInterval(refreshGame, 5000, currentGame);
+            refreshGameInterval = setInterval(refreshGame, 1000, currentGame);
 
         })
 
@@ -98,7 +98,7 @@ document.addEventListener('click', (e) => {
                     playerid = player.id;
                 }
             }
-            refreshGameInterval = setInterval(refreshGame, 5000, currentGame);
+            refreshGameInterval = setInterval(refreshGame, 1000, currentGame);
 
         })
 
@@ -274,14 +274,31 @@ function playerDashboard(playername, currentGame) {
     let playerDash = document.createElement('section');
     playerDash.classList.add('playerDash');
 
+    let header = document.createElement('header');
+
     let name = document.createElement('h2');
     name.innerHTML = playername;
+
+    let pointsInPlay = document.createElement('div');
+
+    let doneplaying = document.createElement('div');
+    doneplaying.setAttribute('id', 'done');
+    doneplaying.innerHTML = `<i class="fas fa-play-circle"></i>`;
+
+    if (playerid === currentGame.turn) {
+        doneplaying.classList.add('selectable');
+        pointsInPlay.innerHTML = `in play: ${currentGame.players[playerid].pointsInPlay}`;
+    } else {
+        doneplaying.classList.add('disabled');
+    }
+
+    header.append(name, pointsInPlay, doneplaying);
 
     let playerList = createPlayerList(currentGame);
 
     let rack = renderRack(currentGame, playerid);
 
-    playerDash.append(name, rack, playerList);
+    playerDash.append(header, rack, playerList);
 
     return playerDash;
 
@@ -333,8 +350,9 @@ function renderBoard(currentGame) {
 function renderRack(currentGame, playerid) {
     let rack = document.createElement('div');
     rack.classList.add('rack');
-    rack.setAttribute('ondragover', 'onDragOver(event);');
-    rack.setAttribute('ondrop', `onRackDrop(event);`)
+    /* for now, do not allow dropping onto rack */
+    //rack.setAttribute('ondragover', 'onDragOver(event);');
+    //rack.setAttribute('ondrop', `onRackDrop(event);`)
 
     currentGame.players[playerid].rack.forEach((tile) => {
 
@@ -426,6 +444,9 @@ function onBoardDrop(event) {
     
 }
 
+/*
+** doesn't work properly yet so for now, do not allow
+
 function onRackDrop(event) {
 
     const id = event.dataTransfer.getData('text');
@@ -439,8 +460,10 @@ function onRackDrop(event) {
     
 
 }
+*/
 
 // // // TODO: fix tile move from board back to rack
+// maybe need to add cell property to Tile?
 
 function sendTileMoveToServer(tileid, cellid) {
 

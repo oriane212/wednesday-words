@@ -38,11 +38,13 @@ class Board {
     }
 
     // works for adding or removing a tile on board
-    updateCell_tile(tile, cellid) {
+    updateCell(cell, tile) {
+        /*
         let pos = cellid.split('_');
         //console.log('pos: ', pos);
         let cell = this.cellsAll[Number(pos[0])][Number(pos[1])];
         //console.log('cell: ', cell);
+        */
         cell.tile = tile;
     }
 
@@ -84,8 +86,45 @@ class Player {
         this.score = 0;
         this.word = '';
         this.rack = [];
+        this.pointsInPlay = 0;
         this.id;
     }
+
+    /*
+    // works only for first word played right now
+    calculatePointsInPlay() {
+        let dw = 0;
+        let tw = 0;
+        let pointsInPlay = 0;
+        this.rack.forEach((tile) => {
+            if (tile.inplay) {
+
+                let cell = tile.cellid
+
+                let points = tile.points;
+                if (tile.cell.type === 'DW') {
+                    dw += 1;
+                } else if (tile.cell.type === 'TW') {
+                    tw += 1;
+                } else if (tile.cell.type === 'DL') {
+                    points *= 2;
+                } else if (tile.cell.type === 'TL') {
+                    points *= 3;
+                }
+                pointsInPlay += points;
+            }
+        })
+        for (let i=0; i < dw; i++) {
+            pointsInPlay *= 2;
+        }
+        for (let i=0; i < tw; i++) {
+            pointsInPlay *= 3;
+        }
+
+        return pointsInPlay;
+
+    }
+    */
 
     addToScore(pointsFromPlay) {
         this.score += pointsFromPlay;
@@ -105,6 +144,7 @@ class Tile {
         this.id = '';
         this.inplay = false;
         this.used = false;
+        this.cellid = '';
     }
 }
 
@@ -170,6 +210,49 @@ class Game {
         playerToAdd.updateID(this.players.length-1);
     }
 
+
+
+    // only works for very first turn in the game, with no other words on the board.
+    updatePointsInPlay() {
+        let dw = 0;
+        let tw = 0;
+        let pointsInPlay = 0;
+        this.players[this.turn].rack.forEach((tile) => {
+            if (tile.inplay) {
+
+                // get cell from cellid
+                let pos = tile.cellid.split('_');
+                let cell = this.board.cellsAll[Number(pos[0])][Number(pos[1])];
+
+                let points = tile.points;
+                if (cell.type === 'DW') {
+                    dw += 1;
+                } else if (cell.type === 'TW') {
+                    tw += 1;
+                } else if (cell.type === 'DL') {
+                    points *= 2;
+                } else if (cell.type === 'TL') {
+                    points *= 3;
+                }
+                pointsInPlay += points;
+            }
+
+            // TODO: check adjacent cells using pos stored in cellid for each tile in play. If adjacent cell contains a tile, add just the ptvalue of the tile at that cell to pointsInPlay.
+                // check up, left, right, and down
+                    // if there is a tile in one of these directions then continue going in that direction and add points...
+
+        })
+        for (let i=0; i < dw; i++) {
+            pointsInPlay *= 2;
+        }
+        for (let i=0; i < tw; i++) {
+            pointsInPlay *= 3;
+        }
+
+        this.players[this.turn].pointsInPlay = pointsInPlay;
+
+    }
+
     /*
     updateRackTile_used(tileid) {
         let tile = this.players[this.turn].rack[tileid];
@@ -181,8 +264,8 @@ class Game {
     }
     */
 
-    updateRackTile_inplay(i) {
-        let tile = this.players[this.turn].rack[i];
+    updateRackTile(tile, cellid) {
+        tile.cellid = cellid;
         if (tile.inplay === true) {
             tile.inplay = false;
         } else {
@@ -190,16 +273,25 @@ class Game {
         }
     }
 
+
+
     // for adding or removing tile from board during a player's turn
     rackTileOnBoard(tileid, cellid) {
-        //let tileindex = Number(tileid.charAt(-1));
+        // get tile from tileid
         let tileidsplit = tileid.split('_');
         let tileindex = Number(tileidsplit[1]);
-        console.log('tileindex: ', tileindex);
         let tile = this.players[this.turn].rack[tileindex];
-        console.log('tile: ', tile);
-        this.board.updateCell_tile(tile, cellid);
-        this.updateRackTile_inplay(tileindex);
+        // update tile with cellid
+        this.updateRackTile(tile, cellid);
+    
+        // update pointsInPlay
+        this.updatePointsInPlay();
+
+        // get cell from cellid
+        let pos = cellid.split('_');
+        let cell = this.board.cellsAll[Number(pos[0])][Number(pos[1])];
+        // update cell with tile
+        this.board.updateCell(cell, tile);
     }
 
     readyToStart() {
