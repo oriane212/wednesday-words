@@ -70,6 +70,16 @@ class Board {
         let cellrows = full.map((row, i) => {
             let cells = row.map((cell, y) => {
                 let newcell = new Cell(cell, [i, y]);
+
+
+                // for testing only
+                if (i === 7 && y === 7) {
+                    let newtile = new Tile("A", 1, 5000);
+                    newcell.tile = newtile;
+                    newcell.tile.used = true;
+                }
+
+
                 return newcell;
             })
             return cells;
@@ -195,34 +205,136 @@ class Game {
     generateAllTiles() {
         let count = 0;
         this.letters.map((letter) => {
-            for (let i=0; i < letter.tiles; i++) {
+            for (let i = 0; i < letter.tiles; i++) {
                 let newtile = new Tile(letter.letter, letter.points, count);
                 count += 1;
                 this.tiles.push(newtile);
             }
-          
+
         })
     }
 
     addPlayer(name) {
         let playerToAdd = new Player(name);
         this.players.push(playerToAdd);
-        playerToAdd.updateID(this.players.length-1);
+        playerToAdd.updateID(this.players.length - 1);
     }
 
 
+    collectData_inPlayTiles() {
+        // for each tile in the rack, create an array of ptvalues for adjacent already 'used' tiles on the board (ie. not any from rack currently in play) in each direction (vertical, horizontal). Only the ptvalue and position needs to be recorded. In any direction, iterate to the next cell over until the cell does not contain a 'used' tile.
+        let tiles_in_play = [];
+        this.players[this.turn].rack.forEach((tile) => {
+            if (tile.inplay) {
+
+                // get cell from cellid
+                let pos = tile.cellid.split('_');
+                let row = Number(pos[0]);
+                let col = Number(pos[1]);
+                let cell = this.board.cellsAll[row][col];
+
+                let in_play = {
+                    tile: tile,
+                    cell: cell,
+                    adjacent_used: {
+                        vertical: [],
+                        horizontal: []
+                    }
+                }
+
+                // check up if cell inplay is not at very top (TODO: add down)
+                if (row !== 0) {
+                    let step = 1;
+                    while ((row-step) >= 0) {
+                        let nextcell = this.board.cellsAll[row - step][col];
+                        //console.log('nextcell up: ', nextcell);
+                        if (nextcell.tile !== '') {
+                            if (nextcell.tile.used) {
+                                in_play.adjacent_used.vertical.push(nextcell);
+                                //console.log('vertical: ', in_play.adjacent_used.vertical);
+                                step += 1;
+                            } else {
+                                break;
+                            }
+                        } else {
+                            break; 
+                        }
+                    }
+                }
+
+                // check left if cell is not at very left (TODO: add right)
+                if (col !== 0) {
+                    let step = 1;
+                    while ((col-step) >= 0) {
+                        let nextcell = this.board.cellsAll[row][col - step];
+                        //console.log('nextcell left: ', nextcell);
+                        if (nextcell.tile !== '') {
+                            if (nextcell.tile.used) {
+                                in_play.adjacent_used.horizontal.push(nextcell);
+                                //console.log('horizontal: ', in_play.adjacent_used.horizontal);
+                                step += 1;
+                            } else {
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                tiles_in_play.push(in_play);
+
+            }
+
+        })
+
+        console.log('tiles_in_play: ', tiles_in_play);
+        return tiles_in_play;
+
+        // pass tiles_in_play to updatePointsInPlay.............
+
+        // later the arrays for each inplay rack tile will be joined into a Set so there are no duplicates when calculating the score
+
+    }
 
     // only works for very first turn in the game, with no other words on the board.
     updatePointsInPlay() {
         let dw = 0;
         let tw = 0;
         let pointsInPlay = 0;
+        let cellpositions = [];
+        let tilesInPlay = [];
+
         this.players[this.turn].rack.forEach((tile) => {
             if (tile.inplay) {
 
+                tilesInPlay.push(tile);
+
                 // get cell from cellid
                 let pos = tile.cellid.split('_');
-                let cell = this.board.cellsAll[Number(pos[0])][Number(pos[1])];
+                pos[0] = Number(pos[0]);
+                pos[1] = Number(pos[1]);
+                let cell = this.board.cellsAll[pos[0]][pos[1]];
+                //let cell = this.board.cellsAll[Number(pos[0])][Number(pos[1])];
+
+                /*
+                if (tilesInPlay.length < 1) {
+                    tilesInPlay.push(tile);
+                } else {
+                    for (let i=0; i < tilesInPlay.length; i++) {
+                        let tileB = tilesInPlay[i];
+                        let posB = tileB.cellid.split('_');
+                        posB[0] = Number(posB[0]);
+                        posB[1] = Number(posB[1]);
+                        if (pos[0] > posB[0]) {
+
+                        }
+                    }
+                }
+                */
+
+                // add to list of cell positions in play
+                // cellpositions.push([Number(pos[0]), Number(pos[1])]);
 
                 let points = tile.points;
                 if (cell.type === 'DW') {
@@ -237,18 +349,143 @@ class Game {
                 pointsInPlay += points;
             }
 
+            // need to determine direction of play first (vertical or horizontal)
+
             // TODO: check adjacent cells using pos stored in cellid for each tile in play. If adjacent cell contains a tile, add just the ptvalue of the tile at that cell to pointsInPlay.
-                // check up, left, right, and down
-                    // if there is a tile in one of these directions then continue going in that direction and add points...
+            // check up, left, right, and down
+            // if there is a tile in one of these directions then continue going in that direction and add points...
 
         })
-        for (let i=0; i < dw; i++) {
+
+        // compare first and last cell positions to determine direction
+
+        let direction = '';
+
+
+        // TODO: add for only one tile played...should just check all directions for tiles and add up scores?
+
+        if (tilesInPlay.length > 1) {
+
+            tilesInPlay.sort((a, b) => {
+                let pos_a = a.cellid.split('_');
+                let pos_b = b.cellid.split('_');
+
+                // if the rows aren't the same...
+                if (Number(pos_a[0]) !== Number(pos_b[0])) {
+                    direction = 'vertical';
+                    return Number(pos_a[0]) - Number(pos_b[0]);
+                } else {
+                    direction = 'horizontal';
+                    return Number(pos_a[1]) - Number(pos_b[1]);
+                }
+            })
+
+        }
+
+        // first means top-most if vertical, and left-most if horizontal
+        let first = tilesInPlay[0].cellid.split('_');
+        first[0] = Number(first[0]);
+        first[1] = Number(first[1]);
+        // last means bottom-most if vertical, and right-most if horizontal
+        let last = tilesInPlay[tilesInPlay.length - 1].cellid.split('_');
+        last[0] = Number(last[0]);
+        last[1] = Number(last[1]);
+
+        if (direction === 'horizontal') {
+            // check left for adjacent tiles on board
+
+            let nextcell = this.board.cellsAll[first[0]][first[1] - 1];
+            if (nextcell.tile !== '') {
+                let points = nextcell.tile.points;
+                pointsInPlay += points;
+                //cellsInDirection.push(nextcell);
+                //console.log('check left, nextcell: ', nextcell);
+            }
+
+            /*
+            for (let i = 0; i < 14; i++) {
+                let nextcell = this.board.cellsAll[first[0]][first[1] - i];
+                if (nextcell.tile !== '') {
+                    let points = nextcell.tile.points;
+                    pointsInPlay += points;
+                    //cellsInDirection.push(nextcell);
+                    console.log('check left, nextcell: ', nextcell);
+                } else {
+                    console.log('break at i=', i);
+                    break
+                }
+            }
+            */
+
+
+            // check right
+
+            let nextcell_r = this.board.cellsAll[last[0]][last[1] + 1];
+            if (nextcell_r.tile !== '') {
+                let points = nextcell_r.tile.points;
+                pointsInPlay += points;
+                //cellsInDirection.push(nextcell);
+                //console.log('check right, nextcell_r: ', nextcell_r);
+            }
+
+            /*
+            for (let i = 0; i < 14; i++) {
+                let nextcell = this.board.cellsAll[last[0]][last[1] + i];
+                if (nextcell.tile !== '') {
+                    let points = nextcell.tile.points;
+                    pointsInPlay += points;
+                    //cellsInDirection.push(nextcell);
+                    console.log('check right, nextcell: ', nextcell);
+                } else {
+                    console.log('break at i=', i);
+                    break
+                }
+            }
+            */
+
+        } else {
+            direction === 'vertical';
+            // check up
+            for (let i = 0; i < 14; i++) {
+                let nextcell = this.board.cellsAll[first[0] - 1][first[1]];
+                if (nextcell.tile !== '') {
+                    let points = nextcell.tile.points;
+                    pointsInPlay += points;
+                    //cellsInDirection.push(nextcell);
+                    //console.log('check up, nextcell: ', nextcell);
+                } else {
+                    //console.log('break at i=', i);
+                    break
+                }
+            }
+            // check down
+            for (let i = 0; i < 14; i++) {
+                let nextcell = this.board.cellsAll[last[0] + 1][last[1]];
+                if (nextcell.tile !== '') {
+                    let points = nextcell.tile.points;
+                    pointsInPlay += points;
+                    //cellsInDirection.push(nextcell);
+                    //console.log('check down, nextcell: ', nextcell);
+                } else {
+                    //console.log('break at i=', i);
+                    break;
+                }
+            }
+        }
+
+        for (let i = 0; i < dw; i++) {
             pointsInPlay *= 2;
         }
-        for (let i=0; i < tw; i++) {
+        for (let i = 0; i < tw; i++) {
             pointsInPlay *= 3;
         }
 
+        // then check around word played for other adjacencies based on direction
+
+
+
+
+        // then update with total pointsInPlay
         this.players[this.turn].pointsInPlay = pointsInPlay;
 
     }
@@ -283,7 +520,12 @@ class Game {
         let tile = this.players[this.turn].rack[tileindex];
         // update tile with cellid
         this.updateRackTile(tile, cellid);
-    
+
+
+        this.collectData_inPlayTiles();
+
+
+
         // update pointsInPlay
         this.updatePointsInPlay();
 
