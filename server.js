@@ -243,25 +243,26 @@ class Game {
                     }
                 }
 
-                let position = ['row', 'col'];
+                let position = [row, col];
                 let directions = [{ limit: 15, step: 1 }, { limit: 0, step: -1 }];
 
-                position.forEach((rowORcol) => {
+                position.forEach((rowORcol, i) => {
 
                     directions.forEach((direction) => {
-                        if (rowORcol !== direction.limit) {
+                        //if (rowORcol !== direction.limit) {
+                        if (rowORcol < 15 && rowORcol > 0) {
                             let steps = direction.step;
                             let checknext = true;
                             while (checknext) {
 
                                 let nextcell = '';
                                 let pushTo = '';
-                                if (rowORcol === 'row') {
+                                if (i === 0) {
                                     //console.log('row + steps: ', (row+steps)) ;
-                                    nextcell = this.board.cellsAll[row + steps][col];
+                                    nextcell = this.board.cellsAll[position[i] + steps][col];
                                     pushTo = in_play.adjacent_used.vertical;
                                 } else {
-                                    nextcell = this.board.cellsAll[row][col + steps];
+                                    nextcell = this.board.cellsAll[row][position[i] + steps];
                                     pushTo = in_play.adjacent_used.horizontal;
                                 }
 
@@ -389,7 +390,7 @@ class Game {
 
         let mainword = new Set();
 
-        let otherwords = [];
+        let allwords = [];
 
         let maindirection = 'vertical';
         let otherdirection = 'horizontal';
@@ -417,20 +418,63 @@ class Game {
                 tile.adjacent_used[otherdirection].forEach((cell) => {
                     otherword.push(cell);
                 });
-                otherwords.push(otherword);
+                allwords.push(otherword);
             }
 
         })
 
-        console.log('mainword = ', mainword);
-        console.log('otherwords = ', otherwords); 
+        //console.log('mainword = ', mainword);
+        //console.log('allwords = ', allwords); 
+
+        let mainwordarry = Array.from(mainword);
+        allwords.push(mainwordarry);
+
+        return allwords;
 
     }
 
+    updatePointsInPlay(wordsInPlay) {
+        let totalpoints = 0;
+        
+        wordsInPlay.forEach((wordarry) => {
+            let wordpoints = 0;
+            let dw = 0;
+            let tw = 0
+
+            wordarry.forEach((cell) => {
+                let points = cell.tile.points;
+                if (cell.type === 'DW') {
+                    dw += 1;
+                } else if (cell.type === 'TW') {
+                    tw += 1;
+                } else if (cell.type === 'DL') {
+                    points *= 2;
+                } else if (cell.type === 'TL') {
+                    points *= 3;
+                }
+                wordpoints += points;
+            })
+
+            for (let i = 0; i < dw; i++) {
+                wordpoints *= 2;
+            }
+            for (let i = 0; i < tw; i++) {
+                wordpoints *= 3;
+            }
+
+            totalpoints += wordpoints;
+
+        })
+
+        console.log('totalpoints = ', totalpoints);
+        this.players[this.turn].pointsInPlay = totalpoints;
+        return totalpoints;
+        
+    }
 
 
     // only works for very first turn in the game, with no other words on the board.
-    updatePointsInPlay() {
+    oldupdatePointsInPlay() {
         let dw = 0;
         let tw = 0;
         let pointsInPlay = 0;
@@ -654,7 +698,7 @@ class Game {
         this.updateRackTile(tile, cellid);
 
         // update pointsInPlay
-        this.updatePointsInPlay();
+        //this.updatePointsInPlay();
 
         // get cell from cellid
         let pos = cellid.split('_');
@@ -663,7 +707,8 @@ class Game {
         this.board.updateCell(cell, tile);
 
         let tilesInPlay = this.collectData_inPlayTiles();
-        this.compileWordsInPlay(tilesInPlay);
+        let wordsInPlay = this.compileWordsInPlay(tilesInPlay);
+        this.updatePointsInPlay(wordsInPlay);
     }
 
     readyToStart() {
