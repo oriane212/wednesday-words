@@ -235,6 +235,7 @@ class Game {
 
                 let in_play = {
                     tile: tile,
+                    row: row,
                     cell: cell,
                     adjacent_used: {
                         vertical: [],
@@ -242,10 +243,85 @@ class Game {
                     }
                 }
 
+                let position = ['row', 'col'];
+                let directions = [{ limit: 15, step: 1 }, { limit: 0, step: -1 }];
+
+                position.forEach((rowORcol) => {
+
+                    directions.forEach((direction) => {
+                        if (rowORcol !== direction.limit) {
+                            let steps = direction.step;
+                            let checknext = true;
+                            while (checknext) {
+
+                                let nextcell = '';
+                                let pushTo = '';
+                                if (rowORcol === 'row') {
+                                    //console.log('row + steps: ', (row+steps)) ;
+                                    nextcell = this.board.cellsAll[row + steps][col];
+                                    pushTo = in_play.adjacent_used.vertical;
+                                } else {
+                                    nextcell = this.board.cellsAll[row][col + steps];
+                                    pushTo = in_play.adjacent_used.horizontal;
+                                }
+
+                                if (nextcell.tile !== '') {
+                                    if (nextcell.tile.used) {
+                                        pushTo.push(nextcell);
+                                        steps += direction.step;
+                                    } else {
+                                        checknext = false;
+                                    }
+                                } else {
+                                    checknext = false;
+                                }
+
+                            }
+                        }
+                    })
+
+                });
+
+
+
+                /*
+                // rowORcol + steps
+                if (rowORcol !== 15) {
+                    let steps = 1;
+                    while ((rowORcol + steps) <= 15) {
+                        let nextcell = '';
+                        let pushTo = '';
+                        if (rowORcol === row) {
+                            nextcell = this.board.cellsAll[rowORcol + steps][col];
+                            pushTo = in_play.adjacent_used.vertical;
+                        } else {
+                            nextcell = this.board.cellsAll[row][rowORcol + steps];
+                            pushTo = in_play.adjacent_used.horizontal;
+                        }
+
+                        if (nextcell.tile !== '') {
+                            if (nextcell.tile.used) {
+                                //adjacencies.push(nextcell);
+                                pushTo.push(nextcell);
+                                step += 1;
+                            } else {
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
+
+                    }
+                }
+            })
+            */
+
+
+                /*
                 // check up if cell inplay is not at very top (TODO: add down)
                 if (row !== 0) {
                     let step = 1;
-                    while ((row-step) >= 0) {
+                    while ((row - step) >= 0) {
                         let nextcell = this.board.cellsAll[row - step][col];
                         //console.log('nextcell up: ', nextcell);
                         if (nextcell.tile !== '') {
@@ -257,15 +333,17 @@ class Game {
                                 break;
                             }
                         } else {
-                            break; 
+                            break;
                         }
                     }
                 }
+                */
 
+                /*
                 // check left if cell is not at very left (TODO: add right)
                 if (col !== 0) {
                     let step = 1;
-                    while ((col-step) >= 0) {
+                    while ((col - step) >= 0) {
                         let nextcell = this.board.cellsAll[row][col - step];
                         //console.log('nextcell left: ', nextcell);
                         if (nextcell.tile !== '') {
@@ -281,14 +359,17 @@ class Game {
                         }
                     }
                 }
+                */
 
+                console.log(in_play.adjacent_used);
                 tiles_in_play.push(in_play);
 
             }
 
         })
 
-        console.log('tiles_in_play: ', tiles_in_play);
+        //console.log('tiles_in_play: ', tiles_in_play);
+        //console.log(tiles_in_play);
         return tiles_in_play;
 
         // pass tiles_in_play to updatePointsInPlay.............
@@ -296,6 +377,57 @@ class Game {
         // later the arrays for each inplay rack tile will be joined into a Set so there are no duplicates when calculating the score
 
     }
+
+
+
+
+
+    compileWordsInPlay(tilesInPlay) {
+
+        // take the array of tilesInPlay with adjacent used tiles stored
+        // first determines the direction the player is playing from comparing the row positions of the first two tiles
+
+        let mainword = new Set();
+
+        let otherwords = [];
+
+        let maindirection = 'vertical';
+        let otherdirection = 'horizontal';
+        if (tilesInPlay.length > 1) {
+            if (tilesInPlay[0].row === tilesInPlay[1].row) {
+                maindirection = 'horizontal';
+                otherdirection = 'vertical';
+            }
+        }
+
+
+        // if the word is vertical, then it iterates through each tile
+        // first adds its adjacent_used.vertical cells to a Set called 'main word'
+        tilesInPlay.forEach((tile) => {
+            // main word
+            mainword.add(tile.cell);
+            tile.adjacent_used[maindirection].forEach((cell) => {
+                mainword.add(cell);
+            });
+
+            // other word (if it exists)
+            if (tile.adjacent_used[otherdirection].length > 0) {
+                let otherword = [];
+                otherword.push(tile.cell);
+                tile.adjacent_used[otherdirection].forEach((cell) => {
+                    otherword.push(cell);
+                });
+                otherwords.push(otherword);
+            }
+
+        })
+
+        console.log('mainword = ', mainword);
+        console.log('otherwords = ', otherwords); 
+
+    }
+
+
 
     // only works for very first turn in the game, with no other words on the board.
     updatePointsInPlay() {
@@ -521,11 +653,6 @@ class Game {
         // update tile with cellid
         this.updateRackTile(tile, cellid);
 
-
-        this.collectData_inPlayTiles();
-
-
-
         // update pointsInPlay
         this.updatePointsInPlay();
 
@@ -534,6 +661,9 @@ class Game {
         let cell = this.board.cellsAll[Number(pos[0])][Number(pos[1])];
         // update cell with tile
         this.board.updateCell(cell, tile);
+
+        let tilesInPlay = this.collectData_inPlayTiles();
+        this.compileWordsInPlay(tilesInPlay);
     }
 
     readyToStart() {
