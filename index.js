@@ -2,7 +2,7 @@
 let playername = '';
 let playerid = '';
 let refreshGameInterval = '';
-
+let gameInProgress = false;
 
 document.addEventListener('click', (e) => {
 
@@ -121,11 +121,40 @@ function createPlayerList(currentGame) {
     let playerlist = document.createElement('div');
     playerlist.setAttribute('id', 'playerlist');
 
+    
+    let header = document.createElement('header');
 
     let h3 = document.createElement('h3');
     h3.innerHTML = `Players joining...`;
 
-    playerlist.append(h3);
+    /*
+    let pointsInPlay = document.createElement('h4');
+
+    let undoPlay = document.createElement('div');
+    undoPlay.setAttribute('id', 'undo');
+    undoPlay.innerHTML = `<i class="fas fa-undo"></i>`;
+
+    let doneplaying = document.createElement('div');
+    doneplaying.setAttribute('id', 'done');
+    doneplaying.innerHTML = `<i class="fas fa-play"></i>`;
+
+    if (gameInProgress && playerid === currentGame.turn) {
+        doneplaying.classList.add('selectable');
+        pointsInPlay.innerHTML = `${currentGame.players[playerid].pointsInPlay}`;
+        
+        if (currentGame.players[playerid].tilesInPlay.length > 0) {
+            undoPlay.classList.add('selectable');
+        }
+
+    } else {
+        undoPlay.classList.add('disabled');
+        doneplaying.classList.add('disabled');
+    }
+    */
+    
+    header.append(h3);
+
+    //playerlist.append(header);
 
     // show each player
     let i = 0;
@@ -137,35 +166,29 @@ function createPlayerList(currentGame) {
         let playerdiv = document.createElement('div');
         playerdiv.classList.add('playerdiv');
 
-        //let playerturn = document.createElement('div');
+        let scoresheetturn = document.createElement('div');
+        scoresheetturn.classList.add('score-sheet-turn');
 
-        if (i === currentGame.turn && currentGame.ready) {
-            /*
-            playerturn.setAttribute('id','turn');
-            playerturn.innerHTML = `<i class="fas fa-long-arrow-alt-right"></i>`;
-            */
+        // TODO take away unused code here
+        if (gameInProgress && i === currentGame.turn && currentGame.ready) {
             playerdiv.classList.add('turn');
+            scoresheetturn.innerHTML = `<i class="fas fa-long-arrow-alt-right"></i>`;
             if (player.name === playername) {
-                h3.innerHTML = `Your turn!`;
+                h3.innerHTML = `Your turn:`;
             } else {
                 h3.innerHTML = `${player.name}'s turn`;
             }
         }
 
         let player_name = document.createElement('div');
+        player_name.classList.add('score-sheet-name');
         player_name.innerHTML = player.name;
-        /*
-        if (player.name === playername) {
-            player_name.innerHTML = 'You';
-        } else {
-            player_name.innerHTML = player.name;
-        }
-        */
 
         let playerscore = document.createElement('div');
+        playerscore.classList.add('score-sheet-score');
         playerscore.innerHTML = player.score;
 
-        playerdiv.append(player_name, playerscore);
+        playerdiv.append(scoresheetturn, player_name, playerscore);
 
         playerdivsContainer.append(playerdiv);
 
@@ -233,15 +256,16 @@ function refreshGame(currentGame) {
 
         gameContainer.innerHTML = disposableContainerInner;
 
-        /*
-        if (currentGame.ready) {
-            clearInterval(refreshGameInterval);
-            console.log('refreshed and cleared');
-        } else {
-            console.log("refreshed!")
+        if (!gameInProgress) {
+            if (currentGame.ready) {
+                //clearInterval(refreshGameInterval);
+                //refreshGameInterval = setInterval(refreshGame, 5000, currentGame);
+                gameInProgress = true;
+                //console.log('game in progress now, refresh reset to 5 seconds');
+            } else {
+                //console.log("game not in progress, refreshing every second");
+            }
         }
-        */
-
 
     })
 }
@@ -277,28 +301,54 @@ function playerDashboard(playername, currentGame) {
     let header = document.createElement('header');
 
     let name = document.createElement('h2');
+    name.setAttribute('id', 'name');
     name.innerHTML = playername;
 
     let pointsInPlay = document.createElement('div');
+    pointsInPlay.setAttribute('id', 'pointsInPlay');
+
+    let undoPlay = document.createElement('div');
+    undoPlay.setAttribute('id', 'undo');
+    undoPlay.innerHTML = `<i class="fas fa-undo"></i>`;
 
     let doneplaying = document.createElement('div');
     doneplaying.setAttribute('id', 'done');
-    doneplaying.innerHTML = `<i class="fas fa-play-circle"></i>`;
+    doneplaying.innerHTML = `<i class="fas fa-play"></i>`;
 
-    if (playerid === currentGame.turn) {
+    if (gameInProgress && playerid === currentGame.turn) {
+        pointsInPlay.innerHTML = `${currentGame.players[playerid].pointsInPlay}`;
         doneplaying.classList.add('selectable');
-        pointsInPlay.innerHTML = `in play: ${currentGame.players[playerid].pointsInPlay}`;
+
+        if (currentGame.players[playerid].tilesInPlay.length > 0) {
+            undoPlay.classList.add('selectable');
+        }
+
     } else {
+        undoPlay.classList.add('disabled');
         doneplaying.classList.add('disabled');
     }
 
-    header.append(name, pointsInPlay, doneplaying);
+
+    let turnstatus = document.createElement('p');
+    turnstatus.setAttribute('id', 'turnstatus');
+
+    if (gameInProgress) {
+        if (playerid === currentGame.turn) {
+            turnstatus.innerHTML = `Your turn:`;
+        } else {
+            turnstatus.innerHTML = `${currentGame.players[currentGame.turn].name}'s turn`;
+        }
+    }
+
+    
+    header.append(turnstatus, pointsInPlay, undoPlay, doneplaying);
+    //header.append(name);
 
     let playerList = createPlayerList(currentGame);
 
     let rack = renderRack(currentGame, playerid);
 
-    playerDash.append(header, rack, playerList);
+    playerDash.append(name, rack, header, playerList);
 
     return playerDash;
 
@@ -334,10 +384,14 @@ function renderBoard(currentGame) {
 
                 div2 = renderTile(cell.tile);
                 
+                
                 if (currentGame.turn === playerid && cell.tile.inplay) {
+                    div2.classList.add('inplay');
+                    /*
                     div2.classList.add('selectable');
                     div2.setAttribute('draggable', 'true');
                     div2.setAttribute('ondragstart', 'onDragStart(event);')
+                    */
                 }
             }
             $row.append(div2);
@@ -432,7 +486,13 @@ function onBoardDrop(event) {
         //starcell.parentNode.replaceChild(draggableEl, starcell);
     } 
     
+    
     dropzone.parentNode.replaceChild(draggableEl, dropzone);
+    /*
+    draggableEl.classList.remove('selectable');
+    draggableEl.classList.add('inplay');
+    draggableEl.setAttribute('draggable', 'false');
+    */
 
     /*else {
         
@@ -521,6 +581,17 @@ function sendTileMoveToServer(tileid, cellid) {
     Flow for player turn:
         1. drag tile to board cell
         2. send new 'rackTileOnBoard' request to server that will rackTileOnBoard(tileid, boardcellid);
+        3. player hits 'doneplaying' button, sending 'endturn' request
+            - endturn first adds the points in plays to players score
+            - then updates the inplay tiles in players rack to be used and no longer in play, and then removes each of those tiles from the rack.
+            - more tiles are distributed to the player
+            - the game's turn status is updated
+
+    
+    Before playing, 
+    - rackTileOnBoard actions should be undoable in case player makes a mistake
+    - enter button should work for starting and joining game
+
 
 
     *** reminder: make only tiles on board that are currently from player's rack (during player's turn) draggable. Once the player is done taking their turn, tiles should no longer be draggable.

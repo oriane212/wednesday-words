@@ -74,7 +74,13 @@ class Board {
 
                 // for testing only
                 if (i === 7 && y === 7) {
-                    let newtile = new Tile("A", 1, 5000);
+                    let newtile = new Tile("J", 8, 8000);
+                    newcell.tile = newtile;
+                    newcell.tile.used = true;
+                }
+
+                if (i === 6 && y === 7) {
+                    let newtile = new Tile("G", 3, 3000);
                     newcell.tile = newtile;
                     newcell.tile.used = true;
                 }
@@ -97,6 +103,7 @@ class Player {
         this.word = '';
         this.rack = [];
         this.pointsInPlay = 0;
+        this.tilesInPlay = [];
         this.id;
     }
 
@@ -371,6 +378,7 @@ class Game {
 
         //console.log('tiles_in_play: ', tiles_in_play);
         //console.log(tiles_in_play);
+        this.players[this.turn].tilesInPlay = tiles_in_play;
         return tiles_in_play;
 
         // pass tiles_in_play to updatePointsInPlay.............
@@ -432,6 +440,8 @@ class Game {
         return allwords;
 
     }
+
+    // TODO: ***** FIX bug when first tile played is counted as 2 words, the first of just the letter itself, the second with the word it creates with the adjacent letters.
 
     updatePointsInPlay(wordsInPlay) {
         let totalpoints = 0;
