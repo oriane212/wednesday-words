@@ -143,8 +143,9 @@ class Player {
     }
     */
 
-    addToScore(pointsFromPlay) {
-        this.score += pointsFromPlay;
+    updateScore() {
+        this.score += this.pointsInPlay;
+        this.pointsInPlay = 0;
     }
 
     updateID(index) {
@@ -209,6 +210,48 @@ class Game {
         //this.distributedAll = [];
     }
 
+    endturn() {
+        this.players[this.turn].updateScore();
+
+        let newrack = this.players[this.turn].rack.map((tile, i) => {
+            if (tile.inplay) {
+
+                tile.inplay = false;
+                tile.used = true;
+                tile.id = tile.creationID;
+
+                // draw a new tile to add to the rack at that index
+                let drawnTile = this.drawNewTileForRack(i);
+                //this.players[this.turn].rack.splice(i, 1, drawnTile);
+                return drawnTile;
+            } else {
+                return tile;
+            }
+        })
+
+        // reset rack
+        this.players[this.turn].rack = newrack;
+
+        // reset tilesinplay
+        this.players[this.turn].tilesInPlay = [];
+
+        // update game turn
+        this.updateTurn();
+
+        /*
+        this.players[this.turn].tilesInPlay.forEach((inplay) => {
+            // update tile status in its board cell
+            let boardcell = this.board.cellsAll[inplay.row][inplay.col];
+            boardcell.tile.used = true;
+            boardcell.tile.inplay = false;
+
+            // remove the tile from the player's rack
+
+        })
+        */
+    }
+
+
     generateAllTiles() {
         let count = 0;
         this.letters.map((letter) => {
@@ -243,6 +286,7 @@ class Game {
                 let in_play = {
                     tile: tile,
                     row: row,
+                    col: col,
                     cell: cell,
                     adjacent_used: {
                         vertical: [],
@@ -412,22 +456,49 @@ class Game {
 
         // if the word is vertical, then it iterates through each tile
         // first adds its adjacent_used.vertical cells to a Set called 'main word'
-        tilesInPlay.forEach((tile) => {
-            // main word
-            mainword.add(tile.cell);
-            tile.adjacent_used[maindirection].forEach((cell) => {
-                mainword.add(cell);
-            });
 
-            // other word (if it exists)
-            if (tile.adjacent_used[otherdirection].length > 0) {
-                let otherword = [];
-                otherword.push(tile.cell);
-                tile.adjacent_used[otherdirection].forEach((cell) => {
-                    otherword.push(cell);
+
+        tilesInPlay.forEach((tile) => {
+
+            if (tilesInPlay.length > 1 || (tilesInPlay.length === 1 && (tile.adjacent_used[maindirection].length > 0 && tile.adjacent_used[otherdirection].length > 0))) {
+
+                // main word
+                mainword.add(tile.cell);
+                tile.adjacent_used[maindirection].forEach((cell) => {
+                    mainword.add(cell);
                 });
-                allwords.push(otherword);
+
+                // other word (if it exists)
+                if (tile.adjacent_used[otherdirection].length > 0) {
+                    let otherword = [];
+                    otherword.push(tile.cell);
+                    tile.adjacent_used[otherdirection].forEach((cell) => {
+                        otherword.push(cell);
+                    });
+                    allwords.push(otherword);
+                }
+
+            } else {
+                if (tile.adjacent_used[maindirection].length > 0) {
+                    mainword.add(tile.cell);
+                    tile.adjacent_used[maindirection].forEach((cell) => {
+                        mainword.add(cell);
+                    });
+                } else if (tile.adjacent_used[otherdirection].length > 0) {
+                    let otherword = [];
+                    otherword.push(tile.cell);
+                    tile.adjacent_used[otherdirection].forEach((cell) => {
+                        otherword.push(cell);
+                    });
+                    allwords.push(otherword);
+                } else {
+                    mainword.add(tile.cell);
+                }
+
+
             }
+
+
 
         })
 
@@ -445,7 +516,7 @@ class Game {
 
     updatePointsInPlay(wordsInPlay) {
         let totalpoints = 0;
-        
+
         wordsInPlay.forEach((wordarry) => {
             let wordpoints = 0;
             let dw = 0;
@@ -453,15 +524,22 @@ class Game {
 
             wordarry.forEach((cell) => {
                 let points = cell.tile.points;
-                if (cell.type === 'DW') {
-                    dw += 1;
-                } else if (cell.type === 'TW') {
-                    tw += 1;
-                } else if (cell.type === 'DL') {
-                    points *= 2;
-                } else if (cell.type === 'TL') {
-                    points *= 3;
+
+                // only include board cell types in calculating total points for inplay (not used) tiles
+                if (cell.tile.inplay) {
+
+                    if (cell.type === 'DW') {
+                        dw += 1;
+                    } else if (cell.type === 'TW') {
+                        tw += 1;
+                    } else if (cell.type === 'DL') {
+                        points *= 2;
+                    } else if (cell.type === 'TL') {
+                        points *= 3;
+                    }
+
                 }
+
                 wordpoints += points;
             })
 
@@ -479,7 +557,7 @@ class Game {
         console.log('totalpoints = ', totalpoints);
         this.players[this.turn].pointsInPlay = totalpoints;
         return totalpoints;
-        
+
     }
 
 
@@ -737,6 +815,17 @@ class Game {
         })
     }
 
+    drawNewTileForRack(i) {
+        let index = Math.floor(Math.random() * this.tiles.length);
+        let tiledrawn = this.tiles[index];
+        tiledrawn.id = `tile_${i}`;
+
+        this.tiles_drawn.push(tiledrawn);
+        this.tiles.splice(index, 1);
+
+        return tiledrawn;
+    }
+
     distributeTilesToPlayer(player) {
         let n = 7 - player.rack.length;
         //console.log('n = ', n);
@@ -905,6 +994,26 @@ http.createServer(function (req, res) {
 
         return;
     }
+
+    if (req.url.endsWith('endturn')) {
+        let body = '';
+
+        req.on('data', (chunk) => {
+            body += chunk;
+        })
+        req.on('end', () => {
+            let parsedBody = JSON.parse(body);
+            console.log('endturn body: ', parsedBody);
+            let matchingGame = findMatchingGameCode(parsedBody.id);
+            matchingGame.endturn();
+
+            res.end(JSON.stringify(matchingGame));
+            return;
+        })
+
+        return;
+    }
+
 
     if (req.url.endsWith('refresh')) {
         let body = '';

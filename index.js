@@ -104,6 +104,26 @@ document.addEventListener('click', (e) => {
 
     } else if (e.target.classList.contains('tile') || e.target.classList.contains('letter') || e.target.classList.contains('ptvalue')) {
         console.log('tile clicked');
+    
+    } else if ( (e.target.id === 'done' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') &&  e.target.classList.contains('fa-play')) || (e.target.parentNode.parentNode.classList.contains('selectable') &&  e.target.parentNode.classList.contains('fa-play'))) {
+
+        console.log('end turn clicked');
+        let request = new Request('endturn', {
+            method: 'POST',
+            body: `{
+                "id": "${currentGame.id}"
+            }`
+        });
+
+        fetch(request).then((res) => {
+            return res.json();
+        }).then((res) => {
+            console.log('res: ', res);
+            currentGame = res;
+        })
+
+    } else {
+        console.log(e.target);
     }
 })
 
