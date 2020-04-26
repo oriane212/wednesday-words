@@ -122,6 +122,23 @@ document.addEventListener('click', (e) => {
             currentGame = res;
         })
 
+    } else if ( (e.target.id === 'undo' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') &&  e.target.classList.contains('fa-undo')) || (e.target.parentNode.parentNode.classList.contains('selectable') &&  e.target.parentNode.classList.contains('fa-undo'))) {
+
+        console.log('undo clicked');
+        let request = new Request('undo', {
+            method: 'POST',
+            body: `{
+                "id": "${currentGame.id}"
+            }`
+        });
+
+        fetch(request).then((res) => {
+            return res.json();
+        }).then((res) => {
+            console.log('res: ', res);
+            currentGame = res;
+        })
+
     } else {
         console.log(e.target);
     }

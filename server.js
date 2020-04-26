@@ -210,6 +210,16 @@ class Game {
         //this.distributedAll = [];
     }
 
+    undo() {
+        this.players[this.turn].tilesInPlay.forEach((inplay) => {
+            let cell = this.board.cellsAll[inplay.row][inplay.col];
+            cell.tile = '';
+            inplay.tile.inplay = false;
+        })
+        this.players[this.turn].tilesInPlay = [];
+        this.players[this.turn].pointsInPlay = 0;
+    }
+
     endturn() {
         this.players[this.turn].updateScore();
 
@@ -301,11 +311,12 @@ class Game {
 
                     directions.forEach((direction) => {
                         //if (rowORcol !== direction.limit) {
-                        if (rowORcol < 15 && rowORcol > 0) {
+                        if (rowORcol < 14 && rowORcol > 0) {
                             let steps = direction.step;
                             let checknext = true;
                             while (checknext) {
 
+                                
                                 let nextcell = '';
                                 let pushTo = '';
                                 if (i === 0) {
@@ -321,6 +332,11 @@ class Game {
                                     if (nextcell.tile.used) {
                                         pushTo.push(nextcell);
                                         steps += direction.step;
+
+                                        if ((rowORcol + steps) > 14 || (rowORcol + steps) < 0) {
+                                            checknext = false;
+                                        }
+                                        
                                     } else {
                                         checknext = false;
                                     }
@@ -1006,6 +1022,25 @@ http.createServer(function (req, res) {
             console.log('endturn body: ', parsedBody);
             let matchingGame = findMatchingGameCode(parsedBody.id);
             matchingGame.endturn();
+
+            res.end(JSON.stringify(matchingGame));
+            return;
+        })
+
+        return;
+    }
+
+    if (req.url.endsWith('undo')) {
+        let body = '';
+
+        req.on('data', (chunk) => {
+            body += chunk;
+        })
+        req.on('end', () => {
+            let parsedBody = JSON.parse(body);
+            console.log('endturn body: ', parsedBody);
+            let matchingGame = findMatchingGameCode(parsedBody.id);
+            matchingGame.undo();
 
             res.end(JSON.stringify(matchingGame));
             return;
