@@ -139,6 +139,12 @@
             align-items: center;
         }
 
+        div.cell.live {
+            width: 36px;
+            height: 36px;
+            border: 2px dotted dimgray;
+        }
+
         div.blank {
             color:  rgb(211, 192, 168);
         }
@@ -231,9 +237,10 @@
             width: 36px;
             height: 36px;
             cursor: move;
-            
+            box-shadow: 1px 1px 1px dimgray;
         }
 
+        /*
         div.tile.inplay,
         div.tile.selectable:active {
             
@@ -242,6 +249,7 @@
             height: 36px;
 
         }
+        */
 
         div.tile.selectable:hover {
             border: 2px solid black;

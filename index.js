@@ -4,6 +4,8 @@ let playerid = '';
 let refreshGameInterval = '';
 let gameInProgress = false;
 
+let currentGame = {};
+
 document.addEventListener('click', (e) => {
 
     if (e.target.id == 'testsquare') {
@@ -58,7 +60,9 @@ document.addEventListener('click', (e) => {
             return res.json();
         }).then((res) => {
 
-            currentGame = res;
+            //currentGame = res;
+            currentGame = Object.assign({}, res);
+
             for (let player of currentGame.players) {
                 if (playername === player.name) {
                     playerid = player.id;
@@ -92,7 +96,10 @@ document.addEventListener('click', (e) => {
         }).then((res) => {
             console.log('res: ', res);
 
-            currentGame = res;
+            //currentGame = res;
+            currentGame = Object.assign({}, res);
+
+
             for (let player of currentGame.players) {
                 if (playername === player.name) {
                     playerid = player.id;
@@ -104,8 +111,8 @@ document.addEventListener('click', (e) => {
 
     } else if (e.target.classList.contains('tile') || e.target.classList.contains('letter') || e.target.classList.contains('ptvalue')) {
         console.log('tile clicked');
-    
-    } else if ( (e.target.id === 'done' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') &&  e.target.classList.contains('fa-play')) || (e.target.parentNode.parentNode.classList.contains('selectable') &&  e.target.parentNode.classList.contains('fa-play'))) {
+
+    } else if ((e.target.id === 'done' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') && e.target.classList.contains('fa-play')) || (e.target.parentNode.parentNode.classList.contains('selectable') && e.target.parentNode.classList.contains('fa-play'))) {
 
         console.log('end turn clicked');
         let request = new Request('endturn', {
@@ -118,11 +125,12 @@ document.addEventListener('click', (e) => {
         fetch(request).then((res) => {
             return res.json();
         }).then((res) => {
-            console.log('res: ', res);
-            currentGame = res;
+            //console.log('res: ', res);
+            //currentGame = res;
+            currentGame = Object.assign({}, res);
         })
 
-    } else if ( (e.target.id === 'undo' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') &&  e.target.classList.contains('fa-undo')) || (e.target.parentNode.parentNode.classList.contains('selectable') &&  e.target.parentNode.classList.contains('fa-undo'))) {
+    } else if ((e.target.id === 'undo' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') && e.target.classList.contains('fa-undo')) || (e.target.parentNode.parentNode.classList.contains('selectable') && e.target.parentNode.classList.contains('fa-undo'))) {
 
         console.log('undo clicked');
         let request = new Request('undo', {
@@ -135,8 +143,9 @@ document.addEventListener('click', (e) => {
         fetch(request).then((res) => {
             return res.json();
         }).then((res) => {
-            console.log('res: ', res);
-            currentGame = res;
+            //console.log('res: ', res);
+            //currentGame = res;
+            currentGame = Object.assign({}, res);
         })
 
     } else {
@@ -158,7 +167,7 @@ function createPlayerList(currentGame) {
     let playerlist = document.createElement('div');
     playerlist.setAttribute('id', 'playerlist');
 
-    
+
     let header = document.createElement('header');
 
     let h3 = document.createElement('h3');
@@ -188,7 +197,7 @@ function createPlayerList(currentGame) {
         doneplaying.classList.add('disabled');
     }
     */
-    
+
     header.append(h3);
 
     //playerlist.append(header);
@@ -254,55 +263,72 @@ function refreshGame(currentGame) {
     fetch(request).then((res) => {
         return res.json();
     }).then((res) => {
-        currentGame = res;
-        console.log('currentGame: ', currentGame);
 
-        let gameContainer = document.getElementById('gameContainer');
-        let game = document.createElement('main');
-        game.setAttribute('id', 'game');
+        let serverGame = res;
 
-        let playerDash = playerDashboard(playername, currentGame);
+        if (currentGame != serverGame) {
 
-        let boardContainer = document.createElement('section');
-        boardContainer.setAttribute('id', "boardcontainer");
+            //currentGame = res;
+            currentGame = Object.assign({}, res);
+            console.log('currentGame rerendered: ', currentGame);
 
-        let board = renderBoard(currentGame);
+            let gameContainer = document.getElementById('gameContainer');
+            let game = document.createElement('main');
+            game.setAttribute('id', 'game');
 
-        boardContainer.append(board);
+            let playerDash = playerDashboard(playername, currentGame);
 
-        if (!currentGame.ready) {
-            let p = document.createElement('p');
-            p.innerHTML = `Game code: ${currentGame.id}`;
+            let boardContainer = document.createElement('section');
+            boardContainer.setAttribute('id', "boardcontainer");
 
-            let p2 = document.createElement('p');
-            p2.innerHTML = `Waiting for players to join...`;
+            let board = renderBoard(currentGame);
 
-            let status = document.createElement('div');
-            status.setAttribute('id', 'status');
+            boardContainer.append(board);
 
-            status.append(p, p2);
-            boardContainer.append(status);
-        }
+            if (!currentGame.ready) {
+                let p = document.createElement('p');
+                p.innerHTML = `Game code: ${currentGame.id}`;
 
-        game.append(playerDash, boardContainer);
+                let p2 = document.createElement('p');
+                p2.innerHTML = `Waiting for players to join...`;
 
-        let disposableContainer = document.createElement('div');
-        disposableContainer.append(game);
+                let status = document.createElement('div');
+                status.setAttribute('id', 'status');
 
-        let disposableContainerInner = disposableContainer.innerHTML;
-
-        gameContainer.innerHTML = disposableContainerInner;
-
-        if (!gameInProgress) {
-            if (currentGame.ready) {
-                //clearInterval(refreshGameInterval);
-                //refreshGameInterval = setInterval(refreshGame, 5000, currentGame);
-                gameInProgress = true;
-                //console.log('game in progress now, refresh reset to 5 seconds');
-            } else {
-                //console.log("game not in progress, refreshing every second");
+                status.append(p, p2);
+                boardContainer.append(status);
             }
+
+            game.append(playerDash, boardContainer);
+
+            let disposableContainer = document.createElement('div');
+            disposableContainer.append(game);
+
+            let disposableContainerInner = disposableContainer.innerHTML;
+
+            gameContainer.innerHTML = disposableContainerInner;
+
+            if (!gameInProgress) {
+                if (currentGame.ready) {
+                    //clearInterval(refreshGameInterval);
+                    //refreshGameInterval = setInterval(refreshGame, 5000, currentGame);
+                    gameInProgress = true;
+                    //console.log('game in progress now, refresh reset to 5 seconds');
+                } else {
+                    //console.log("game not in progress, refreshing every second");
+                }
+            }
+
+
+
+        } else {
+
+            console.log('currentGame NO rerendering: ', currentGame);
+
         }
+
+        //currentGame = res;
+        
 
     })
 }
@@ -377,7 +403,7 @@ function playerDashboard(playername, currentGame) {
         }
     }
 
-    
+
     header.append(turnstatus, pointsInPlay, undoPlay, doneplaying);
     //header.append(name);
 
@@ -417,13 +443,20 @@ function renderBoard(currentGame) {
                     div2.innerHTML = cell.type;
                 }
 
+                if (currentGame.turn === playerid) {
+                    div2.classList.add('live');
+                }
+
             } else {
 
                 div2 = renderTile(cell.tile);
-                
-                
+
+
                 if (currentGame.turn === playerid && cell.tile.inplay) {
                     div2.classList.add('inplay');
+                    div2.classList.add('selectable');
+                    div2.setAttribute('draggable', 'true');
+                    div2.setAttribute('ondragstart', 'onDragStart(event);')
                     /*
                     div2.classList.add('selectable');
                     div2.setAttribute('draggable', 'true');
@@ -521,9 +554,9 @@ function onBoardDrop(event) {
         console.log(starcell);
         dropzone = starcell;
         //starcell.parentNode.replaceChild(draggableEl, starcell);
-    } 
-    
-    
+    }
+
+
     dropzone.parentNode.replaceChild(draggableEl, dropzone);
     /*
     draggableEl.classList.remove('selectable');
@@ -537,8 +570,8 @@ function onBoardDrop(event) {
 
     sendTileMoveToServer(draggableEl.id, dropzone.id);
     event.dataTransfer.clearData();
-    
-    
+
+
 }
 
 /*
@@ -576,7 +609,8 @@ function sendTileMoveToServer(tileid, cellid) {
     fetch(request).then((res) => {
         return res.json();
     }).then((res) => {
-        currentGame = res;
+        //currentGame = res;
+        currentGame = Object.assign({}, res);
     })
 
 }
@@ -624,8 +658,8 @@ function sendTileMoveToServer(tileid, cellid) {
             - more tiles are distributed to the player
             - the game's turn status is updated
 
-    
-    Before playing, 
+
+    Before playing,
     - rackTileOnBoard actions should be undoable in case player makes a mistake
     - enter button should work for starting and joining game
 
@@ -638,6 +672,6 @@ function sendTileMoveToServer(tileid, cellid) {
     FIXED - tiles are not separate instances - if 2 players have tiles with the same letters, they have literally the same tile and it gets updated for both!!
         - need to generate an array of arrays of separate letter instances, either upfront, or as game is played?
 
-    FIXED - first tile dropped is fine, for both players. then the second letter dropped results in the first tile showing in both spots on the board, AND the two tiles back in the players rack. 
+    FIXED - first tile dropped is fine, for both players. then the second letter dropped results in the first tile showing in both spots on the board, AND the two tiles back in the players rack.
 
 */

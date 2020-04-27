@@ -336,7 +336,7 @@ class Game {
                                         if ((rowORcol + steps) > 14 || (rowORcol + steps) < 0) {
                                             checknext = false;
                                         }
-                                        
+
                                     } else {
                                         checknext = false;
                                     }
@@ -783,21 +783,69 @@ class Game {
 
     updateRackTile(tile, cellid) {
         tile.cellid = cellid;
-        if (tile.inplay === true) {
-            tile.inplay = false;
-        } else {
-            tile.inplay = true;
+        if (cellid !== '') {
+            if (tile.inplay === false) {
+                tile.inplay = true;
+            }
         }
     }
 
 
-
-    // for adding or removing tile from board during a player's turn
-    rackTileOnBoard(tileid, cellid) {
+    tileMove(tileid, cellid) {
         // get tile from tileid
         let tileidsplit = tileid.split('_');
         let tileindex = Number(tileidsplit[1]);
         let tile = this.players[this.turn].rack[tileindex];
+        // if tile is already on board and being moved to another cell...
+        if (tile.inplay) {
+            this.inplayTileMove(tile, cellid);
+        } else {
+            this.rackTileOnBoard(tile, cellid);
+        }
+    }
+
+
+    inplayTileMove(tile, cellid) {
+        // get cell from cellid
+        let pos = cellid.split('_');
+        let row = Number(pos[0]);
+        let col = Number(pos[1])
+        let cell = this.board.cellsAll[row][col];
+        // update cell with tile
+        this.board.updateCell(cell, tile);
+
+        // first get current cell that tile was on
+        this.players[this.turn].tilesInPlay.forEach((inplay) => {
+            if (inplay.tile === tile) {
+                let currentCell = inplay.cell;
+                // update current cell with no tile
+                this.board.updateCell(currentCell, '');
+
+                /*
+                // set inplay cell with new cell info
+                inplay.row = row;
+                inplay.col = col;
+                inplay.cell = cell;
+                */
+            }
+        })
+
+        // update the rack cell
+        this.updateRackTile(tile, cellid);
+
+        let tilesInPlay = this.collectData_inPlayTiles();
+        let wordsInPlay = this.compileWordsInPlay(tilesInPlay);
+        this.updatePointsInPlay(wordsInPlay);
+
+    }
+
+
+    // for adding or removing tile from board during a player's turn
+    rackTileOnBoard(tile, cellid) {
+        // get tile from tileid
+        //let tileidsplit = tileid.split('_');
+        //let tileindex = Number(tileidsplit[1]);
+        //let tile = this.players[this.turn].rack[tileindex];
         // update tile with cellid
         this.updateRackTile(tile, cellid);
 
@@ -1002,7 +1050,7 @@ http.createServer(function (req, res) {
             let matchingGame = findMatchingGameCode(parsedBody.id);
             //console.log('tilemove found matchingGame: ', matchingGame);
 
-            matchingGame.rackTileOnBoard(parsedBody.tileid, parsedBody.cellid);
+            matchingGame.tileMove(parsedBody.tileid, parsedBody.cellid);
 
             res.end(JSON.stringify(matchingGame));
             return;
