@@ -163,6 +163,7 @@ class Tile {
         this.inplay = false;
         this.used = false;
         this.cellid = '';
+        this.highlight = false;
     }
 }
 
@@ -177,7 +178,7 @@ class Game {
         this.testSquareColor = 'blue';
         this.board = new Board();
         this.letters = [
-            { letter: '-', distributed: 0, tiles: 2, points: 0 },
+            { letter: '-', distributed: 0, tiles: 200, points: 0 },
             { letter: 'A', distributed: 0, tiles: 9, points: 1 },
             { letter: 'B', distributed: 0, tiles: 2, points: 3 },
             { letter: 'C', distributed: 0, tiles: 2, points: 3 },
@@ -208,6 +209,26 @@ class Game {
         this.tiles = [];
         this.tiles_drawn = [];
         //this.distributedAll = [];
+    }
+
+    assignLetterToBlankTile(tileid, letter) {
+        
+        let tileidsplit = tileid.split('_');
+        let tileindex = Number(tileidsplit[1]);
+        let tile = this.players[this.turn].rack[tileindex];
+        tile.letter = letter;
+        tile.highlight = true;
+        console.log(tile);
+        
+        /*
+        this.players[this.turn].tilesInPlay.forEach((inplay) => {
+            if (tileid === inplay.tile.id) {
+                //letter.toUpperCase();
+                inplay.tile.letter === letter;
+            }
+        })
+        */
+       
     }
 
     undo() {
@@ -1058,6 +1079,29 @@ http.createServer(function (req, res) {
 
         return;
     }
+
+    // assignLetterToBlankTile
+    if (req.url.endsWith('assignLetterToBlankTile')) {
+        let body = '';
+
+        req.on('data', (chunk) => {
+            body += chunk;
+        })
+        req.on('end', () => {
+            let parsedBody = JSON.parse(body);
+            console.log('assignLetterToBlankTile: ', parsedBody);
+            let matchingGame = findMatchingGameCode(parsedBody.id);
+            //console.log('tilemove found matchingGame: ', matchingGame);
+
+            matchingGame.assignLetterToBlankTile(parsedBody.tileid, parsedBody.letter);
+
+            res.end(JSON.stringify(matchingGame));
+            return;
+        })
+
+        return;
+    }
+
 
     if (req.url.endsWith('endturn')) {
         let body = '';

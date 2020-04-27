@@ -3,6 +3,10 @@ let playername = '';
 let playerid = '';
 let refreshGameInterval = '';
 let gameInProgress = false;
+let alert = false;
+let modal = false;
+let blanktileid = '';
+let dropzoneid = '';
 
 let currentGame = {};
 
@@ -61,7 +65,8 @@ document.addEventListener('click', (e) => {
         }).then((res) => {
 
             //currentGame = res;
-            currentGame = Object.assign({}, res);
+            let serverGame2 = res;
+            currentGame = Object.assign({}, serverGame2);
 
             for (let player of currentGame.players) {
                 if (playername === player.name) {
@@ -97,7 +102,8 @@ document.addEventListener('click', (e) => {
             console.log('res: ', res);
 
             //currentGame = res;
-            currentGame = Object.assign({}, res);
+            let serverGame2 = res;
+            currentGame = Object.assign({}, serverGame2);
 
 
             for (let player of currentGame.players) {
@@ -127,8 +133,16 @@ document.addEventListener('click', (e) => {
         }).then((res) => {
             //console.log('res: ', res);
             //currentGame = res;
-            currentGame = Object.assign({}, res);
+            let serverGame2 = res;
+            currentGame = Object.assign({}, serverGame2);
         })
+
+
+    } else if (e.target.id === 'blanklettersubmit') {
+
+        console.log('blanklettersubmit: ', e.target, blanktileid);
+        blankTileSubmit(blanktileid);
+        
 
     } else if ((e.target.id === 'undo' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') && e.target.classList.contains('fa-undo')) || (e.target.parentNode.parentNode.classList.contains('selectable') && e.target.parentNode.classList.contains('fa-undo'))) {
 
@@ -145,9 +159,19 @@ document.addEventListener('click', (e) => {
         }).then((res) => {
             //console.log('res: ', res);
             //currentGame = res;
-            currentGame = Object.assign({}, res);
+            let serverGame2 = res;
+            currentGame = Object.assign({}, serverGame2);
         })
 
+    } else if (e.target.id === 'name') {
+        if (alert) {
+            alert = false;
+            console.log('alert set to false');
+        } else {
+            alert = true;
+            console.log('alert set to true');
+        }
+        
     } else {
         console.log(e.target);
     }
@@ -264,12 +288,13 @@ function refreshGame(currentGame) {
         return res.json();
     }).then((res) => {
 
-        let serverGame = res;
+        //let serverGame = res;
 
-        if (currentGame != serverGame) {
+        if ( !alert && !modal ) {
 
             //currentGame = res;
-            currentGame = Object.assign({}, res);
+            let serverGame2 = res;
+            currentGame = Object.assign({}, serverGame2);
             console.log('currentGame rerendered: ', currentGame);
 
             let gameContainer = document.getElementById('gameContainer');
@@ -292,11 +317,11 @@ function refreshGame(currentGame) {
                 let p2 = document.createElement('p');
                 p2.innerHTML = `Waiting for players to join...`;
 
-                let status = document.createElement('div');
-                status.setAttribute('id', 'status');
+                let overlay = document.createElement('div');
+                overlay.setAttribute('id', 'overlay');
 
-                status.append(p, p2);
-                boardContainer.append(status);
+                overlay.append(p, p2);
+                boardContainer.append(overlay);
             }
 
             game.append(playerDash, boardContainer);
@@ -462,6 +487,7 @@ function renderBoard(currentGame) {
                     div2.setAttribute('draggable', 'true');
                     div2.setAttribute('ondragstart', 'onDragStart(event);')
                     */
+
                 }
             }
             $row.append(div2);
@@ -469,6 +495,61 @@ function renderBoard(currentGame) {
         container.append($row);
     })
     return container;
+}
+
+
+function blankTileModal(draggableElid) {
+    modal = true;
+    blanktileid = draggableElid;
+
+    let boardcontainer = document.getElementById('boardcontainer');
+
+    let overlay = document.createElement('div');
+    overlay.setAttribute('id', 'overlay');
+
+    let blankletterinput = document.createElement('input');
+    blankletterinput.setAttribute('type', 'text');
+    blankletterinput.setAttribute('id', 'blankletterinput');
+    blankletterinput.setAttribute('name', 'blankletterinput');
+    blankletterinput.setAttribute('placeholder', 'Enter letter for blank tile');
+    blankletterinput.setAttribute('aria-placeholder', 'Enter letter for blank tile');
+
+    let btn = document.createElement('button');
+    btn.setAttribute('id', 'blanklettersubmit');
+    btn.innerHTML = 'OK';
+
+    overlay.append(blankletterinput, btn);
+    boardcontainer.append(overlay);
+
+}
+
+
+function blankTileSubmit(blanktileid) {
+    const letter = document.getElementById('blankletterinput').value;
+    sendLetterToServer(blanktileid, letter);
+    modal = false;
+}
+
+
+function sendLetterToServer(blanktileid, letter) {
+    let request = new Request('assignLetterToBlankTile', {
+        method: 'POST',
+        body: `{
+            "id": "${currentGame.id}",
+            "tileid": "${blanktileid}",
+            "letter": "${letter}"
+        }`
+    });
+
+    fetch(request).then((res) => {
+        return res.json();
+    }).then((res) => {
+        //currentGame = res;
+        let serverGame2 = res;
+        currentGame = Object.assign({}, serverGame2);
+    }).then(() => {
+        sendTileMoveToServer(blanktileid, dropzoneid);
+    })
 }
 
 function renderRack(currentGame, playerid) {
@@ -514,6 +595,10 @@ function renderTile(tile) {
 
     if (tile.letter === '-') {
         div.classList.add('blank-tile');
+    }
+
+    if (tile.highlight) {
+        div.classList.add('highlight');
     }
 
     letter.innerHTML = tile.letter;
@@ -567,8 +652,16 @@ function onBoardDrop(event) {
     /*else {
         
     }*/
+        
+    
 
-    sendTileMoveToServer(draggableEl.id, dropzone.id);
+    if (draggableEl.classList.contains('blank-tile')) {
+        dropzoneid = dropzone.id;
+        blankTileModal(draggableEl.id);
+    } else {
+        sendTileMoveToServer(draggableEl.id, dropzone.id);
+    }
+
     event.dataTransfer.clearData();
 
 
@@ -610,7 +703,8 @@ function sendTileMoveToServer(tileid, cellid) {
         return res.json();
     }).then((res) => {
         //currentGame = res;
-        currentGame = Object.assign({}, res);
+        let serverGame2 = res;
+        currentGame = Object.assign({}, serverGame2);
     })
 
 }
