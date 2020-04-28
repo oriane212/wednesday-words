@@ -565,7 +565,7 @@ function sendLetterToServer(blanktileid, letter) {
 
             let invalidletter = document.createElement('div');
             invalidletter.setAttribute('id', 'invalidmsg');
-            invalidletter.innerHTML = `${res.msg}`;
+            invalidletter.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${res.msg}`;
 
             let overlay = document.getElementById('overlay');
             overlay.append(invalidletter);
