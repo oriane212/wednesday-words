@@ -73,6 +73,7 @@ class Board {
 
 
                 // for testing only
+                /*
                 if (i === 7 && y === 7) {
                     let newtile = new Tile("J", 8, 8000);
                     newcell.tile = newtile;
@@ -84,7 +85,7 @@ class Board {
                     newcell.tile = newtile;
                     newcell.tile.used = true;
                 }
-
+                */
 
                 return newcell;
             })
@@ -565,7 +566,7 @@ class Game {
                 // only include board cell types in calculating total points for inplay (not used) tiles
                 if (cell.tile.inplay) {
 
-                    if (cell.type === 'DW') {
+                    if (cell.type === 'DW' || cell.type === '*') {
                         dw += 1;
                     } else if (cell.type === 'TW') {
                         tw += 1;
