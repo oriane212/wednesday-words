@@ -144,6 +144,12 @@ document.addEventListener('click', (e) => {
         blankTileSubmit(blanktileid);
         
 
+    } else if (e.target.id === 'blanklettercancel') {
+
+        console.log('blanklettercancel: ', e.target);
+        modal = false;
+        
+
     } else if ((e.target.id === 'undo' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') && e.target.classList.contains('fa-undo')) || (e.target.parentNode.parentNode.classList.contains('selectable') && e.target.parentNode.classList.contains('fa-undo'))) {
 
         console.log('undo clicked');
@@ -312,10 +318,11 @@ function refreshGame(currentGame) {
 
             if (!currentGame.ready) {
                 let p = document.createElement('p');
-                p.innerHTML = `Game code: ${currentGame.id}`;
+                p.innerHTML = `Waiting for others to join using game code:`;
 
                 let p2 = document.createElement('p');
-                p2.innerHTML = `Waiting for players to join...`;
+                p2.setAttribute('id', 'gamecode');
+                p2.innerHTML = `${currentGame.id}`;
 
                 let overlay = document.createElement('div');
                 overlay.setAttribute('id', 'overlay');
@@ -514,11 +521,20 @@ function blankTileModal(draggableElid) {
     blankletterinput.setAttribute('placeholder', 'Enter letter for blank tile');
     blankletterinput.setAttribute('aria-placeholder', 'Enter letter for blank tile');
 
-    let btn = document.createElement('button');
-    btn.setAttribute('id', 'blanklettersubmit');
-    btn.innerHTML = 'OK';
+    let btncontainer = document.createElement('div');
+    btncontainer.classList.add('btncontainer');
 
-    overlay.append(blankletterinput, btn);
+    let btn = document.createElement('button');
+    btn.setAttribute('id', 'blanklettercancel');
+    btn.innerHTML = 'Cancel';
+
+    let btn2 = document.createElement('button');
+    btn2.setAttribute('id', 'blanklettersubmit');
+    btn2.innerHTML = 'OK';
+
+    btncontainer.append(btn, btn2);
+
+    overlay.append(blankletterinput, btncontainer);
     boardcontainer.append(overlay);
 
 }
@@ -526,8 +542,8 @@ function blankTileModal(draggableElid) {
 
 function blankTileSubmit(blanktileid) {
     const letter = document.getElementById('blankletterinput').value;
-    sendLetterToServer(blanktileid, letter);
-    modal = false;
+    sendLetterToServer(blanktileid, letter.toUpperCase());
+    //modal = false;
 }
 
 
@@ -544,12 +560,28 @@ function sendLetterToServer(blanktileid, letter) {
     fetch(request).then((res) => {
         return res.json();
     }).then((res) => {
-        //currentGame = res;
-        let serverGame2 = res;
-        currentGame = Object.assign({}, serverGame2);
-    }).then(() => {
-        sendTileMoveToServer(blanktileid, dropzoneid);
-    })
+
+        if (Object.keys(res).length === 1) {
+
+            let invalidletter = document.createElement('div');
+            invalidletter.setAttribute('id', 'invalidmsg');
+            invalidletter.innerHTML = `${res.msg}`;
+
+            let overlay = document.getElementById('overlay');
+            overlay.append(invalidletter);
+
+        } else {
+            modal = false;
+            //currentGame = res;
+            let serverGame2 = res;
+            currentGame = Object.assign({}, serverGame2);
+            sendTileMoveToServer(blanktileid, dropzoneid);
+        }
+    }).catch((error) => {
+        console.error('Error:', error);
+        
+        
+      });
 }
 
 function renderRack(currentGame, playerid) {

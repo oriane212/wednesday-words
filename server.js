@@ -212,14 +212,14 @@ class Game {
     }
 
     assignLetterToBlankTile(tileid, letter) {
-        
+
         let tileidsplit = tileid.split('_');
         let tileindex = Number(tileidsplit[1]);
         let tile = this.players[this.turn].rack[tileindex];
         tile.letter = letter;
         tile.highlight = true;
         console.log(tile);
-        
+
         /*
         this.players[this.turn].tilesInPlay.forEach((inplay) => {
             if (tileid === inplay.tile.id) {
@@ -228,7 +228,7 @@ class Game {
             }
         })
         */
-       
+
     }
 
     undo() {
@@ -337,7 +337,7 @@ class Game {
                             let checknext = true;
                             while (checknext) {
 
-                                
+
                                 let nextcell = '';
                                 let pushTo = '';
                                 if (i === 0) {
@@ -1090,12 +1090,19 @@ http.createServer(function (req, res) {
         req.on('end', () => {
             let parsedBody = JSON.parse(body);
             console.log('assignLetterToBlankTile: ', parsedBody);
-            let matchingGame = findMatchingGameCode(parsedBody.id);
-            //console.log('tilemove found matchingGame: ', matchingGame);
 
-            matchingGame.assignLetterToBlankTile(parsedBody.tileid, parsedBody.letter);
+            if (parsedBody.letter.length === 1 && letters.includes(parsedBody.letter)) {
+                let matchingGame = findMatchingGameCode(parsedBody.id);
+                //console.log('tilemove found matchingGame: ', matchingGame);
 
-            res.end(JSON.stringify(matchingGame));
+                matchingGame.assignLetterToBlankTile(parsedBody.tileid, parsedBody.letter);
+
+                res.end(JSON.stringify(matchingGame));
+            } else {
+                let message = { msg: 'Please enter one valid letter' };
+                res.end(JSON.stringify(message));
+            }
+
             return;
         })
 
