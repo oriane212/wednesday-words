@@ -592,6 +592,11 @@ class Game {
 
         })
 
+        // 50 point bonus for using all tiles in rack during a play
+        if (this.players[this.turn].tilesInPlay.length === 7) {
+            totalpoints += 50;
+        }
+
         console.log('totalpoints = ', totalpoints);
         this.players[this.turn].pointsInPlay = totalpoints;
         return totalpoints;
