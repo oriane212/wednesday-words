@@ -430,13 +430,22 @@ function playerDashboard(playername, currentGame) {
     if (gameInProgress) {
         if (playerid === currentGame.turn) {
             turnstatus.innerHTML = `Your turn:`;
+            turnstatus.classList.add('alarm');
+
+            let bell = document.createElement('div');
+            bell.setAttribute('id', 'bell');
+            bell.innerHTML = `<i class="fas fa-bell"></i>`;
+
+            header.append(bell, turnstatus, pointsInPlay, undoPlay, doneplaying);
         } else {
             turnstatus.innerHTML = `${currentGame.players[currentGame.turn].name}'s turn`;
+
+            header.append(turnstatus, pointsInPlay, undoPlay, doneplaying);
         }
     }
 
 
-    header.append(turnstatus, pointsInPlay, undoPlay, doneplaying);
+    //header.append(turnstatus, pointsInPlay, undoPlay, doneplaying);
     //header.append(name);
 
     let playerList = createPlayerList(currentGame);
