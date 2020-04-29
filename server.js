@@ -1,6 +1,7 @@
 console.log('yo yo yo');
 
 const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+let port = process.env.PORT || 3000;
 
 function generateCode(length) {
     const letters_no_o = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
@@ -1348,4 +1349,4 @@ http.createServer(function (req, res) {
     }
 
 
-}).listen(3000);
+}).listen(port);
