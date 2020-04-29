@@ -343,9 +343,14 @@ class Game {
 
                 position.forEach((rowORcol, i) => {
 
+                    console.log('position: ', position);
+
                     directions.forEach((direction) => {
+
+                        console.log('direction: ', direction);
+
                         //if (rowORcol !== direction.limit) {
-                        if (rowORcol < 14 && rowORcol > 0) {
+                        if (!(rowORcol > 14) && !(rowORcol < 0)) {
                             let steps = direction.step;
                             let checknext = true;
                             while (checknext) {
@@ -921,22 +926,21 @@ class Game {
         }
 
         let position = [row, col];
-        let directions = [{ limit: 15, step: 1 }, { limit: 0, step: -1 }];
+        let directions = [{ step: 1 }, { step: -1 }];
 
         position.forEach((rowORcol, i) => {
 
             directions.forEach((direction) => {
-                //if (rowORcol !== direction.limit) {
-                if (rowORcol < 14 && rowORcol > 0) {
+
+                if (!(rowORcol === 14 && direction.step === 1) && !(rowORcol === 0 && direction.step === -1)) {
                     let steps = direction.step;
                     let checknext = true;
                     while (checknext) {
 
-
                         let nextcell = '';
                         let pushTo = '';
                         if (i === 0) {
-                            //console.log('row + steps: ', (row+steps)) ;
+                   
                             nextcell = this.board.cellsAll[position[i] + steps][col];
                             pushTo = in_play.adjacent_used.vertical;
                         } else {
@@ -944,15 +948,19 @@ class Game {
                             pushTo = in_play.adjacent_used.horizontal;
                         }
 
-                        if (nextcell.tile !== '') {
-                            if (nextcell.tile.used) {
-                                pushTo.push(nextcell);
-                                steps += direction.step;
-
-                                if ((rowORcol + steps) > 14 || (rowORcol + steps) < 0) {
+                        if (nextcell !== undefined) {
+                            if (nextcell.tile !== '') {
+                                if (nextcell.tile.used) {
+                                    pushTo.push(nextcell);
+                                    steps += direction.step;
+    
+                                    if ((rowORcol + steps) > 14 || (rowORcol + steps) < 0) {
+                                        checknext = false;
+                                    }
+    
+                                } else {
                                     checknext = false;
                                 }
-
                             } else {
                                 checknext = false;
                             }
@@ -971,10 +979,7 @@ class Game {
         let index = '';
         this.players[this.turn].tilesInPlay.forEach((inplay, i) => {
             if (in_play.tile.id === inplay.tile.id) {
-                //console.log(inplay, in_play);
                 index = i;
-                //inplay = in_play;
-                console.log(inplay);
                 isInArry = true;
             }
         })
