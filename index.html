@@ -219,6 +219,17 @@
             font-size: smaller;
        }
 
+       #invalidmsg_index {
+            margin: 24px auto;
+           color: brown;
+           font-weight: 500;
+           height: 20px;
+           width: 100%;
+           padding: 4px;
+            font-family: sans-serif;
+            font-size: smaller;
+       }
+
        .fa-exclamation-circle {
            margin-right: 6px;
        }
@@ -482,7 +493,7 @@ target="" method="POST""
                     <input type="text" name="namejoin" id="namejoin" placeholder="Enter your name"
                         aria-placeholder="Enter your name">
                     <input type="text" name="codejoin" id="codejoin" placeholder="Enter game code"
-                        aria-placeholder="Enter game code">
+                        aria-placeholder="Enter game code" minlength="4" maxlength="4">
                     <button id='join'>Join</button>
                 </section>
     

@@ -1,10 +1,11 @@
 console.log('yo yo yo');
 
 const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const numbers = "0123456789";
-const alphanumeric = letters.concat(numbers);
 
 function generateCode(length) {
+    const letters_no_o = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
+    const numbers = "123456789";
+    const alphanumeric = letters_no_o.concat(numbers);
     let code = '';
     for (let i = 0; i < length; i++) {
         code += alphanumeric.charAt(Math.floor(Math.random() * alphanumeric.length));
@@ -1136,6 +1137,8 @@ http.createServer(function (req, res) {
         return;
     }
 
+
+
     if (req.url.endsWith('join')) {
         let body = '';
 
@@ -1145,8 +1148,10 @@ http.createServer(function (req, res) {
         req.on('end', () => {
             let parsedBody = JSON.parse(body);
             //console.log(parsedBody);
+
             let matchingGame = findMatchingGameCode(parsedBody.codejoin);
-            if (matchingGame !== 'undefined') {
+            console.log(matchingGame);
+            if (matchingGame !== undefined) {
                 //let player = new Player(parsedBody.player);
                 //matchingGame.players.push(player);
                 matchingGame.addPlayer(parsedBody.player);
@@ -1154,10 +1159,13 @@ http.createServer(function (req, res) {
                     matchingGame.ready = true;
                 };
                 res.end(JSON.stringify(matchingGame));
-                return;
+                
             } else {
-                return `game code error`;
+                let message = { msg: 'Please enter a valid game code' };
+                res.end(JSON.stringify(message));
             }
+
+            return;
 
         })
 

@@ -54,7 +54,7 @@ document.addEventListener('click', (e) => {
             method: 'POST',
             body: `{
                 "player": "${input_name}",
-                "codejoin": "${input_codejoin}"
+                "codejoin": "${input_codejoin.toUpperCase()}"
             }`
         });
 
@@ -64,17 +64,31 @@ document.addEventListener('click', (e) => {
             return res.json();
         }).then((res) => {
 
-            //currentGame = res;
-            let serverGame2 = res;
-            currentGame = Object.assign({}, serverGame2);
+            if (Object.keys(res).length === 1) {
 
-            for (let player of currentGame.players) {
-                if (playername === player.name) {
-                    playerid = player.id;
+                let invalidcode = document.createElement('div');
+                invalidcode.setAttribute('id', 'invalidmsg_index');
+                invalidcode.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${res.msg}`;
+
+                let joinsection = document.querySelector('.join');
+                joinsection.append(invalidcode);
+            } else {
+
+                //currentGame = res;
+                let serverGame2 = res;
+                currentGame = Object.assign({}, serverGame2);
+
+                for (let player of currentGame.players) {
+                    if (playername === player.name) {
+                        playerid = player.id;
+                    }
                 }
+
+                refreshGameInterval = setInterval(refreshGame, 1000, currentGame);
+
             }
 
-            refreshGameInterval = setInterval(refreshGame, 1000, currentGame);
+
 
         })
 
@@ -142,13 +156,13 @@ document.addEventListener('click', (e) => {
 
         console.log('blanklettersubmit: ', e.target, blanktileid);
         blankTileSubmit(blanktileid);
-        
+
 
     } else if (e.target.id === 'blanklettercancel') {
 
         console.log('blanklettercancel: ', e.target);
         modal = false;
-        
+
 
     } else if ((e.target.id === 'undo' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') && e.target.classList.contains('fa-undo')) || (e.target.parentNode.parentNode.classList.contains('selectable') && e.target.parentNode.classList.contains('fa-undo'))) {
 
@@ -177,7 +191,7 @@ document.addEventListener('click', (e) => {
             alert = true;
             console.log('alert set to true');
         }
-        
+
     } else {
         console.log(e.target);
     }
@@ -296,7 +310,7 @@ function refreshGame(currentGame) {
 
         //let serverGame = res;
 
-        if ( !alert && !modal ) {
+        if (!alert && !modal) {
 
             //currentGame = res;
             let serverGame2 = res;
@@ -360,7 +374,7 @@ function refreshGame(currentGame) {
         }
 
         //currentGame = res;
-        
+
 
     })
 }
@@ -588,9 +602,9 @@ function sendLetterToServer(blanktileid, letter) {
         }
     }).catch((error) => {
         console.error('Error:', error);
-        
-        
-      });
+
+
+    });
 }
 
 function renderRack(currentGame, playerid) {
@@ -693,8 +707,8 @@ function onBoardDrop(event) {
     /*else {
         
     }*/
-        
-    
+
+
 
     if (draggableEl.classList.contains('blank-tile')) {
         dropzoneid = dropzone.id;
