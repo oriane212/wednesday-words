@@ -183,15 +183,6 @@ document.addEventListener('click', (e) => {
             currentGame = Object.assign({}, serverGame2);
         })
 
-    } else if (e.target.id === 'name') {
-        if (alert) {
-            alert = false;
-            console.log('alert set to false');
-        } else {
-            alert = true;
-            console.log('alert set to true');
-        }
-
     } else {
         console.log(e.target);
     }
