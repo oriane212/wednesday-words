@@ -688,7 +688,8 @@ function onBoardDrop(event) {
     }
 
 
-    dropzone.parentNode.replaceChild(draggableEl, dropzone);
+    //dropzone.parentNode.replaceChild(draggableEl, dropzone);
+
     /*
     draggableEl.classList.remove('selectable');
     draggableEl.classList.add('inplay');
