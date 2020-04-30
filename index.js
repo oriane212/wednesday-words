@@ -119,6 +119,7 @@ document.addEventListener('click', (e) => {
             let serverGame2 = res;
             currentGame = Object.assign({}, serverGame2);
 
+            isWordValid('project');
 
             for (let player of currentGame.players) {
                 if (playername === player.name) {
@@ -813,6 +814,27 @@ function sendTileMoveToServer(tileid, cellid) {
         currentGame = Object.assign({}, serverGame2);
     })
 
+}
+
+
+function isWordValid(word) {
+    fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=a662cfbc-08de-4c57-afe6-989722d50903`).then((res) => {
+        return res.json();
+    }).then((res) => {
+        console.log(res);
+        if (typeof res[0] === 'string') {
+            console.log('Not a valid word');
+        } else {
+            let firstresult = res[0];
+            //let word = `"${firstresult.hwi.hw.toUpperCase()}"`;
+            let shortdef_arry = firstresult.shortdef;
+            console.log(word.toUpperCase());
+            shortdef_arry.forEach((def) => {
+                console.log(def);
+            })
+        }
+        
+    })
 }
 
 /*
