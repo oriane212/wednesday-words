@@ -149,6 +149,12 @@ document.addEventListener('click', (e) => {
             //currentGame = res;
             let serverGame2 = res;
             currentGame = Object.assign({}, serverGame2);
+
+            /*
+            if (currentGame.gameover) {
+                endOfGameModal();
+            }
+            */
         })
 
 
@@ -183,7 +189,17 @@ document.addEventListener('click', (e) => {
             currentGame = Object.assign({}, serverGame2);
         })
 
-    } else {
+    } 
+    /*
+    else if (e.target.id = 'playagain') {
+
+        console.log('play again clicked');
+        fetch('index.html').then((res) => {
+            return res.json();
+        })
+
+    }
+    */ else {
         console.log(e.target);
     }
 })
@@ -336,6 +352,10 @@ function refreshGame(currentGame) {
                 boardContainer.append(overlay);
             }
 
+            if (currentGame.gameover) {
+
+            }
+
             game.append(playerDash, boardContainer);
 
             let disposableContainer = document.createElement('div');
@@ -356,7 +376,9 @@ function refreshGame(currentGame) {
                 }
             }
 
-
+            if (currentGame.gameover) {
+                endOfGameModal();
+            }
 
         } else {
 
@@ -518,6 +540,38 @@ function renderBoard(currentGame) {
     return container;
 }
 
+function endOfGameModal() {
+    modal = true;
+
+    let boardcontainer = document.getElementById('boardcontainer');
+
+    let overlay = document.createElement('div');
+    overlay.setAttribute('id', 'overlay');
+
+    let winner = '';
+    let bestscore = 0;
+    currentGame.players.forEach((player) => {
+        if (player.score > bestscore) {
+            bestscore = player.score;
+            winner = player.name;
+        }
+    })
+
+    let winnerEl = document.createElement('div');
+    winnerEl.setAttribute('id', 'winner');
+    winnerEl.innerHTML = `${winner} wins!`;
+
+    /*
+    let btn = document.createElement('button');
+    btn.setAttribute('id', 'playagain');
+    btn.innerHTML = 'Play Again';
+    */
+
+    overlay.append(winnerEl);
+    boardcontainer.append(overlay);
+
+}
+
 
 function blankTileModal(draggableElid) {
     modal = true;
@@ -607,17 +661,22 @@ function renderRack(currentGame, playerid) {
 
     currentGame.players[playerid].rack.forEach((tile) => {
 
-        if (tile.inplay === false) {
+        // check for no tiles left in newrack
+        if (tile !== 'no tiles left') {
+            
+            if (tile.inplay === false) {
 
-            let div = renderTile(tile);
-
-            if (currentGame.turn === playerid) {
-                div.classList.add('selectable');
-                div.setAttribute('draggable', 'true');
-                div.setAttribute('ondragstart', 'onDragStart(event);')
+                let div = renderTile(tile);
+    
+                if (currentGame.turn === playerid) {
+                    div.classList.add('selectable');
+                    div.setAttribute('draggable', 'true');
+                    div.setAttribute('ondragstart', 'onDragStart(event);')
+                }
+    
+                rack.append(div);
+    
             }
-
-            rack.append(div);
 
         }
 

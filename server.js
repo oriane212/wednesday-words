@@ -162,7 +162,8 @@ class Tile {
         this.letter = letter;
         this.points = points;
         this.creationID = creationID;
-        this.id = '';
+        this.id = creationID;
+        //this.id = '';
         this.inplay = false;
         this.used = false;
         this.cellid = '';
@@ -181,47 +182,72 @@ class Game {
         this.testSquareColor = 'blue';
         this.board = new Board();
         this.letters = [
-            { letter: '-', distributed: 0, tiles: 2, points: 0 },
-            { letter: 'A', distributed: 0, tiles: 9, points: 1 },
-            { letter: 'B', distributed: 0, tiles: 2, points: 3 },
-            { letter: 'C', distributed: 0, tiles: 2, points: 3 },
-            { letter: 'D', distributed: 0, tiles: 4, points: 2 },
-            { letter: 'E', distributed: 0, tiles: 12, points: 1 },
-            { letter: 'F', distributed: 0, tiles: 2, points: 4 },
-            { letter: 'G', distributed: 0, tiles: 3, points: 2 },
-            { letter: 'H', distributed: 0, tiles: 2, points: 4 },
-            { letter: 'I', distributed: 0, tiles: 9, points: 1 },
-            { letter: 'J', distributed: 0, tiles: 1, points: 8 },
-            { letter: 'K', distributed: 0, tiles: 1, points: 5 },
-            { letter: 'L', distributed: 0, tiles: 4, points: 1 },
-            { letter: 'M', distributed: 0, tiles: 2, points: 3 },
-            { letter: 'N', distributed: 0, tiles: 6, points: 1 },
-            { letter: 'O', distributed: 0, tiles: 8, points: 1 },
-            { letter: 'P', distributed: 0, tiles: 2, points: 3 },
-            { letter: 'Q', distributed: 0, tiles: 1, points: 10 },
-            { letter: 'R', distributed: 0, tiles: 6, points: 1 },
-            { letter: 'S', distributed: 0, tiles: 4, points: 1 },
-            { letter: 'T', distributed: 0, tiles: 6, points: 1 },
-            { letter: 'U', distributed: 0, tiles: 4, points: 1 },
-            { letter: 'V', distributed: 0, tiles: 2, points: 4 },
-            { letter: 'W', distributed: 0, tiles: 2, points: 4 },
-            { letter: 'X', distributed: 0, tiles: 1, points: 8 },
-            { letter: 'Y', distributed: 0, tiles: 2, points: 4 },
-            { letter: 'Z', distributed: 0, tiles: 1, points: 10 }
+            { letter: '-', distributed: 0, fakecountfortesting: 1, tiles: 2, points: 0 },
+            { letter: 'A', distributed: 0, fakecountfortesting: 1, tiles: 9, points: 1 },
+            { letter: 'B', distributed: 0, fakecountfortesting: 1, tiles: 2, points: 3 },
+            { letter: 'C', distributed: 0, fakecountfortesting: 1, tiles: 2, points: 3 },
+            { letter: 'D', distributed: 0, fakecountfortesting: 1, tiles: 4, points: 2 },
+            { letter: 'E', distributed: 0, fakecountfortesting: 1, tiles: 12, points: 1 },
+            { letter: 'F', distributed: 0, fakecountfortesting: 1, tiles: 2, points: 4 },
+            { letter: 'G', distributed: 0, fakecountfortesting: 1, tiles: 3, points: 2 },
+            { letter: 'H', distributed: 0, fakecountfortesting: 1, tiles: 2, points: 4 },
+            { letter: 'I', distributed: 0, fakecountfortesting: 1, tiles: 9, points: 1 },
+            { letter: 'J', distributed: 0, fakecountfortesting: 1, tiles: 1, points: 8 },
+            { letter: 'K', distributed: 0, fakecountfortesting: 1, tiles: 1, points: 5 },
+            { letter: 'L', distributed: 0, fakecountfortesting: 1, tiles: 4, points: 1 },
+            { letter: 'M', distributed: 0, fakecountfortesting: 1, tiles: 2, points: 3 },
+            { letter: 'N', distributed: 0, fakecountfortesting: 1, tiles: 6, points: 1 },
+            { letter: 'O', distributed: 0, fakecountfortesting: 1, tiles: 8, points: 1 },
+            { letter: 'P', distributed: 0, fakecountfortesting: 1, tiles: 2, points: 3 },
+            { letter: 'Q', distributed: 0, fakecountfortesting: 1, tiles: 1, points: 10 },
+            { letter: 'R', distributed: 0, fakecountfortesting: 1, tiles: 6, points: 1 },
+            { letter: 'S', distributed: 0, fakecountfortesting: 1, tiles: 4, points: 1 },
+            { letter: 'T', distributed: 0, fakecountfortesting: 1, tiles: 6, points: 1 },
+            { letter: 'U', distributed: 0, fakecountfortesting: 1, tiles: 4, points: 1 },
+            { letter: 'V', distributed: 0, fakecountfortesting: 1, tiles: 2, points: 4 },
+            { letter: 'W', distributed: 0, fakecountfortesting: 1, tiles: 2, points: 4 },
+            { letter: 'X', distributed: 0, fakecountfortesting: 1, tiles: 1, points: 8 },
+            { letter: 'Y', distributed: 0, fakecountfortesting: 1, tiles: 2, points: 4 },
+            { letter: 'Z', distributed: 0, fakecountfortesting: 1, tiles: 1, points: 10 }
         ];
         this.tiles = [];
         this.tiles_drawn = [];
+        this.gameover = false;
         //this.distributedAll = [];
+    }
+
+    endgame() {
+        console.log('game ends here');
+        // for each other player in game, substract leftover pt values from their score, and add to in-turn player's final score
+        let endpoints = 0;
+        this.players.forEach((player, i) => {
+            if (i !== this.turn) {
+                player.rack.forEach((tile) => {
+                    endpoints += tile.points;
+                    player.score -= tile.points;
+                })
+            }
+        })
+        this.players[this.turn].score += endpoints;
+
+        // set this.gameover to true so overlay with winner and button to play again pops up
+        this.gameover = true;
     }
 
     assignLetterToBlankTile(tileid, letter) {
 
+        /*
         let tileidsplit = tileid.split('_');
         let tileindex = Number(tileidsplit[1]);
         let tile = this.players[this.turn].rack[tileindex];
-        tile.letter = letter;
-        tile.highlight = true;
-        console.log(tile);
+        */
+        this.players[this.turn].rack.forEach((racktile) => {
+            if (racktile.id === Number(tileid)) {
+                racktile.letter = letter;
+                racktile.highlight = true;
+            }
+        })
+
 
         /*
         this.players[this.turn].tilesInPlay.forEach((inplay) => {
@@ -257,30 +283,53 @@ class Game {
     endturn() {
         this.players[this.turn].updateScore();
 
-        let newrack = this.players[this.turn].rack.map((tile, i) => {
-            if (tile.inplay) {
+        // if player played all tiles in rack and no tiles left in the game, then end game
 
-                tile.inplay = false;
-                tile.used = true;
-                tile.id = tile.creationID;
 
-                // draw a new tile to add to the rack at that index
-                let drawnTile = this.drawNewTileForRack(i);
-                //this.players[this.turn].rack.splice(i, 1, drawnTile);
-                return drawnTile;
-            } else {
-                return tile;
+        if ((this.players[this.turn].tilesInPlay.length === this.players[this.turn].rack.length) && this.tiles.length === 0) {
+
+            this.endgame();
+
+        } else {
+
+            let newrack = [];
+            this.players[this.turn].rack.forEach((tile, i) => {
+                if (tile.inplay) {
+
+                    tile.inplay = false;
+                    tile.used = true;
+                    //tile.id = tile.creationID;
+
+                    if (this.tiles.length > 0) {
+                        // draw a new tile to add to the rack at that index
+                        let drawnTile = this.drawNewTileForRack(i);
+                        newrack.push(drawnTile);
+                    }
+
+                } else {
+                    newrack.push(tile);
+                }
+            })
+
+            /*
+            // remove empty tiles from rack
+            if (empty.length > 0) {
+                empty.forEach((ivalue) => {
+                    newrack.splice(ivalue, 1);
+                })
             }
-        })
+            */
 
-        // reset rack
-        this.players[this.turn].rack = newrack;
+            // reset rack
+            this.players[this.turn].rack = newrack;
 
-        // reset tilesinplay
-        this.players[this.turn].tilesInPlay = [];
+            // reset tilesinplay
+            this.players[this.turn].tilesInPlay = [];
 
-        // update game turn
-        this.updateTurn();
+            // update game turn
+            this.updateTurn();
+
+        }
 
         /*
         this.players[this.turn].tilesInPlay.forEach((inplay) => {
@@ -299,7 +348,7 @@ class Game {
     generateAllTiles() {
         let count = 0;
         this.letters.map((letter) => {
-            for (let i = 0; i < letter.tiles; i++) {
+            for (let i = 0; i < letter.fakecountfortesting; i++) {
                 let newtile = new Tile(letter.letter, letter.points, count);
                 count += 1;
                 this.tiles.push(newtile);
@@ -565,7 +614,7 @@ class Game {
 
         }
 
-        
+
         return allwords;
 
     }
@@ -849,9 +898,21 @@ class Game {
 
     tileMove(tileid, cellid) {
         // get tile from tileid
+        /*
         let tileidsplit = tileid.split('_');
         let tileindex = Number(tileidsplit[1]);
         let tile = this.players[this.turn].rack[tileindex];
+        */
+
+       let tile = '';
+        this.players[this.turn].rack.forEach((racktile, i) => {
+            if (racktile.id === Number(tileid)) {
+                //index = i;
+                tile = racktile;
+            }
+        })
+
+        //let tile = this.players[this.turn].rack[index];
 
         // if tile is already on board and being moved to another cell...
         if (tile.inplay) {
@@ -940,7 +1001,7 @@ class Game {
                         let nextcell = '';
                         let pushTo = '';
                         if (i === 0) {
-                   
+
                             nextcell = this.board.cellsAll[position[i] + steps][col];
                             pushTo = in_play.adjacent_used.vertical;
                         } else {
@@ -953,11 +1014,11 @@ class Game {
                                 if (nextcell.tile.used) {
                                     pushTo.push(nextcell);
                                     steps += direction.step;
-    
+
                                     if ((rowORcol + steps) > 14 || (rowORcol + steps) < 0) {
                                         checknext = false;
                                     }
-    
+
                                 } else {
                                     checknext = false;
                                 }
@@ -1037,7 +1098,7 @@ class Game {
     drawNewTileForRack(i) {
         let index = Math.floor(Math.random() * this.tiles.length);
         let tiledrawn = this.tiles[index];
-        tiledrawn.id = `tile_${i}`;
+        //tiledrawn.id = `tile_${i}`;
 
         this.tiles_drawn.push(tiledrawn);
         this.tiles.splice(index, 1);
@@ -1053,7 +1114,7 @@ class Game {
             let tiledrawn = this.tiles[index];
 
             player.rack.push(tiledrawn);
-            player.rack[i].id = `tile_${i}`;
+            //player.rack[i].id = `tile_${i}`;
 
             this.tiles_drawn.push(tiledrawn);
             this.tiles.splice(index, 1);
@@ -1165,7 +1226,7 @@ http.createServer(function (req, res) {
                     matchingGame.ready = true;
                 };
                 res.end(JSON.stringify(matchingGame));
-                
+
             } else {
                 let message = { msg: 'Please enter a valid game code' };
                 res.end(JSON.stringify(message));
