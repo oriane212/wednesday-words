@@ -348,7 +348,7 @@ class Game {
     generateAllTiles() {
         let count = 0;
         this.letters.map((letter) => {
-            for (let i = 0; i < letter.fakecountfortesting; i++) {
+            for (let i = 0; i < letter.tiles; i++) {
                 let newtile = new Tile(letter.letter, letter.points, count);
                 count += 1;
                 this.tiles.push(newtile);
