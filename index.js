@@ -119,8 +119,10 @@ document.addEventListener('click', (e) => {
             let serverGame2 = res;
             currentGame = Object.assign({}, serverGame2);
 
-            isWordValid('project');
 
+            // isWordValid('qi');
+
+            
             for (let player of currentGame.players) {
                 if (playername === player.name) {
                     playerid = player.id;

@@ -103,7 +103,8 @@ class Player {
     constructor(name) {
         this.name = name;
         this.score = 0;
-        this.word = '';
+        this.mainword = '';
+        this.otherwords = [];
         this.rack = [];
         this.pointsInPlay = 0;
         this.tilesInPlay = [];
@@ -275,6 +276,11 @@ class Game {
         // update tiles in play array
         //let tilesInPlay = this.updateTilesInPlay(wasinplay.tile);
         // update points in play
+
+        
+        this.players[this.turn].mainword = '';
+        this.players[this.turn].otherwords = [];
+
         let wordsInPlay = this.compileWordsInPlay(this.players[this.turn].tilesInPlay);
         this.updatePointsInPlay(wordsInPlay);
 
@@ -537,8 +543,6 @@ class Game {
 
 
 
-
-
     compileWordsInPlay(tilesInPlay) {
 
         // take the array of tilesInPlay with adjacent used tiles stored
@@ -609,6 +613,66 @@ class Game {
             })
 
             let mainwordarry = Array.from(mainword);
+
+            function sortCellsToMakeWord(cellArry) {
+                for (let i=0; i < 2; i++) {
+                    cellArry.sort((a, b) => {
+                        if (a.pos[i] < b.pos[i]) {
+                            return -1;
+                        } else if (a.pos[i] > b.pos[i]) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    })
+                    console.log(`sort at ${i}: `, cellArry);
+                }
+            }
+
+
+            // sort by row then by col
+            sortCellsToMakeWord(mainwordarry);
+           
+            let mainwordarryLetters = mainwordarry.map((cell) => {
+                return cell.tile.letter;
+            })
+
+            let mainwordSTR = mainwordarryLetters.join('');
+            this.players[this.turn].mainword = mainwordSTR;
+            console.log('PLAYERS MAINWORD = ', this.players[this.turn].mainword);
+
+            if (allwords.length > 0) {
+
+                let allwordssorted = allwords.map((word) => {
+                    sortCellsToMakeWord(word);
+                    return word;
+                })
+    
+                //console.log(allwordssorted);
+
+                
+                let allwordssortedSTRs = allwordssorted.map((sortedword) => {
+                    let letters = sortedword.map((cell) => {
+                        return cell.tile.letter;
+                    })
+                    let wordSTR = letters.join('');
+                    return wordSTR;
+                })
+
+                // switch other word with main word if main direction is actually horizontal instead of default vertical set when only one tile is currently in play
+                if (this.players[this.turn].mainword === '' && allwords.length === 1) {
+                    this.players[this.turn].mainword = allwordssortedSTRs[0];
+                    this.players[this.turn].otherwords = [];
+                } else {
+                    this.players[this.turn].otherwords = allwordssortedSTRs;
+                }
+                
+                
+                console.log('PLAYERS OTHERWORDS = ', this.players[this.turn].otherwords);
+
+
+            }
+
             allwords.push(mainwordarry);
 
 
