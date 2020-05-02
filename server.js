@@ -104,7 +104,9 @@ class Player {
         this.name = name;
         this.score = 0;
         this.mainword = '';
+        this.mainwordcells = [];
         this.otherwords = [];
+        this.hasvalidplay = false;
         this.rack = [];
         this.pointsInPlay = 0;
         this.tilesInPlay = [];
@@ -277,77 +279,62 @@ class Game {
         //let tilesInPlay = this.updateTilesInPlay(wasinplay.tile);
         // update points in play
 
-        
-        this.players[this.turn].mainword = '';
-        this.players[this.turn].otherwords = [];
-
         let wordsInPlay = this.compileWordsInPlay(this.players[this.turn].tilesInPlay);
+        this.players[this.turn].hasvalidplay = this.isTilePlacementValid();
         this.updatePointsInPlay(wordsInPlay);
 
     }
 
     endturn() {
-        this.players[this.turn].updateScore();
 
-        // if player played all tiles in rack and no tiles left in the game, then end game
+        let isValidPlay = this.players[this.turn].hasvalidplay;
 
+        if (isValidPlay) {
 
-        if ((this.players[this.turn].tilesInPlay.length === this.players[this.turn].rack.length) && this.tiles.length === 0) {
+            this.players[this.turn].updateScore();
 
-            this.endgame();
+            // if player played all tiles in rack and no tiles left in the game, then end game
+            if ((this.players[this.turn].tilesInPlay.length === this.players[this.turn].rack.length) && this.tiles.length === 0) {
 
-        } else {
+                this.endgame();
 
-            let newrack = [];
-            this.players[this.turn].rack.forEach((tile, i) => {
-                if (tile.inplay) {
+            } else {
 
-                    tile.inplay = false;
-                    tile.used = true;
-                    //tile.id = tile.creationID;
+                let newrack = [];
+                this.players[this.turn].rack.forEach((tile, i) => {
+                    if (tile.inplay) {
 
-                    if (this.tiles.length > 0) {
-                        // draw a new tile to add to the rack at that index
-                        let drawnTile = this.drawNewTileForRack(i);
-                        newrack.push(drawnTile);
+                        tile.inplay = false;
+                        tile.used = true;
+                        //tile.id = tile.creationID;
+
+                        if (this.tiles.length > 0) {
+                            // draw a new tile to add to the rack at that index
+                            let drawnTile = this.drawNewTileForRack(i);
+                            newrack.push(drawnTile);
+                        }
+
+                    } else {
+                        newrack.push(tile);
                     }
-
-                } else {
-                    newrack.push(tile);
-                }
-            })
-
-            /*
-            // remove empty tiles from rack
-            if (empty.length > 0) {
-                empty.forEach((ivalue) => {
-                    newrack.splice(ivalue, 1);
                 })
+
+                // reset rack
+                this.players[this.turn].rack = newrack;
+
+                // reset tilesinplay
+                this.players[this.turn].tilesInPlay = [];
+
+                // update game turn
+                this.updateTurn();
+
             }
-            */
 
-            // reset rack
-            this.players[this.turn].rack = newrack;
-
-            // reset tilesinplay
-            this.players[this.turn].tilesInPlay = [];
-
-            // update game turn
-            this.updateTurn();
 
         }
 
-        /*
-        this.players[this.turn].tilesInPlay.forEach((inplay) => {
-            // update tile status in its board cell
-            let boardcell = this.board.cellsAll[inplay.row][inplay.col];
-            boardcell.tile.used = true;
-            boardcell.tile.inplay = false;
 
-            // remove the tile from the player's rack
 
-        })
-        */
     }
 
 
@@ -542,8 +529,159 @@ class Game {
     }
 
 
+    isTilePlacementValid() {
+
+        // first check: all tilesInPlay are in either same col or same row if tilesInPlay.length > 1
+
+        let firstcheckvalid = false;
+
+        // perpend direct default is row
+        let perpendiculardirection = 0;
+
+        if (this.players[this.turn].tilesInPlay.length > 1) {
+
+            // create copy of just cells to sort for checking to preserve order of tilesinPlay (which are in order of tiles played)
+            let tilesInPlay_cells = this.players[this.turn].tilesInPlay.map((inplay) => {
+                return inplay.cell;
+            })
+
+            this.sortCellsToMakeWord(tilesInPlay_cells);
+
+            // check rows and cols
+            let rows = tilesInPlay_cells.map((cell) => {
+                return cell.pos[0];
+            })
+            let cols = tilesInPlay_cells.map((cell) => {
+                return cell.pos[1];
+            })
+
+            let rowset = new Set(rows);
+            let colset = new Set(cols);
+
+            // if rows are the same, check that each col is equal to the last plus one (if not, do vice versa)
+
+            /*
+            if (rowset.size === 1) {
+                perpendiculardirection = 1;
+                for (let i = 0; i < (cols.length - 1); i++) {
+                    let diff = cols[i + 1] - cols[i];
+                    if (diff === 1) {
+                        firstcheckvalid = true;
+                    } else {
+                        firstcheckvalid = false;
+                        break;
+                    }
+                }
+            } else if (colset.size === 1) {
+                for (let i = 0; i < (rows.length - 1); i++) {
+                    let diff = rows[i + 1] - rows[i];
+                    if (diff === 1) {
+                        firstcheckvalid = true;
+                    } else {
+                        firstcheckvalid = false;
+                        break;
+                    }
+                }
+            }
+            */
+            // if either all row values are equal or col values are equal, then first check is valid
+            if (rowset.size === 1) {
+                perpendiculardirection = 1;
+                firstcheckvalid = true;
+            } else if (colset.size === 1) {
+                firstcheckvalid = true;
+            }
+
+        } else {
+            firstcheckvalid = true;
+        }
+
+
+        // second check: check for empty cells within main word (I don't think it's needed for otherwords...?)
+        // start with beginning of the word, check that the next cell is either same or +1 for row or col
+
+        let secondcheckvalid = false;
+
+        if (firstcheckvalid) {
+
+            let cells = this.players[this.turn].mainwordcells;
+            if (cells.length > 1) {
+
+                if (cells[0].pos[0] === cells[1].pos[0]) {
+                    perpendiculardirection = 1;
+                }
+
+                for (let i = 0; i < (cells.length - 1); i++) {
+                    let diff = cells[i + 1].pos[perpendiculardirection] - cells[i].pos[perpendiculardirection];
+                    if (diff === 1) {
+                        secondcheckvalid = true;
+                    } else {
+                        secondcheckvalid = false;
+                        break;
+                    }
+                }
+            } else {
+                secondcheckvalid = false;
+            }
+
+        }
+
+
+        // third check: unless it is the very first play in the game (which needs to be played on the star), check that at least one of the tilesInPlay has adjacent_used.vertical or adjacent_used.horizontal
+        let thirdcheckvalid = false;
+
+        let scores = this.players.map((player) => {
+            return player.score;
+        })
+
+        let setofscores = new Set(scores);
+
+        if (setofscores.size === 1 && setofscores.has(0) ) {
+            // check that one of the cells is type '*'
+            this.players[this.turn].tilesInPlay.forEach((inplay) => {
+                if (inplay.cell.type === '*') {
+                    thirdcheckvalid = true;
+                }
+            })
+        } else {
+            this.players[this.turn].tilesInPlay.forEach((inplay) => {
+                if (inplay.adjacent_used.vertical.length > 0 || inplay.adjacent_used.horizontal.length > 0) {
+                    thirdcheckvalid = true;
+                }
+            })
+        }
+
+        // should only return true if both checks are true
+        let allchecksvalid = firstcheckvalid && secondcheckvalid && thirdcheckvalid;
+        return allchecksvalid;
+
+    }
+
+
+    sortCellsToMakeWord(cellArry) {
+        for (let i = 0; i < 2; i++) {
+            cellArry.sort((a, b) => {
+                if (a.pos[i] < b.pos[i]) {
+                    return -1;
+                } else if (a.pos[i] > b.pos[i]) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            })
+            console.log(`sort at ${i}: `, cellArry);
+        }
+    }
 
     compileWordsInPlay(tilesInPlay) {
+
+        // first reset mainword and otherwords
+        this.players[this.turn].mainword = '';
+        this.players[this.turn].otherwords = [];
+
+        this.players[this.turn].mainwordcells = [];
+        //this.players[this.turn].otherwordscells = [];
+
 
         // take the array of tilesInPlay with adjacent used tiles stored
         // first determines the direction the player is playing from comparing the row positions of the first two tiles
@@ -554,10 +692,26 @@ class Game {
 
         if (tilesInPlay.length > 0) {
 
+            let emptyadjacent = false;
+
             let maindirection = 'vertical';
             let otherdirection = 'horizontal';
+
             if (tilesInPlay.length > 1) {
                 if (tilesInPlay[0].row === tilesInPlay[1].row) {
+                    maindirection = 'horizontal';
+                    otherdirection = 'vertical';
+                }
+            } else {
+                if ((tilesInPlay[0].adjacent_used.vertical.length < 1) && (tilesInPlay[0].adjacent_used.horizontal.length < 1)) {
+
+                    // there are no words to compile yet
+                    emptyadjacent = true;
+
+                } else if (tilesInPlay[0].adjacent_used.vertical.length > 0) {
+                    maindirection = 'vertical';
+                    otherdirection = 'horizontal';
+                } else {
                     maindirection = 'horizontal';
                     otherdirection = 'vertical';
                 }
@@ -568,9 +722,10 @@ class Game {
             // first adds its adjacent_used.vertical cells to a Set called 'main word'
 
 
-            tilesInPlay.forEach((tile) => {
+            if (emptyadjacent === false) {
 
-                if (tilesInPlay.length > 1 || (tilesInPlay.length === 1 && (tile.adjacent_used[maindirection].length > 0 && tile.adjacent_used[otherdirection].length > 0))) {
+                tilesInPlay.forEach((tile) => {
+
 
                     // main word
                     mainword.add(tile.cell);
@@ -588,7 +743,8 @@ class Game {
                         allwords.push(otherword);
                     }
 
-                } else {
+
+                    /*
                     if (tile.adjacent_used[maindirection].length > 0) {
                         mainword.add(tile.cell);
                         tile.adjacent_used[maindirection].forEach((cell) => {
@@ -604,76 +760,64 @@ class Game {
                     } else {
                         mainword.add(tile.cell);
                     }
+                    */
 
-
-                }
-
-
-
-            })
-
-            let mainwordarry = Array.from(mainword);
-
-            function sortCellsToMakeWord(cellArry) {
-                for (let i=0; i < 2; i++) {
-                    cellArry.sort((a, b) => {
-                        if (a.pos[i] < b.pos[i]) {
-                            return -1;
-                        } else if (a.pos[i] > b.pos[i]) {
-                            return 1;
-                        } else {
-                            return 0;
-                        }
-                    })
-                    console.log(`sort at ${i}: `, cellArry);
-                }
-            }
-
-
-            // sort by row then by col
-            sortCellsToMakeWord(mainwordarry);
-           
-            let mainwordarryLetters = mainwordarry.map((cell) => {
-                return cell.tile.letter;
-            })
-
-            let mainwordSTR = mainwordarryLetters.join('');
-            this.players[this.turn].mainword = mainwordSTR;
-            console.log('PLAYERS MAINWORD = ', this.players[this.turn].mainword);
-
-            if (allwords.length > 0) {
-
-                let allwordssorted = allwords.map((word) => {
-                    sortCellsToMakeWord(word);
-                    return word;
-                })
-    
-                //console.log(allwordssorted);
-
-                
-                let allwordssortedSTRs = allwordssorted.map((sortedword) => {
-                    let letters = sortedword.map((cell) => {
-                        return cell.tile.letter;
-                    })
-                    let wordSTR = letters.join('');
-                    return wordSTR;
                 })
 
-                // switch other word with main word if main direction is actually horizontal instead of default vertical set when only one tile is currently in play
-                if (this.players[this.turn].mainword === '' && allwords.length === 1) {
-                    this.players[this.turn].mainword = allwordssortedSTRs[0];
-                    this.players[this.turn].otherwords = [];
-                } else {
-                    this.players[this.turn].otherwords = allwordssortedSTRs;
+                let mainwordarry = Array.from(mainword);
+
+
+                // sort by row then by col
+                this.sortCellsToMakeWord(mainwordarry);
+
+                this.players[this.turn].mainwordcells = mainwordarry;
+
+                let mainwordarryLetters = mainwordarry.map((cell) => {
+                    return cell.tile.letter;
+                })
+
+                let mainwordSTR = mainwordarryLetters.join('');
+                this.players[this.turn].mainword = mainwordSTR;
+                console.log('PLAYERS MAINWORD = ', this.players[this.turn].mainword);
+
+                if (allwords.length > 0) {
+
+                    let allwordssorted = allwords.map((word) => {
+                        this.sortCellsToMakeWord(word);
+                        return word;
+                    })
+
+                    //console.log(allwordssorted);
+
+
+                    let allwordssortedSTRs = allwordssorted.map((sortedword) => {
+                        let letters = sortedword.map((cell) => {
+                            return cell.tile.letter;
+                        })
+                        let wordSTR = letters.join('');
+                        return wordSTR;
+                    })
+
+                    // switch other word with main word if main direction is actually horizontal instead of default vertical set when only one tile is currently in play
+                    if (this.players[this.turn].mainword === '' && allwords.length === 1) {
+                        this.players[this.turn].mainword = allwordssortedSTRs[0];
+                        this.players[this.turn].otherwords = [];
+                    } else {
+                        this.players[this.turn].otherwords = allwordssortedSTRs;
+                    }
+
+
+                    console.log('PLAYERS OTHERWORDS = ', this.players[this.turn].otherwords);
+
                 }
-                
-                
-                console.log('PLAYERS OTHERWORDS = ', this.players[this.turn].otherwords);
+
+
+                allwords.push(mainwordarry);
 
 
             }
 
-            allwords.push(mainwordarry);
+            
 
 
         }
@@ -683,57 +827,62 @@ class Game {
 
     }
 
-    // TODO: ***** FIX bug when first tile played is counted as 2 words, the first of just the letter itself, the second with the word it creates with the adjacent letters.
+
 
     updatePointsInPlay(wordsInPlay) {
 
         let totalpoints = 0;
 
-        if (wordsInPlay.length > 0) {
+        if (this.players[this.turn].hasvalidplay) {
 
-            wordsInPlay.forEach((wordarry) => {
-                let wordpoints = 0;
-                let dw = 0;
-                let tw = 0
+            if (wordsInPlay.length > 0) {
 
-                wordarry.forEach((cell) => {
-                    let points = cell.tile.points;
+                wordsInPlay.forEach((wordarry) => {
+                    let wordpoints = 0;
+                    let dw = 0;
+                    let tw = 0
 
-                    // only include board cell types in calculating total points for inplay (not used) tiles
-                    if (cell.tile.inplay) {
+                    wordarry.forEach((cell) => {
+                        let points = cell.tile.points;
 
-                        if (cell.type === 'DW' || cell.type === '*') {
-                            dw += 1;
-                        } else if (cell.type === 'TW') {
-                            tw += 1;
-                        } else if (cell.type === 'DL') {
-                            points *= 2;
-                        } else if (cell.type === 'TL') {
-                            points *= 3;
+                        // only include board cell types in calculating total points for inplay (not used) tiles
+                        if (cell.tile.inplay) {
+
+                            if (cell.type === 'DW' || cell.type === '*') {
+                                dw += 1;
+                            } else if (cell.type === 'TW') {
+                                tw += 1;
+                            } else if (cell.type === 'DL') {
+                                points *= 2;
+                            } else if (cell.type === 'TL') {
+                                points *= 3;
+                            }
+
                         }
 
+                        wordpoints += points;
+                    })
+
+                    for (let i = 0; i < dw; i++) {
+                        wordpoints *= 2;
+                    }
+                    for (let i = 0; i < tw; i++) {
+                        wordpoints *= 3;
                     }
 
-                    wordpoints += points;
+                    totalpoints += wordpoints;
+
                 })
 
-                for (let i = 0; i < dw; i++) {
-                    wordpoints *= 2;
-                }
-                for (let i = 0; i < tw; i++) {
-                    wordpoints *= 3;
+                // 50 point bonus for using all tiles in rack during a play
+                if (this.players[this.turn].tilesInPlay.length === 7) {
+                    totalpoints += 50;
                 }
 
-                totalpoints += wordpoints;
-
-            })
-
-            // 50 point bonus for using all tiles in rack during a play
-            if (this.players[this.turn].tilesInPlay.length === 7) {
-                totalpoints += 50;
             }
 
         }
+
 
         console.log('totalpoints = ', totalpoints);
         this.players[this.turn].pointsInPlay = totalpoints;
@@ -968,7 +1117,7 @@ class Game {
         let tile = this.players[this.turn].rack[tileindex];
         */
 
-       let tile = '';
+        let tile = '';
         this.players[this.turn].rack.forEach((racktile, i) => {
             if (racktile.id === Number(tileid)) {
                 //index = i;
@@ -1023,6 +1172,7 @@ class Game {
         let tilesInPlay = this.updateTilesInPlay(updatedtile);
         // update points in play
         let wordsInPlay = this.compileWordsInPlay(tilesInPlay);
+        this.players[this.turn].hasvalidplay = this.isTilePlacementValid();
         this.updatePointsInPlay(wordsInPlay);
 
     }
@@ -1140,6 +1290,7 @@ class Game {
         let tilesInPlay = this.updateTilesInPlay(tile);
         // update points in play
         let wordsInPlay = this.compileWordsInPlay(tilesInPlay);
+        this.players[this.turn].hasvalidplay = this.isTilePlacementValid();
         this.updatePointsInPlay(wordsInPlay);
     }
 

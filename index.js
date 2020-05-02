@@ -122,7 +122,7 @@ document.addEventListener('click', (e) => {
 
             // isWordValid('qi');
 
-            
+
             for (let player of currentGame.players) {
                 if (playername === player.name) {
                     playerid = player.id;
@@ -441,8 +441,13 @@ function playerDashboard(playername, currentGame) {
     doneplaying.innerHTML = `<i class="fas fa-play"></i>`;
 
     if (gameInProgress && playerid === currentGame.turn) {
-        pointsInPlay.innerHTML = `${currentGame.players[playerid].pointsInPlay}`;
-        doneplaying.classList.add('selectable');
+        if (currentGame.players[currentGame.turn].hasvalidplay) {
+            pointsInPlay.innerHTML = `${currentGame.players[playerid].pointsInPlay}`;
+            doneplaying.classList.add('selectable');
+        } else {
+            pointsInPlay.innerHTML = `__`;
+        }
+        
 
         if (currentGame.players[playerid].tilesInPlay.length > 0) {
             undoPlay.classList.add('selectable');
