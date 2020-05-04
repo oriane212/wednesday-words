@@ -170,7 +170,8 @@ class Tile {
         this.inplay = false;
         this.used = false;
         this.cellid = '';
-        this.highlight = false;
+        this.blank = false;
+        this.justplayed = false;
     }
 }
 
@@ -216,6 +217,7 @@ class Game {
         this.tiles = [];
         this.tiles_drawn = [];
         this.gameover = false;
+        this.lastplayed = [];
         //this.distributedAll = [];
     }
 
@@ -247,7 +249,7 @@ class Game {
         this.players[this.turn].rack.forEach((racktile) => {
             if (racktile.id === Number(tileid)) {
                 racktile.letter = letter;
-                racktile.highlight = true;
+                //racktile.highlight = true;
             }
         })
 
@@ -285,6 +287,14 @@ class Game {
 
     }
 
+    updateLastPlayed() {
+        this.lastplayed.forEach((tile) => {
+            tile.lastplayed = false;
+        })
+        this.lastplayed = [];
+        
+    }
+
     endturn() {
 
         let isValidPlay = this.players[this.turn].hasvalidplay;
@@ -293,6 +303,25 @@ class Game {
 
             this.players[this.turn].updateScore();
 
+            /*
+            this.players[this.turn].mainwordcells.forEach((cell) => {
+                cell.tile.lastplayed = true;
+            })
+            */
+
+            /*
+            let previousturn = 0;
+            if (this.turn === 0) {
+                previousturn = this.players.length-1;
+            } else {
+                previousturn = this.turn - 1;
+            }
+
+            this.players[previousturn].mainwordcells.forEach((cell) => {
+                cell.tile.lastplayed = false;
+            })
+            */
+
             // if player played all tiles in rack and no tiles left in the game, then end game
             if ((this.players[this.turn].tilesInPlay.length === this.players[this.turn].rack.length) && this.tiles.length === 0) {
 
@@ -300,9 +329,14 @@ class Game {
 
             } else {
 
+                this.updateLastPlayed();
+
                 let newrack = [];
                 this.players[this.turn].rack.forEach((tile, i) => {
                     if (tile.inplay) {
+
+                        tile.lastplayed = true;
+                        this.lastplayed.push(tile);
 
                         tile.inplay = false;
                         tile.used = true;
@@ -343,6 +377,9 @@ class Game {
         this.letters.map((letter) => {
             for (let i = 0; i < letter.tiles; i++) {
                 let newtile = new Tile(letter.letter, letter.points, count);
+                if (letter.letter === '-') {
+                    newtile.blank = true;
+                }
                 count += 1;
                 this.tiles.push(newtile);
             }

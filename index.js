@@ -540,6 +540,7 @@ function renderBoard(currentGame) {
                     */
 
                 }
+
             }
             $row.append(div2);
         })
@@ -706,6 +707,20 @@ function renderTile(tile) {
     let ptvalue = document.createElement('span');
     ptvalue.classList.add('ptvalue');
 
+    if (tile.blank) {
+        if (tile.letter === '-') {
+            div.classList.add('blank-tile');
+        } else {
+            div.classList.add('blank-tile-assigned')
+        }
+        
+    }
+
+    if (tile.lastplayed) {
+        div.classList.add('lastplayed');
+    }
+
+    /*
     if (tile.letter === '-') {
         div.classList.add('blank-tile');
     }
@@ -713,6 +728,7 @@ function renderTile(tile) {
     if (tile.highlight) {
         div.classList.add('highlight');
     }
+    */
 
     letter.innerHTML = tile.letter;
     ptvalue.innerHTML = tile.points;
