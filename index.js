@@ -227,31 +227,6 @@ function createPlayerList(currentGame) {
     let h3 = document.createElement('h3');
     h3.innerHTML = `Players joining...`;
 
-    /*
-    let pointsInPlay = document.createElement('h4');
-
-    let undoPlay = document.createElement('div');
-    undoPlay.setAttribute('id', 'undo');
-    undoPlay.innerHTML = `<i class="fas fa-undo"></i>`;
-
-    let doneplaying = document.createElement('div');
-    doneplaying.setAttribute('id', 'done');
-    doneplaying.innerHTML = `<i class="fas fa-play"></i>`;
-
-    if (gameInProgress && playerid === currentGame.turn) {
-        doneplaying.classList.add('selectable');
-        pointsInPlay.innerHTML = `${currentGame.players[playerid].pointsInPlay}`;
-        
-        if (currentGame.players[playerid].tilesInPlay.length > 0) {
-            undoPlay.classList.add('selectable');
-        }
-
-    } else {
-        undoPlay.classList.add('disabled');
-        doneplaying.classList.add('disabled');
-    }
-    */
-
     header.append(h3);
 
     //playerlist.append(header);
@@ -260,19 +235,22 @@ function createPlayerList(currentGame) {
     let i = 0;
     let playerdivsContainer = document.createElement('div');
     playerdivsContainer.setAttribute('id', 'playerdivscontainer');
+    playerdivsContainer.classList.add('playerdashsection', 'playerlist');
 
     for (let player of currentGame.players) {
 
         let playerdiv = document.createElement('div');
         playerdiv.classList.add('playerdiv');
 
+        /*
         let scoresheetturn = document.createElement('div');
         scoresheetturn.classList.add('score-sheet-turn');
+        */
 
         // TODO take away unused code here
         if (gameInProgress && i === currentGame.turn && currentGame.ready) {
             playerdiv.classList.add('turn');
-            scoresheetturn.innerHTML = `<i class="fas fa-long-arrow-alt-right"></i>`;
+            //scoresheetturn.innerHTML = `<i class="fas fa-long-arrow-alt-right"></i>`;
             if (player.name === playername) {
                 h3.innerHTML = `Your turn:`;
             } else {
@@ -288,7 +266,7 @@ function createPlayerList(currentGame) {
         playerscore.classList.add('score-sheet-score');
         playerscore.innerHTML = player.score;
 
-        playerdiv.append(scoresheetturn, player_name, playerscore);
+        playerdiv.append(player_name, playerscore);
 
         playerdivsContainer.append(playerdiv);
 
@@ -397,37 +375,19 @@ function refreshGame(currentGame) {
 
 function playerDashboard(playername, currentGame) {
 
-    //let playerInstance = '';
-
-    /*
-    for (let player of currentGame.players) {
-        if (player.name === playername) {
-            playerInstance = player;
-            if (player === currentGame.turn_player) {
-                
-            }
-        }
-    }
-    */
-
-    /*
-    if (currentGame.turn_player == playerInstance) {
-        console.log("TRUE UTRE");
-    } else {
-        console.log("FALSEYY");
-    }
-    console.log(`currentGame.turn_player: `, currentGame.turn_player);
-    console.log(`playerInstance: `, playerInstance);
-*/
-
     let playerDash = document.createElement('section');
     playerDash.classList.add('playerDash');
+
+    // MAIN HEADER
 
     let header = document.createElement('header');
 
     let name = document.createElement('h2');
     name.setAttribute('id', 'name');
     name.innerHTML = playername;
+
+    let mainbtns = document.createElement('div');
+    mainbtns.setAttribute('id', 'mainbtns');
 
     let pointsInPlay = document.createElement('div');
     pointsInPlay.setAttribute('id', 'pointsInPlay');
@@ -458,6 +418,24 @@ function playerDashboard(playername, currentGame) {
         doneplaying.classList.add('disabled');
     }
 
+    mainbtns.append(undoPlay, doneplaying);
+
+    header.append(name, mainbtns);
+
+    // RACK
+
+    let rack = renderRack(currentGame, playerid);
+
+    // SHUFFLE
+
+    let shuffle = document.createElement('div');
+    shuffle.setAttribute('id', 'shuffle');
+    shuffle.innerHTML = `<i class="fas fa-random"></i>`;
+
+    // PLAYER TURN SECTION
+
+    let headerplayerturn = document.createElement('header');
+    headerplayerturn.classList.add('playerturn');
 
     let turnstatus = document.createElement('p');
     turnstatus.setAttribute('id', 'turnstatus');
@@ -465,29 +443,73 @@ function playerDashboard(playername, currentGame) {
     if (gameInProgress) {
         if (playerid === currentGame.turn) {
             turnstatus.innerHTML = `Your turn:`;
-            turnstatus.classList.add('alarm');
+            //turnstatus.classList.add('alarm');
 
+            /*
             let bell = document.createElement('div');
             bell.setAttribute('id', 'bell');
             bell.innerHTML = `<i class="fas fa-bell"></i>`;
+            */
 
-            header.append(bell, turnstatus, pointsInPlay, undoPlay, doneplaying);
+           headerplayerturn.append(turnstatus, pointsInPlay);
+
         } else {
             turnstatus.innerHTML = `${currentGame.players[currentGame.turn].name}'s turn`;
-
-            header.append(turnstatus, pointsInPlay, undoPlay, doneplaying);
+            headerplayerturn.append(turnstatus);
         }
     }
-
 
     //header.append(turnstatus, pointsInPlay, undoPlay, doneplaying);
     //header.append(name);
 
     let playerList = createPlayerList(currentGame);
+    playerList.classList.add('playerdashsection');
 
-    let rack = renderRack(currentGame, playerid);
+    // LAST PLAYED WORDS
 
-    playerDash.append(name, rack, header, playerList);
+    let lastplayedwords = document.createElement('div');
+    lastplayedwords.classList.add('playerdashsection');
+    lastplayedwords.setAttribute('id', 'lastwords');
+
+    let div = document.createElement('div');
+    div.classList.add('inlineflex');
+
+    let mwlogo = document.createElement('img');
+    mwlogo.setAttribute('id', 'mwlogo');
+    mwlogo.setAttribute('src', '/MWlogo.png');
+
+    let h3 = document.createElement('h3');
+    h3.innerHTML = 'Last words played';
+
+    div.append(mwlogo, h3);
+
+    let content = document.createElement('div');
+
+    //content.append(h3);
+
+    //lastplayedwords.append(h3);
+
+    currentGame.lastplayedwords.forEach((str) => {
+
+        let word_and_def = document.createElement('p');
+        word_and_def.classList.add('listitem');
+
+        let word = document.createElement('span');
+        word.classList.add('word');
+        word.innerHTML = str;
+
+        let def = document.createElement('span');
+        def.innerHTML = `Sample definition of the word. Still need to put a character length limit on the definition so it's not too long...`;
+
+        word_and_def.append(word, def);
+        content.append(word_and_def);
+    })
+
+    lastplayedwords.append(div, content);
+
+    // APPEND ALL TO PLAYER DASHBOARD
+
+    playerDash.append(header, rack, shuffle, headerplayerturn, playerList, lastplayedwords);
 
     return playerDash;
 

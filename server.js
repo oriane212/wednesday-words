@@ -218,6 +218,7 @@ class Game {
         this.tiles_drawn = [];
         this.gameover = false;
         this.lastplayed = [];
+        this.lastplayedwords = [];
         //this.distributedAll = [];
     }
 
@@ -292,7 +293,6 @@ class Game {
             tile.lastplayed = false;
         })
         this.lastplayed = [];
-        
     }
 
     endturn() {
@@ -303,25 +303,6 @@ class Game {
 
             this.players[this.turn].updateScore();
 
-            /*
-            this.players[this.turn].mainwordcells.forEach((cell) => {
-                cell.tile.lastplayed = true;
-            })
-            */
-
-            /*
-            let previousturn = 0;
-            if (this.turn === 0) {
-                previousturn = this.players.length-1;
-            } else {
-                previousturn = this.turn - 1;
-            }
-
-            this.players[previousturn].mainwordcells.forEach((cell) => {
-                cell.tile.lastplayed = false;
-            })
-            */
-
             // if player played all tiles in rack and no tiles left in the game, then end game
             if ((this.players[this.turn].tilesInPlay.length === this.players[this.turn].rack.length) && this.tiles.length === 0) {
 
@@ -330,6 +311,13 @@ class Game {
             } else {
 
                 this.updateLastPlayed();
+
+                this.lastplayedwords = [];
+
+                this.lastplayedwords.push(this.players[this.turn].mainword);
+                this.players[this.turn].otherwords.forEach((word) => {
+                    this.lastplayedwords.push(word);
+                })
 
                 let newrack = [];
                 this.players[this.turn].rack.forEach((tile, i) => {
@@ -1646,6 +1634,21 @@ http.createServer(function (req, res) {
         return;
     }
 */
+
+    // /MWlogo.png
+    if (req.url.endsWith('MWlogo.png')) {
+        res.write(fs.readFileSync('./MWlogo.png'));
+        console.log('mwlogo requested');
+        res.end();
+        return;
+    }
+
+    if (req.url.endsWith('redtheme.css')) {
+        res.write(fs.readFileSync('./redtheme.css'));
+        console.log('red theme is called');
+        res.end();
+        return;
+    }
 
     if (req.url.endsWith('index.js')) {
         res.write(fs.readFileSync('./index.js'));

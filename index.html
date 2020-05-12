@@ -318,7 +318,11 @@
         }
 
         div.tile.lastplayed {
-            background-color: gold;
+            background-color: lightyellow;
+            border: 1 px solid darkgoldenrod;
+            color: peru;
+            width: 38px;
+            height: 38px;
         }
 
         span.ptvalue {
@@ -338,9 +342,10 @@
         }
 
         #playerlist {
-            margin: 42px 0;
+            
         }
 
+        /*
         #playerdivscontainer {
             background-color: lightyellow;
             width: 100%;
@@ -348,6 +353,7 @@
             margin: auto;
             padding: 12px 0;
         }
+        */
 
         div.playerdiv {
             display: inline-flex;
@@ -355,7 +361,7 @@
             align-items: center;
             width: -webkit-fill-available;
             height: 30px;
-            padding: 4px 56px 4px 24px;
+            padding: 4px 12px 4px 16px;
         }
 
         div.playerdiv.turn {
@@ -383,21 +389,24 @@
             color: darkgray;
         }
 
+        /*
         #done.selectable,
         #undo.selectable {
             color: darkslategrey;
         }
+        */
 
+        /*
         #done.selectable:hover,
         #undo.selectable:hover {
             color: black;
             font-size: larger;
-            /*
+            
             border: 2px solid black;
             border-radius: 60px;
             padding: 8px 11px;
-            */
-        }
+            
+        }*/
 
         #done.disabled,
         #undo.disabled {
@@ -441,9 +450,28 @@
 
         .score-sheet-score {
             font-family: sans-serif;
-            width: 32%;
+            width: 12%;
         }
 
+        div.playerdashsection {
+            margin: 44px 0;
+        }
+
+        div.lastplayedword {
+            font-family: sans-serif;
+            letter-spacing: 1px;
+            margin: 12px;
+            font-size: smaller;
+            color: darkslategray;
+            font-weight: 400;
+        }
+        
+        h3 {
+            font-family: sans-serif;
+            color: peru;
+            text-transform: uppercase;
+            font-size: medium;
+        }
 
 
     </style>
@@ -455,6 +483,8 @@
 
 target="" method="POST""
     -->
+
+    <link rel="stylesheet" href="redtheme.css">
 
 </head>
 

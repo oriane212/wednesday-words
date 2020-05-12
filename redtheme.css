@@ -1,0 +1,241 @@
+
+div.indexinner section {
+    width: inherit;
+    padding: 30px;
+    margin: 8px;
+    background-color: brown;
+    border-radius: 8px;
+}
+
+label {
+    text-align: left;
+    margin-bottom: 6px;
+    font-family: sans-serif;
+    color: antiquewhite;
+    font-size: smaller;
+}
+
+section.playerDash {
+    background-color: brown;
+    width: 300px;
+    height: 630px;
+    padding: 19px;
+    margin-right: 12px;
+    border-radius: 8px;
+}
+
+header {
+    margin: 0 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    width: 92%;
+    border-radius: 4px;
+    background-color: brown;
+}
+
+header.playerturn {
+    padding: 0px 12px;
+    margin: 0;
+    font-size: smaller;
+    font-weight: 900;
+    background-color: rgb(188,77,74);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+h2 {
+    color: lightgoldenrodyellow;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+}
+
+#mainbtns {
+    display: inline-flex;
+    width: 16%;
+    justify-content: space-between;
+    padding: 0 6px;
+}
+
+#shuffle {
+    color: antiquewhite;
+    text-align: center;
+    font-size: larger;
+    margin: 16px auto;
+}
+
+h3 {
+    font-family: sans-serif;
+    color: darkslategray;
+    text-transform: uppercase;
+    font-size: smaller;
+}
+
+div.inlineflex {
+    display: inline-flex;
+    width: 100%;
+    align-items: center;
+}
+
+#mwlogo {
+    width: 50px;
+    height: 50px;
+    padding: 8px;
+}
+
+#lastwords {
+    padding-bottom: 8px;
+}
+
+p.listitem {
+    font-size: smaller;
+    color: darkslategray;
+    margin: 0 16px 8px;
+}
+
+span.word {
+    color: rgb(244,164,96);
+    font-weight: 700;
+    font-family: sans-serif;
+    padding-right: 6px;
+}
+
+div.tile {
+    width: 40px;
+    height: 40px;
+    margin: 2px;
+    background-color: burlywood;
+    font-size: larger;
+    font-weight: 500;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+    cursor: default;
+    border-radius: 3px;
+}
+
+div.blank-tile {
+    color: burlywood;
+}
+
+div.tile.selectable {
+    border: 1px solid darkred; /* or saddlebrown? */
+    border-radius: 4px;
+    width: 38px;
+    height: 38px;
+    cursor: move;
+    box-shadow: 1px 1px 1px saddlebrown;
+}
+
+div.tile.selectable:hover {
+    border: 1px solid navajowhite;
+    background-color: cadetblue;
+    color: antiquewhite;
+}
+
+div.tile.blank-tile.selectable:hover {
+    color: cadetblue;
+}
+
+#turnstatus {
+    color: antiquewhite;
+    font-family: sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    width: 55%;
+    padding-left: 4px;
+}
+
+#pointsInPlay {
+    font-size: medium;
+    font-weight: 500;
+    /* width: 12%; */
+    font-family: sans-serif;
+    color: antiquewhite;
+    /* padding-right: 4px; */
+}
+
+#done, #undo {
+    font-size: large;
+    width: 10%;
+    color: blanchedalmond;
+}
+
+#done.selectable:hover, #undo.selectable:hover {
+    color: white;
+}
+
+#done.disabled, #undo.disabled {
+    color: maroon; /* or indianred? */
+}
+
+#playerdivscontainer.playerdashsection {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    padding-bottom: 8px;
+}
+
+div.playerdiv.turn {
+    font-weight: 700;
+    background-color: rgb(255,245,242);
+}
+
+div.playerdashsection {
+    margin: 0 0 16px 0;
+    background-color: rgb(255,245,242);
+    border-radius: 8px;
+    color: darkslategray;
+}
+
+div.playerdashsection.playerlist {
+    background-color: rgb(234, 202, 201);
+}
+
+div.cell {
+    background-color: rgba(211,192,168, 0.8);
+}
+
+div.blank {
+    color: rgba(211,192,168, 0.8);
+}
+
+div.cell.live {
+    width: 36px;
+    height: 36px;
+    border: 2px dotted dimgray;
+}
+
+div.TW {
+    background-color: red;
+}
+
+div.DL {
+    background-color: lightblue;
+}
+
+div.DW {
+    background-color: rgb(248, 163, 163);
+}
+
+div.TL {
+    background-color: rgb(48, 167, 247);
+}
+
+div.tile.lastplayed {
+    background-color: lightyellow;
+    border: 1px solid peru;
+    color: darkred;
+    color: peru;
+    width: 38px;
+    height: 38px;
+}
+
+#bell {
+    width: 5%;
+    font-size: medium;
+    color: sandybrown;
+}
+
