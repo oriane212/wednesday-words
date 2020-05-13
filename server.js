@@ -1,3 +1,8 @@
+let http = require('http');
+let fs = require('fs');
+
+const fetch = require('node-fetch');
+
 console.log('yo yo yo');
 
 const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -107,6 +112,7 @@ class Player {
         this.mainwordcells = [];
         this.otherwords = [];
         this.hasvalidplay = false;
+        this.invalidword = '';
         this.rack = [];
         this.pointsInPlay = 0;
         this.tilesInPlay = [];
@@ -297,67 +303,149 @@ class Game {
 
     endturn() {
 
+        this.players[this.turn].invalidword = '';
         let isValidPlay = this.players[this.turn].hasvalidplay;
 
         if (isValidPlay) {
 
-            this.players[this.turn].updateScore();
-
-            // if player played all tiles in rack and no tiles left in the game, then end game
-            if ((this.players[this.turn].tilesInPlay.length === this.players[this.turn].rack.length) && this.tiles.length === 0) {
-
-                this.endgame();
-
-            } else {
-
-                this.updateLastPlayed();
-
-                this.lastplayedwords = [];
-
-                this.lastplayedwords.push(this.players[this.turn].mainword);
-                this.players[this.turn].otherwords.forEach((word) => {
-                    this.lastplayedwords.push(word);
+            // look up words
+            let validword = true;
+            let invalidword = '';
+            let words = [];
+            let main = this.players[this.turn].mainword;
+            words.push(main);
+            //words.push({ word: main, def: '' });
+            let others = this.players[this.turn].otherwords;
+            if (others.length > 0) {
+                others.forEach((other) => {
+                    //words.push({ word: other, def: '' });
+                    words.push(other);
                 })
+            }
 
-                let newrack = [];
-                this.players[this.turn].rack.forEach((tile, i) => {
-                    if (tile.inplay) {
 
-                        tile.lastplayed = true;
-                        this.lastplayed.push(tile);
+            ///////// TODO: remove duplicate words before lookup, but make sure it doesn't affect points in play and final score
 
-                        tile.inplay = false;
-                        tile.used = true;
-                        //tile.id = tile.creationID;
+            /////// TODO: handle 'undefined' response (eg. def lookup for 'ME');
 
-                        if (this.tiles.length > 0) {
-                            // draw a new tile to add to the rack at that index
-                            let drawnTile = this.drawNewTileForRack(i);
-                            newrack.push(drawnTile);
-                        }
+            //// TODO: do not allow so many abbreviations?
+
+
+            //let definitions = [];
+
+            let promises = [];
+
+            words.forEach((word) => {
+                if (validword) {
+                    //let eachPromise = checkDef(obj.word);
+
+                    let eachPromise = (fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=a662cfbc-08de-4c57-afe6-989722d50903`).then((res) => {
+                        return res.json();
+                    }).then((res) => {
+                        let firstresult = res[0];
+                        let shortdef_arry = firstresult.shortdef;
+                        //value = shortdef_arry[0];
+                        //console.log('value being returned: ', value);
+                        //return value;
+                        console.log('returned ', shortdef_arry[0]);
+                        return { word: word, def: shortdef_arry[0] };
+                    }).catch(error => {
+                        console.error(error.message);
+                        invalidword = word;
+                        validword = false;
+                        return 'Not a valid word';
+                    })
+                    )
+
+                    promises.push(eachPromise);
+
+                }
+            })
+
+            Promise.all(promises).then((values) => {
+                if (invalidword !== '') {
+                    // a word played does not exist in Merriam Webster dictionary
+                    this.players[this.turn].invalidword = invalidword;
+                } else {
+
+                    // all words are valid
+
+                    this.updateLastPlayed();
+                    this.lastplayedwords = [];
+                    this.lastplayedwords = values;
+
+                    /*
+                    this.lastplayedwords.push(this.players[this.turn].mainword);
+                    this.players[this.turn].otherwords.forEach((word) => {
+                        this.lastplayedwords.push(word);
+                    })
+                    */
+
+                    this.players[this.turn].updateScore();
+
+                    // if player played all tiles in rack and no tiles left in the game, then end game
+                    if ((this.players[this.turn].tilesInPlay.length === this.players[this.turn].rack.length) && this.tiles.length === 0) {
+
+                        this.endgame();
 
                     } else {
-                        newrack.push(tile);
+
+                        /*
+                        this.updateLastPlayed();
+        
+                        this.lastplayedwords = [];
+        
+                        this.lastplayedwords.push(this.players[this.turn].mainword);
+                        this.players[this.turn].otherwords.forEach((word) => {
+                            this.lastplayedwords.push(word);
+                        })
+                        */
+
+                        let newrack = [];
+                        this.players[this.turn].rack.forEach((tile, i) => {
+                            if (tile.inplay) {
+
+                                tile.lastplayed = true;
+                                this.lastplayed.push(tile);
+
+                                tile.inplay = false;
+                                tile.used = true;
+                                //tile.id = tile.creationID;
+
+                                if (this.tiles.length > 0) {
+                                    // draw a new tile to add to the rack at that index
+                                    let drawnTile = this.drawNewTileForRack(i);
+                                    newrack.push(drawnTile);
+                                }
+
+                            } else {
+                                newrack.push(tile);
+                            }
+                        })
+
+                        // reset rack
+                        this.players[this.turn].rack = newrack;
+
+                        // reset tilesinplay
+                        this.players[this.turn].tilesInPlay = [];
+
+                        // update game turn
+                        this.updateTurn();
+
                     }
-                })
 
-                // reset rack
-                this.players[this.turn].rack = newrack;
 
-                // reset tilesinplay
-                this.players[this.turn].tilesInPlay = [];
 
-                // update game turn
-                this.updateTurn();
+                }
 
-            }
+            })
 
 
         }
 
 
-
     }
+
 
 
     generateAllTiles() {
@@ -472,7 +560,7 @@ class Game {
                             nextcell = this.board.cellsAll[row][rowORcol + steps];
                             pushTo = in_play.adjacent_used.horizontal;
                         }
-
+    
                         if (nextcell.tile !== '') {
                             if (nextcell.tile.used) {
                                 //adjacencies.push(nextcell);
@@ -484,7 +572,7 @@ class Game {
                         } else {
                             break;
                         }
-
+    
                     }
                 }
             })
@@ -661,7 +749,7 @@ class Game {
 
         let setofscores = new Set(scores);
 
-        if (setofscores.size === 1 && setofscores.has(0) ) {
+        if (setofscores.size === 1 && setofscores.has(0)) {
             // check that one of the cells is type '*'
             this.players[this.turn].tilesInPlay.forEach((inplay) => {
                 if (inplay.cell.type === '*') {
@@ -842,7 +930,7 @@ class Game {
 
             }
 
-            
+
 
 
         }
@@ -946,7 +1034,7 @@ class Game {
                         posB[0] = Number(posB[0]);
                         posB[1] = Number(posB[1]);
                         if (pos[0] > posB[0]) {
-
+    
                         }
                     }
                 }
@@ -1365,7 +1453,7 @@ class Game {
                 this.distributedAll.push(tiledrawn);
                 this.tiles.splice(index, 1);
             }
-
+    
             console.log('i = ', i);
             */
         }
@@ -1381,6 +1469,8 @@ class Game {
 
 }
 
+// ACTIVE GAMES
+
 let activeGames = [];
 
 function findMatchingGameCode(gameCode) {
@@ -1391,11 +1481,40 @@ function findMatchingGameCode(gameCode) {
     }
 }
 
+// DICTIONARY API
 
-let http = require('http');
-let fs = require('fs');
+function checkDef(word) {
+    console.log('LOOKING UP ', word);
+    let value = '';
 
-let querystring = require('querystring');
+    fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=a662cfbc-08de-4c57-afe6-989722d50903`).then((res) => {
+        return res.json();
+    }).then((res) => {
+        //console.log(res);
+        if (typeof res[0] === 'string') {
+            console.log('Not a valid word');
+            value = 'Not a valid word';
+            return value;
+        } else {
+            let firstresult = res[0];
+            let shortdef_arry = firstresult.shortdef;
+            //console.log(word.toUpperCase());
+            shortdef_arry.forEach((def) => {
+                //console.log(def);
+            })
+            value = shortdef_arry[0];
+            console.log('value being returned: ', value);
+            return value;
+        }
+
+    })
+
+    // return value;
+
+}
+
+
+// SERVER
 
 http.createServer(function (req, res) {
     //console.log('req: ', req.url);

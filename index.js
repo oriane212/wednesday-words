@@ -7,6 +7,7 @@ let alert = false;
 let modal = false;
 let blanktileid = '';
 let dropzoneid = '';
+let acknowledged = false;
 
 let currentGame = {};
 
@@ -119,10 +120,6 @@ document.addEventListener('click', (e) => {
             let serverGame2 = res;
             currentGame = Object.assign({}, serverGame2);
 
-
-            // isWordValid('qi');
-
-
             for (let player of currentGame.players) {
                 if (playername === player.name) {
                     playerid = player.id;
@@ -136,6 +133,8 @@ document.addEventListener('click', (e) => {
         console.log('tile clicked');
 
     } else if ((e.target.id === 'done' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') && e.target.classList.contains('fa-play')) || (e.target.parentNode.parentNode.classList.contains('selectable') && e.target.parentNode.classList.contains('fa-play'))) {
+
+        acknowledged = false;
 
         console.log('end turn clicked');
         let request = new Request('endturn', {
@@ -154,6 +153,13 @@ document.addEventListener('click', (e) => {
             currentGame = Object.assign({}, serverGame2);
 
             /*
+            if (currentGame.players[playerid].invalidword !== '') {
+                let word = currentGame.players[id].invalidword;
+                invalidwordModal(word);
+            }
+            */
+
+            /*
             if (currentGame.gameover) {
                 endOfGameModal();
             }
@@ -167,9 +173,10 @@ document.addEventListener('click', (e) => {
         blankTileSubmit(blanktileid);
 
 
-    } else if (e.target.id === 'blanklettercancel') {
+    } else if (e.target.id === 'blanklettercancel' || e.target.id === 'ok') {
 
         console.log('blanklettercancel: ', e.target);
+        acknowledged = true;
         modal = false;
 
 
@@ -192,17 +199,13 @@ document.addEventListener('click', (e) => {
             currentGame = Object.assign({}, serverGame2);
         })
 
-    } 
-    /*
-    else if (e.target.id = 'playagain') {
+    } /*
+    else if (e.target.id = 'ok') {
 
-        console.log('play again clicked');
-        fetch('index.html').then((res) => {
-            return res.json();
-        })
+        clickedOK();
 
-    }
-    */ else {
+    } */
+    else {
         console.log(e.target);
     }
 })
@@ -296,14 +299,17 @@ function refreshGame(currentGame) {
         return res.json();
     }).then((res) => {
 
+        //currentGame = res;
+        let serverGame2 = res;
+        currentGame = Object.assign({}, serverGame2);
+        console.log('currentGame rerendered: ', currentGame);
+
         //let serverGame = res;
-
-        if (!alert && !modal) {
-
-            //currentGame = res;
-            let serverGame2 = res;
-            currentGame = Object.assign({}, serverGame2);
-            console.log('currentGame rerendered: ', currentGame);
+        if (!acknowledged && currentGame.players[playerid].invalidword !== '') {
+            let word = currentGame.players[playerid].invalidword;
+            invalidwordModal(word);
+            acknowledged = true;
+        } else if (!alert && !modal) {
 
             let gameContainer = document.getElementById('gameContainer');
             let game = document.createElement('main');
@@ -489,17 +495,18 @@ function playerDashboard(playername, currentGame) {
 
     //lastplayedwords.append(h3);
 
-    currentGame.lastplayedwords.forEach((str) => {
+    currentGame.lastplayedwords.forEach((obj) => {
 
         let word_and_def = document.createElement('p');
         word_and_def.classList.add('listitem');
 
         let word = document.createElement('span');
         word.classList.add('word');
-        word.innerHTML = str;
+        word.innerHTML = obj.word;
 
         let def = document.createElement('span');
-        def.innerHTML = `Sample definition of the word. Still need to put a character length limit on the definition so it's not too long...`;
+        def.innerHTML = obj.def;
+        // def.innerHTML = `Sample definition of the word. Still need to put a character length limit on the definition so it's not too long...`;
 
         word_and_def.append(word, def);
         content.append(word_and_def);
@@ -601,6 +608,43 @@ function endOfGameModal() {
     overlay.append(winnerEl);
     boardcontainer.append(overlay);
 
+}
+
+function invalidwordModal(word) {
+    modal = true;
+
+    let boardcontainer = document.getElementById('boardcontainer');
+
+    let overlay = document.createElement('div');
+    overlay.setAttribute('id', 'overlay');
+
+    let p = document.createElement('p');
+
+    let span = document.createElement('span');
+    span.classList.add('word');
+    span.innerHTML = word;
+
+    let message = document.createElement('span');
+    message.innerHTML = ` does not exist in Merriam Webster's dictionary.`;
+
+    p.append(span, message);
+
+    let btncontainer = document.createElement('div');
+    btncontainer.classList.add('btncontainer');
+
+    let btn = document.createElement('button');
+    btn.setAttribute('id', 'ok');
+    btn.innerHTML = 'OK';
+
+    btncontainer.append(btn);
+
+    overlay.append(p,btncontainer);
+    boardcontainer.append(overlay);
+
+}
+
+function clickedOK() {
+    modal = false;
 }
 
 
@@ -861,14 +905,17 @@ function sendTileMoveToServer(tileid, cellid) {
 
 }
 
+/*
+function checkDef(word) {
+    let value = '';
 
-function isWordValid(word) {
     fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=a662cfbc-08de-4c57-afe6-989722d50903`).then((res) => {
         return res.json();
     }).then((res) => {
         console.log(res);
         if (typeof res[0] === 'string') {
             console.log('Not a valid word');
+            value = 'Not a valid word';
         } else {
             let firstresult = res[0];
             //let word = `"${firstresult.hwi.hw.toUpperCase()}"`;
@@ -877,10 +924,16 @@ function isWordValid(word) {
             shortdef_arry.forEach((def) => {
                 console.log(def);
             })
+            value = shortdef_arry[0];
         }
         
     })
+
+    return value;
 }
+*/
+
+
 
 /*
     Notes
