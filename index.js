@@ -7,7 +7,7 @@ let alert = false;
 let modal = false;
 let blanktileid = '';
 let dropzoneid = '';
-let acknowledged = false;
+//let acknowledged = false;
 
 let currentGame = {};
 
@@ -134,7 +134,7 @@ document.addEventListener('click', (e) => {
 
     } else if ((e.target.id === 'done' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') && e.target.classList.contains('fa-play')) || (e.target.parentNode.parentNode.classList.contains('selectable') && e.target.parentNode.classList.contains('fa-play'))) {
 
-        acknowledged = false;
+        // acknowledged = false;
 
         console.log('end turn clicked');
         let request = new Request('endturn', {
@@ -173,11 +173,33 @@ document.addEventListener('click', (e) => {
         blankTileSubmit(blanktileid);
 
 
-    } else if (e.target.id === 'blanklettercancel' || e.target.id === 'ok') {
+    } else if (e.target.id === 'blanklettercancel') {
 
-        console.log('blanklettercancel: ', e.target);
-        acknowledged = true;
+        console.log('id is blanklettercancel: ', e.target);
         modal = false;
+
+
+    } else if (e.target.id === 'ok') {
+
+        console.log('id is ok: ', e.target);
+        //acknowledged = true;
+        modal = false;
+
+        let request = new Request('acknowledged', {
+            method: 'POST',
+            body: `{
+                "id": "${currentGame.id}",
+                "playerid": "${playerid}"
+            }`
+        });
+
+        fetch(request).then((res) => {
+            return res.json();
+        }).then((res) => {
+            
+            let serverGame2 = res;
+            currentGame = Object.assign({}, serverGame2);
+        })
 
 
     } else if ((e.target.id === 'undo' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') && e.target.classList.contains('fa-undo')) || (e.target.parentNode.parentNode.classList.contains('selectable') && e.target.parentNode.classList.contains('fa-undo'))) {
@@ -199,12 +221,12 @@ document.addEventListener('click', (e) => {
             currentGame = Object.assign({}, serverGame2);
         })
 
-    } /*
-    else if (e.target.id = 'ok') {
+    } else if ((e.target.id === 'shuffle' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') && e.target.classList.contains('fa-random')) || (e.target.parentNode.parentNode.classList.contains('selectable') && e.target.parentNode.classList.contains('fa-random'))) {
 
-        clickedOK();
+        console.log('shuffle clicked');
+        shufflerack();
 
-    } */
+    }
     else {
         console.log(e.target);
     }
@@ -292,7 +314,8 @@ function refreshGame(currentGame) {
     let request = new Request('refresh', {
         method: 'POST',
         body: `{
-            "id": "${currentGame.id}"
+            "id": "${currentGame.id}",
+            "playerid": "${playerid}"
         }`
     })
     fetch(request).then((res) => {
@@ -302,14 +325,23 @@ function refreshGame(currentGame) {
         //currentGame = res;
         let serverGame2 = res;
         currentGame = Object.assign({}, serverGame2);
-        console.log('currentGame rerendered: ', currentGame);
 
         //let serverGame = res;
-        if (!acknowledged && currentGame.players[playerid].invalidword !== '') {
+        if (currentGame.players[playerid].invalidword !== '') {
+
+            console.log('First (invalid word): ', currentGame);
+
             let word = currentGame.players[playerid].invalidword;
             invalidwordModal(word);
-            acknowledged = true;
-        } else if (!alert && !modal) {
+        
+
+        } else if (alert || modal || !currentGame.haschanged) {
+
+            console.log('Second (alert, modal, or !haschanged): ', currentGame);
+
+        } else {
+
+            console.log('Rerendered: ', currentGame);
 
             let gameContainer = document.getElementById('gameContainer');
             let game = document.createElement('main');
@@ -366,10 +398,6 @@ function refreshGame(currentGame) {
             if (currentGame.gameover) {
                 endOfGameModal();
             }
-
-        } else {
-
-            console.log('currentGame NO rerendering: ', currentGame);
 
         }
 
@@ -612,6 +640,7 @@ function endOfGameModal() {
 
 function invalidwordModal(word) {
     modal = true;
+    //acknowledged = false;
 
     let boardcontainer = document.getElementById('boardcontainer');
 
@@ -650,6 +679,7 @@ function clickedOK() {
 
 function blankTileModal(draggableElid) {
     modal = true;
+    //acknowledged = false;
     blanktileid = draggableElid;
 
     let boardcontainer = document.getElementById('boardcontainer');
@@ -905,33 +935,14 @@ function sendTileMoveToServer(tileid, cellid) {
 
 }
 
-/*
-function checkDef(word) {
-    let value = '';
+function shufflerack() {
+    currentGame.players[playerid].rack.reverse();
+    let newrackdiv = renderRack(currentGame, playerid);
+    
+    let currentrackdiv = document.querySelector('.rack');
+    currentrackdiv.innerHTML = newrackdiv.innerHTML;
 
-    fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=a662cfbc-08de-4c57-afe6-989722d50903`).then((res) => {
-        return res.json();
-    }).then((res) => {
-        console.log(res);
-        if (typeof res[0] === 'string') {
-            console.log('Not a valid word');
-            value = 'Not a valid word';
-        } else {
-            let firstresult = res[0];
-            //let word = `"${firstresult.hwi.hw.toUpperCase()}"`;
-            let shortdef_arry = firstresult.shortdef;
-            console.log(word.toUpperCase());
-            shortdef_arry.forEach((def) => {
-                console.log(def);
-            })
-            value = shortdef_arry[0];
-        }
-        
-    })
-
-    return value;
 }
-*/
 
 
 

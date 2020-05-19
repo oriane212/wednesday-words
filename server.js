@@ -3,6 +3,8 @@ let fs = require('fs');
 
 const fetch = require('node-fetch');
 
+let alreadyrefreshedwchange = 0;
+
 console.log('yo yo yo');
 
 const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -106,6 +108,7 @@ class Board {
 
 class Player {
     constructor(name) {
+        this.seenachange = 0;
         this.name = name;
         this.score = 0;
         this.mainword = '';
@@ -119,41 +122,6 @@ class Player {
         this.id;
     }
 
-    /*
-    // works only for first word played right now
-    calculatePointsInPlay() {
-        let dw = 0;
-        let tw = 0;
-        let pointsInPlay = 0;
-        this.rack.forEach((tile) => {
-            if (tile.inplay) {
-
-                let cell = tile.cellid
-
-                let points = tile.points;
-                if (tile.cell.type === 'DW') {
-                    dw += 1;
-                } else if (tile.cell.type === 'TW') {
-                    tw += 1;
-                } else if (tile.cell.type === 'DL') {
-                    points *= 2;
-                } else if (tile.cell.type === 'TL') {
-                    points *= 3;
-                }
-                pointsInPlay += points;
-            }
-        })
-        for (let i=0; i < dw; i++) {
-            pointsInPlay *= 2;
-        }
-        for (let i=0; i < tw; i++) {
-            pointsInPlay *= 3;
-        }
-
-        return pointsInPlay;
-
-    }
-    */
 
     updateScore() {
         this.score += this.pointsInPlay;
@@ -162,6 +130,10 @@ class Player {
 
     updateID(index) {
         this.id = index;
+    }
+
+    shuffle() {
+
     }
 }
 
@@ -183,6 +155,7 @@ class Tile {
 
 class Game {
     constructor(numOfPlayers) {
+        this.haschanged = true;
         this.id = generateCode(4);
         this.numOfPlayers = Number(numOfPlayers);
         this.players = [];
@@ -192,7 +165,7 @@ class Game {
         this.testSquareColor = 'blue';
         this.board = new Board();
         this.letters = [
-            { letter: '-', distributed: 0, fakecountfortesting: 1, tiles: 2, points: 0 },
+            { letter: '-', distributed: 0, fakecountfortesting: 1, tiles: 200, points: 0 },
             { letter: 'A', distributed: 0, fakecountfortesting: 1, tiles: 9, points: 1 },
             { letter: 'B', distributed: 0, fakecountfortesting: 1, tiles: 2, points: 3 },
             { letter: 'C', distributed: 0, fakecountfortesting: 1, tiles: 2, points: 3 },
@@ -226,6 +199,10 @@ class Game {
         this.lastplayed = [];
         this.lastplayedwords = [];
         //this.distributedAll = [];
+    }
+
+    changed(boolvalue) {
+        this.haschanged = boolvalue;
     }
 
     endgame() {
@@ -1520,26 +1497,6 @@ http.createServer(function (req, res) {
     //console.log('req: ', req.url);
     //console.log("listening on: 3000");
 
-    // TO DO: add stylesheet
-
-    /*
-    if (req.url.includes('naming')) {
-        //res.end(console.log(req.url));
-        //return;
-        let arry = req.url.split('?');
-        let qs = querystring.parse(arry[1]);
-        console.log(qs);
-        let name = qs.name;
-        console.log(name);
-        let player1 = new Player(name);
-        let game1 = new Game(player1);
-        let gamehtml = game1.render();
-        res.end(gamehtml);
-        //res.end(`<div>Welcome ${player1.name}!!</div>`);
-        return name;
-    }
-    */
-
 
     if (req.url.endsWith('start')) {
         let body = '';
@@ -1554,9 +1511,13 @@ http.createServer(function (req, res) {
             //let player = new Player(parsedBody.player);
             let newGame = new Game(numOfPlayers);
             newGame.addPlayer(parsedBody.player);
+            //newGame.changed(true);
             activeGames.push(newGame);
             //console.log(activeGames);
             res.end(JSON.stringify(newGame));
+
+           
+            
             return;
         })
 
@@ -1581,10 +1542,14 @@ http.createServer(function (req, res) {
                 //let player = new Player(parsedBody.player);
                 //matchingGame.players.push(player);
                 matchingGame.addPlayer(parsedBody.player);
+                matchingGame.changed(true);
                 if (matchingGame.readyToStart()) {
                     matchingGame.ready = true;
                 };
                 res.end(JSON.stringify(matchingGame));
+
+                
+                
 
             } else {
                 let message = { msg: 'Please enter a valid game code' };
@@ -1633,8 +1598,11 @@ http.createServer(function (req, res) {
             //console.log('tilemove found matchingGame: ', matchingGame);
 
             matchingGame.tileMove(parsedBody.tileid, parsedBody.cellid);
+            matchingGame.changed(true);
 
             res.end(JSON.stringify(matchingGame));
+
+            
             return;
         })
 
@@ -1657,8 +1625,12 @@ http.createServer(function (req, res) {
                 //console.log('tilemove found matchingGame: ', matchingGame);
 
                 matchingGame.assignLetterToBlankTile(parsedBody.tileid, parsedBody.letter);
+                matchingGame.changed(true);
 
                 res.end(JSON.stringify(matchingGame));
+
+               
+            
             } else {
                 let message = { msg: 'Please enter one valid letter' };
                 res.end(JSON.stringify(message));
@@ -1682,8 +1654,35 @@ http.createServer(function (req, res) {
             console.log('endturn body: ', parsedBody);
             let matchingGame = findMatchingGameCode(parsedBody.id);
             matchingGame.endturn();
+            matchingGame.changed(true);
 
             res.end(JSON.stringify(matchingGame));
+
+            
+            
+            return;
+        })
+
+        return;
+    }
+
+    if (req.url.endsWith('acknowledged')) {
+        let body = '';
+
+        req.on('data', (chunk) => {
+            body += chunk;
+        })
+        req.on('end', () => {
+            let parsedBody = JSON.parse(body);
+            console.log('acknowledged body: ', parsedBody);
+            let matchingGame = findMatchingGameCode(parsedBody.id);
+            matchingGame.players[parsedBody.playerid].invalidword = '';
+            matchingGame.changed(true);
+
+            res.end(JSON.stringify(matchingGame));
+
+            
+            
             return;
         })
 
@@ -1701,8 +1700,10 @@ http.createServer(function (req, res) {
             console.log('undo body: ', parsedBody);
             let matchingGame = findMatchingGameCode(parsedBody.id);
             matchingGame.undo();
+            matchingGame.changed(true);
 
             res.end(JSON.stringify(matchingGame));
+
             return;
         })
 
@@ -1720,11 +1721,73 @@ http.createServer(function (req, res) {
             let parsedBody = JSON.parse(body);
             //console.log(parsedBody);
             let matchingGame = findMatchingGameCode(parsedBody.id);
+            
 
             //matchingGame.testSquareColor = parsedBody.testSquareColor;
             //console.log('refresh found matchingGame: ', matchingGame);
             //console.log(activeGames);
-            res.end(JSON.stringify(matchingGame));
+            
+            //res.end(JSON.stringify(matchingGame));
+
+            
+            if (matchingGame !== undefined) {
+                let matchingplayer = matchingGame.players[parsedBody.playerid];
+
+                if (matchingGame.ready) {
+
+                    if (matchingGame.changed && matchingplayer.seenachange < 2) {
+                    
+                        res.end(JSON.stringify(matchingGame));
+                        matchingplayer.seenachange += 1;
+    
+                        /*
+                        setTimeout(()=> { 
+                            matchingGame.changed(false);
+                            alreadyrefreshedwchange = false;
+                        }, 1000);
+                        */
+                    } else if (matchingGame.changed && matchingplayer.seenachange === 2) {
+                        
+                        let seenachange_all = 0;
+                        matchingGame.players.forEach((player) => {
+                            if (player.seenachange === 2) {
+                                seenachange_all += 1;
+                            }
+                        })
+                        // if every player has seen the change then reset all
+                        if (seenachange_all === matchingGame.players.length) {
+                            matchingGame.players.forEach((player) => {
+                                player.seenachange = 0;
+                            })
+                            res.end(JSON.stringify(matchingGame));
+                            matchingGame.changed(false);
+                        } else {
+                            res.end(JSON.stringify(matchingGame));
+                        }
+
+                       // matchingplayer.seenachange = 0;
+                        //res.end(JSON.stringify(matchingGame));
+    
+                        /*
+                        setTimeout(()=> { 
+                            alreadyrefreshedwchange = true;
+                        }, 1000);
+                        */
+                        
+                    } else {
+                        res.end(JSON.stringify(matchingGame));
+                    }
+
+
+                } else {
+                    res.end(JSON.stringify(matchingGame));
+                }
+
+                
+            }
+            
+            
+
             return;
         })
 

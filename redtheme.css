@@ -168,7 +168,7 @@ div.tile.blank-tile.selectable:hover {
     color: white;
 }
 
-#done.disabled, #undo.disabled {
+#done.disabled, #undo.disabled, #shuffle.disabled {
     color: maroon; /* or indianred? */
 }
 
