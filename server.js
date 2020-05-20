@@ -1754,6 +1754,14 @@ http.createServer(function (req, res) {
     }
 */
 
+    if (req.url.endsWith('2.js')) {
+        res.writeHead(200, {'Content-Type': 'text/javascript'});
+        res.write(fs.readFileSync('./testfile2.js'));
+        console.log('testfile2.js is called');
+        res.end();
+        return;
+    }
+
     // /MWlogo.png
     if (req.url.endsWith('MWlogo.png')) {
         res.write(fs.readFileSync('./MWlogo.png'));
@@ -1770,6 +1778,7 @@ http.createServer(function (req, res) {
     }
 
     if (req.url.endsWith('index.js')) {
+        res.writeHead(200, {'Content-Type': 'text/javascript'});
         res.write(fs.readFileSync('./index.js'));
         console.log('index js is called');
         res.end();
