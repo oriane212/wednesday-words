@@ -1,4 +1,4 @@
-import {sayhola} from './testfile2.js';
+//import {sayhola} from './testfile2.js';
 
 
 let playername = '';
@@ -306,7 +306,7 @@ function refreshGame(currentGame) {
         currentGame = Object.assign({}, serverGame2);
         console.log('currentGame rerendered: ', currentGame);
 
-        sayhola();
+        //sayhola();
 
         //let serverGame = res;
         if (!acknowledged && currentGame.players[playerid].invalidword !== '') {

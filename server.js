@@ -3,7 +3,10 @@ let fs = require('fs');
 
 const fetch = require('node-fetch');
 
+//let sayhola = require('./testfile2');
+
 console.log('yo yo yo');
+//sayhola();
 
 const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 let port = process.env.PORT || 3000;
@@ -1771,6 +1774,7 @@ http.createServer(function (req, res) {
     }
 
     if (req.url.endsWith('redtheme.css')) {
+        res.writeHead(200, {'Content-Type': 'text/css'});
         res.write(fs.readFileSync('./redtheme.css'));
         console.log('red theme is called');
         res.end();
@@ -1781,6 +1785,14 @@ http.createServer(function (req, res) {
         res.writeHead(200, {'Content-Type': 'text/javascript'});
         res.write(fs.readFileSync('./index.js'));
         console.log('index js is called');
+        res.end();
+        return;
+    }
+
+    if (req.url.endsWith('component_test.js')) {
+        res.writeHead(200, {'Content-Type': 'text/babel'});
+        res.write(fs.readFileSync('./component_test.js'));
+        console.log('component_test js is called');
         res.end();
         return;
     }

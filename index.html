@@ -4,7 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script defer src="https://use.fontawesome.com/releases/v5.7.2/js/all.js" integrity="sha384-0pzryjIRos8mFBWMzSSZApWtPl/5++eIfzYmTgBBmXYdhvxPc+XcFEk+zJwDgWbP" crossorigin="anonymous"></script>    
+    <script defer src="https://use.fontawesome.com/releases/v5.7.2/js/all.js"
+        integrity="sha384-0pzryjIRos8mFBWMzSSZApWtPl/5++eIfzYmTgBBmXYdhvxPc+XcFEk+zJwDgWbP"
+        crossorigin="anonymous"></script>
+    <!-- not for production -->
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
     <title>Wednesday Words</title>
     <style>
         html {
@@ -37,16 +42,16 @@
             font-style: italic;
         }
 
-        h2{
+        h2 {
             color: darkslategray;
             font-weight: 400;
         }
 
-        
+
         #name {
-           /* width: 50%; */
+            /* width: 50%; */
         }
-        
+
 
         div.indexouter {
             width: 100%;
@@ -148,7 +153,7 @@
         }
 
         div.blank {
-            color:  rgb(211, 192, 168);
+            color: rgb(211, 192, 168);
         }
 
         div.TW {
@@ -182,7 +187,7 @@
         #overlay {
             width: 668px;
             height: 428px;
-            background-color: rgba(0,0,0,0.8);
+            background-color: rgba(0, 0, 0, 0.8);
             color: white;
             position: absolute;
             text-align: center;
@@ -206,37 +211,37 @@
             margin: 20px auto;
         }
 
-       .btncontainer {
-           display: inline-flex;
-           width: 250px;
-           justify-content: space-evenly;
-       }
+        .btncontainer {
+            display: inline-flex;
+            width: 250px;
+            justify-content: space-evenly;
+        }
 
-       #invalidmsg {
-           margin: 24px auto;
-           background-color: brown;
-           font-weight: 100;
-           height: 20px;
-           width: 600px;
-           padding: 4px;
-            font-family: sans-serif;
-            font-size: smaller;
-       }
-
-       #invalidmsg_index {
+        #invalidmsg {
             margin: 24px auto;
-           color: brown;
-           font-weight: 500;
-           height: 20px;
-           width: 100%;
-           padding: 4px;
+            background-color: brown;
+            font-weight: 100;
+            height: 20px;
+            width: 600px;
+            padding: 4px;
             font-family: sans-serif;
             font-size: smaller;
-       }
+        }
 
-       .fa-exclamation-circle {
-           margin-right: 6px;
-       }
+        #invalidmsg_index {
+            margin: 24px auto;
+            color: brown;
+            font-weight: 500;
+            height: 20px;
+            width: 100%;
+            padding: 4px;
+            font-family: sans-serif;
+            font-size: smaller;
+        }
+
+        .fa-exclamation-circle {
+            margin-right: 6px;
+        }
 
         #game {
             display: inline-flex;
@@ -341,9 +346,7 @@
             /* height: 39.5px; */
         }
 
-        #playerlist {
-            
-        }
+        #playerlist {}
 
         /*
         #playerdivscontainer {
@@ -465,15 +468,13 @@
             color: darkslategray;
             font-weight: 400;
         }
-        
+
         h3 {
             font-family: sans-serif;
             color: peru;
             text-transform: uppercase;
             font-size: medium;
         }
-
-
     </style>
     <!--
         <link href="scrabble.css" type="text/css">
@@ -504,7 +505,9 @@ target="" method="POST""
 
     <div class="indexouter">
 
-        <h1>Wednesday Words</h1>
+        <div id="react_test">
+            <h1>Wednesday Words</h1>
+        </div>
 
         <div id="gameContainer">
 
@@ -522,10 +525,10 @@ target="" method="POST""
                             <option value="4">4</option>
                         </select>
                     </div>
-    
+
                     <button id='start'>Start</button>
                 </section>
-    
+
                 <section class='join'>
                     <h2>Join a Game</h2>
                     <input type="text" name="namejoin" id="namejoin" placeholder="Enter your name"
@@ -534,18 +537,30 @@ target="" method="POST""
                         aria-placeholder="Enter game code" minlength="4" maxlength="4">
                     <button id='join'>Join</button>
                 </section>
-    
+
             </div>
 
 
 
         </div>
 
-        
+
 
     </div>
 
-    <script type="module" src="/index.js"></script>
+    <!-- Load React. -->
+    <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+
+    <!-- Load our React component. -->
+  <script type="text/babel" src="component_test.js"></script>
+  
+  
+  <!--
+      <script type="module" src="/index.js"></script>
+  -->
+    <script src="/index.js"></script>
 
     <!--
         <script>
