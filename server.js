@@ -1797,6 +1797,14 @@ http.createServer(function (req, res) {
         return;
     }
 
+    if (req.url.endsWith('IconButton.js')) {
+        res.writeHead(200, {'Content-Type': 'text/babel'});
+        res.write(fs.readFileSync('./components/IconButton.js'));
+        console.log('IconButton js is called');
+        res.end();
+        return;
+    }
+
     if (req.url.endsWith('index.html')) {
         res.write(fs.readFileSync('./index.html'));
         console.log('INDEX');

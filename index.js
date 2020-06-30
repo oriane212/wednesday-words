@@ -134,7 +134,7 @@ document.addEventListener('click', (e) => {
     } else if (e.target.classList.contains('tile') || e.target.classList.contains('letter') || e.target.classList.contains('ptvalue')) {
         console.log('tile clicked');
 
-    } else if ((e.target.id === 'done' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') && e.target.classList.contains('fa-play')) || (e.target.parentNode.parentNode.classList.contains('selectable') && e.target.parentNode.classList.contains('fa-play'))) {
+    } else if ((e.target.id === 'play' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') && e.target.classList.contains('fa-play')) || (e.target.parentNode.parentNode.classList.contains('selectable') && e.target.parentNode.classList.contains('fa-play'))) {
 
         acknowledged = false;
 
@@ -407,7 +407,7 @@ function playerDashboard(playername, currentGame) {
     undoPlay.innerHTML = `<i class="fas fa-undo"></i>`;
 
     let doneplaying = document.createElement('div');
-    doneplaying.setAttribute('id', 'done');
+    doneplaying.setAttribute('id', 'play');
     doneplaying.innerHTML = `<i class="fas fa-play"></i>`;
 
     if (gameInProgress && playerid === currentGame.turn) {
@@ -439,7 +439,7 @@ function playerDashboard(playername, currentGame) {
     // SHUFFLE
 
     let shuffle = document.createElement('div');
-    shuffle.setAttribute('id', 'shuffle');
+    shuffle.setAttribute('id', 'random');
     shuffle.innerHTML = `<i class="fas fa-random"></i>`;
 
     // PLAYER TURN SECTION

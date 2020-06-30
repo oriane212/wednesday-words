@@ -158,17 +158,17 @@ div.tile.blank-tile.selectable:hover {
     /* padding-right: 4px; */
 }
 
-#done, #undo {
+#play, #undo {
     font-size: large;
     width: 10%;
     color: blanchedalmond;
 }
 
-#done.selectable:hover, #undo.selectable:hover {
+#play.selectable:hover, #undo.selectable:hover {
     color: white;
 }
 
-#done.disabled, #undo.disabled {
+#play.disabled, #undo.disabled {
     color: maroon; /* or indianred? */
 }
 
