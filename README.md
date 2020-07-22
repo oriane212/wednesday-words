@@ -26,7 +26,7 @@ Remote multiplayer web game
 ### Client-Server Flow
 
 
-![Client-Server flow diagram](WednesdayWordsFlowDiagram.png)
+![Client-Server flow diagram](WednesdayWordsFlowDiagram_crop.png)
 
 ### To do
 
