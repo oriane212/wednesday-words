@@ -16,17 +16,17 @@ Remote multiplayer web game
 
 ## Development
 
-
 - Node.js http server
 - JavaScript client
 - ES6 Class-based game model
 - Merriam Webster's API word definition lookup
-- Heroku host
 
 ### Client-Server Flow
+The diagram shows each client request, server response, and rendered UI for starting, joining, and playing a 2-player game.
 
+(To zoom in, click the image and download for full view in the browser)
 
-![Client-Server flow diagram](WednesdayWordsFlowDiagram_crop.png)
+![Client-Server flow diagram](WednesdayWordsFlowDiagram_cropped.png)
 
 ### To do
 
