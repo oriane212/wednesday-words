@@ -34,12 +34,10 @@ class Game extends React.Component {
 
     render() {
 
-        let isPlayerTurn = (this.state.game.turn === this.props.playerID);
-
         return (
             <div id='gameContainer'>
-                <Dashboard player={this.props.playerID} turn={isPlayerTurn} activeGame={this.state.game} />
-                <Board turn={isPlayerTurn} activeBoard={this.state.game} />
+                <Dashboard playerID={this.props.playerID} game={this.state.game} />
+                <Board playerID={this.props.playerID} game={this.state.game} />
             </div>
             
         )
