@@ -158,18 +158,22 @@ div.tile.blank-tile.selectable:hover {
     /* padding-right: 4px; */
 }
 
-#done, #undo {
+#done, #undo, #shuffle {
     font-size: large;
     width: 10%;
-    color: blanchedalmond;
+    color: indianred;
 }
 
-#done.selectable:hover, #undo.selectable:hover {
+#done.selectable, #undo.selectable, #shuffle.selectable {
+    color: antiquewhite;
+}
+
+#done.selectable:hover, #undo.selectable:hover, #shuffle.selectable:hover {
     color: white;
 }
 
-#done.disabled, #undo.disabled {
-    color: maroon; /* or indianred? */
+#done.disabled, #undo.disabled, #shuffle.disabled {
+    color: indianred;
 }
 
 #playerdivscontainer.playerdashsection {

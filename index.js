@@ -199,12 +199,25 @@ document.addEventListener('click', (e) => {
             currentGame = Object.assign({}, serverGame2);
         })
 
-    } /*
-    else if (e.target.id = 'ok') {
+    } else if ((e.target.id === 'shuffle' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') && e.target.classList.contains('fa-random')) || (e.target.parentNode.parentNode.classList.contains('selectable') && e.target.parentNode.classList.contains('fa-random'))) {
 
-        clickedOK();
+        console.log('clicked shuffle');
+        let request = new Request('shuffle', {
+            method: 'POST',
+            body: `{
+                "id": "${currentGame.id}",
+                "playerid": "${playerid}"
+            }`
+        });
 
-    } */
+        fetch(request).then((res) => {
+            return res.json();
+        }).then((res) => {
+            let serverGame2 = res;
+            currentGame = Object.assign({}, serverGame2);
+        })
+
+    } 
     else {
         console.log(e.target);
     }
@@ -411,7 +424,7 @@ function playerDashboard(playername, currentGame) {
             pointsInPlay.innerHTML = `${currentGame.players[playerid].pointsInPlay}`;
             doneplaying.classList.add('selectable');
         } else {
-            pointsInPlay.innerHTML = `__`;
+            pointsInPlay.innerHTML = `0`;
         }
         
 
@@ -437,6 +450,14 @@ function playerDashboard(playername, currentGame) {
     let shuffle = document.createElement('div');
     shuffle.setAttribute('id', 'shuffle');
     shuffle.innerHTML = `<i class="fas fa-random"></i>`;
+
+    // only enable shuffle when none of player's tiles are in play on the board
+    if (currentGame.players[playerid].tilesInPlay.length === 0) {
+        shuffle.classList.add('selectable');
+    } else {
+        shuffle.classList.add('disabled');
+    }
+
 
     // PLAYER TURN SECTION
 

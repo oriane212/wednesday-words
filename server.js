@@ -429,6 +429,9 @@ class Game {
                         // reset tilesinplay
                         this.players[this.turn].tilesInPlay = [];
 
+                        // reset valid play
+                        this.players[this.turn].hasvalidplay = false;
+
                         // update game turn
                         this.updateTurn();
 
@@ -1459,6 +1462,16 @@ class Game {
         }
     }
 
+    shuffleRack(player) {
+        let array = player.rack;
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * i);
+            const temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+          }
+    }
+
     updateTurn() {
         if (this.turn < this.players.length - 1) {
             this.turn += 1;
@@ -1701,6 +1714,26 @@ http.createServer(function (req, res) {
             console.log('undo body: ', parsedBody);
             let matchingGame = findMatchingGameCode(parsedBody.id);
             matchingGame.undo();
+
+            res.end(JSON.stringify(matchingGame));
+            return;
+        })
+
+        return;
+    }
+
+    if (req.url.endsWith('shuffle')) {
+        let body = '';
+
+        req.on('data', (chunk) => {
+            body += chunk;
+        })
+        req.on('end', () => {
+            let parsedBody = JSON.parse(body);
+            console.log('shuffle body: ', parsedBody);
+            let matchingGame = findMatchingGameCode(parsedBody.id);
+            let player = matchingGame.players[parsedBody.playerid];
+            matchingGame.shuffleRack(player);
 
             res.end(JSON.stringify(matchingGame));
             return;
