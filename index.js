@@ -49,14 +49,16 @@ document.addEventListener('click', (e) => {
         welcome.style.display = "none";
 
         let startsection = document.querySelector('.start');
-        startsection.style.display = "block";
+        startsection.style.display = "flex";
+        startsection.style.flexDirection = "column";
 
     } else if (e.target.id == 'joinlink') {
         
         welcome.style.display = "none";
 
         let joinsection = document.querySelector('.join');
-        joinsection.style.display = "block";
+        joinsection.style.display = "flex";
+        joinsection.style.flexDirection = "column";
 
     } else if (e.target.id == 'join') {
 

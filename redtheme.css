@@ -17,7 +17,8 @@ div.indexinner section {
 }
 
 section.welcome {
-    display: block;
+    display: flex;
+    justify-content: space-evenly;
 }
 
 div.indexinner section.start {
@@ -29,7 +30,6 @@ div.indexinner section.join {
 }
 
 section.welcome a {
-    margin: 64px;
     color: white;
     font-size: large;
 }
