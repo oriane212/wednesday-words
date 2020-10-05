@@ -1,10 +1,42 @@
 
+button {
+    border: 1px solid cadetblue;
+}
+
+button:hover {
+    border: 1px solid darkcyan;
+}
+
 div.indexinner section {
-    width: inherit;
+    width: 680px;
     padding: 30px;
     margin: 8px;
     background-color: brown;
     border-radius: 8px;
+    margin: auto;
+}
+
+section.welcome {
+    display: block;
+}
+
+div.indexinner section.start {
+    display: none;
+}
+
+div.indexinner section.join {
+    display: none;
+}
+
+section.welcome a {
+    margin: 64px;
+    color: white;
+    font-size: large;
+}
+
+section.welcome a:hover {
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 label {
@@ -46,10 +78,16 @@ header.playerturn {
     border-bottom-right-radius: 0;
 }
 
+h1 {
+    color: antiquewhite;
+    margin: 34px auto;
+}
+
 h2 {
     color: lightgoldenrodyellow;
     font-weight: 400;
     letter-spacing: 0.5px;
+    margin: 36px;
 }
 
 #mainbtns {

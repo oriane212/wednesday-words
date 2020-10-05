@@ -50,6 +50,7 @@
 
         div.indexouter {
             width: 100%;
+            margin-top: 60px;
         }
 
         div.indexinner {
@@ -93,12 +94,14 @@
             font-size: small;
             text-align: center;
             margin: 12px auto;
-            width: 300px;
+            width: 400px;
             font-family: sans-serif;
+            border: 1px solid antiquewhite;
+            border-radius: 6px;
         }
 
         input:hover {
-            border: 2px solid darkslategray;
+            border: 1px solid gold;
         }
 
         button:hover {
@@ -113,13 +116,24 @@
             color: white;
             font-weight: 600;
             border-radius: 6px;
+            margin: 36px auto;
         }
 
         select {
             font-size: small;
-            width: 50px;
+            width: 406px;
             height: 36px;
-            margin: 0 0 12px 4px;
+            margin: 12px auto;
+            border: 1px solid indianred;
+            border-radius: 6px;
+            padding-left: 170px;
+            color: white;
+            background-color: indianred;
+        }
+
+        select:hover {
+            background-color: #d64748;
+            border-color: #d64748;
         }
 
         #testsquare {
@@ -225,13 +239,13 @@
 
        #invalidmsg_index {
             margin: 24px auto;
-           color: brown;
-           font-weight: 500;
+           color: floralwhite;
            height: 20px;
            width: 100%;
            padding: 4px;
             font-family: sans-serif;
             font-size: smaller;
+            font-weight: 100;
        }
 
        .fa-exclamation-circle {
@@ -510,22 +524,28 @@ target="" method="POST""
 
             <div class="indexinner">
 
-                <section class='start'>
+                <section class='welcome'>
+                    <a id="startlink">Start a Game</a>
+                    <a id="joinlink">Join a Game</a>
+                </section>
+
+                
+                    <section class='start'>
                     <h2>Start a Game</h2>
                     <input type="text" name="namestart" id="namestart" placeholder="Enter your name"
                         aria-placeholder="Enter your name">
                     <div>
-                        <label for="numOfPlayers">Players:</label>
+                        <!-- <label for="numOfPlayers">Players:</label> -->
                         <select id="numOfPlayers">
-                            <option value="2" selected>2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
+                            <option value="2" selected>2 players</option>
+                            <option value="3">3 players</option>
+                            <option value="4">4 players</option>
                         </select>
                     </div>
     
                     <button id='start'>Start</button>
                 </section>
-    
+                
                 <section class='join'>
                     <h2>Join a Game</h2>
                     <input type="text" name="namejoin" id="namejoin" placeholder="Enter your name"
@@ -534,6 +554,8 @@ target="" method="POST""
                         aria-placeholder="Enter game code" minlength="4" maxlength="4">
                     <button id='join'>Join</button>
                 </section>
+                
+                
     
             </div>
 

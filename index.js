@@ -11,6 +11,8 @@ let acknowledged = false;
 
 let currentGame = {};
 
+let welcome = document.querySelector('.welcome');
+
 document.addEventListener('click', (e) => {
 
     if (e.target.id == 'testsquare') {
@@ -41,6 +43,20 @@ document.addEventListener('click', (e) => {
             e.target.style.cssText = `background-color: ${currentGame.testSquareColor}`;
         })
 
+
+    } else if (e.target.id == 'startlink') {
+
+        welcome.style.display = "none";
+
+        let startsection = document.querySelector('.start');
+        startsection.style.display = "block";
+
+    } else if (e.target.id == 'joinlink') {
+        
+        welcome.style.display = "none";
+
+        let joinsection = document.querySelector('.join');
+        joinsection.style.display = "block";
 
     } else if (e.target.id == 'join') {
 
