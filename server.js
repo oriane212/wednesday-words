@@ -470,6 +470,7 @@ class Game {
         let playerToAdd = new Player(name);
         this.players.push(playerToAdd);
         playerToAdd.updateID(this.players.length - 1);
+        this.readyToStart();
     }
 
 
@@ -1411,8 +1412,9 @@ class Game {
     }
 
     readyToStart() {
-        this.generateAllTiles();
         if (this.numOfPlayers === this.players.length) {
+            this.generateAllTiles();
+            this.ready = true;
             this.distribute_init();
             return true;
         } else {
@@ -1576,6 +1578,36 @@ http.createServer(function (req, res) {
         return;
     }
 
+    if (req.url.endsWith('demo')) {
+        
+        let body = '';
+
+        req.on('data', (chunk) => {
+            body += chunk;
+        })
+        
+        req.on('end', () => {
+            let parsedBody = JSON.parse(body);
+            console.log('demo request on server');
+            let numOfPlayers = parsedBody.numOfPlayers;
+            let newGame = new Game(numOfPlayers);
+            
+            // add words to board using tiles from newGame.tiles before adding players (which distributes tiles from actual remaining tiles to each player)
+            // newGame.demo()
+
+            newGame.addPlayer(parsedBody.player);
+            for (let i=2; i <= Number(numOfPlayers); i++) {
+                newGame.addPlayer(`Player ${i}`);
+            }
+            activeGames.push(newGame);
+            //console.log(activeGames);
+            res.end(JSON.stringify(newGame));
+            return;
+        })
+
+        return;
+    }
+
 
 
     if (req.url.endsWith('join')) {
@@ -1594,9 +1626,11 @@ http.createServer(function (req, res) {
                 //let player = new Player(parsedBody.player);
                 //matchingGame.players.push(player);
                 matchingGame.addPlayer(parsedBody.player);
+                /*
                 if (matchingGame.readyToStart()) {
                     matchingGame.ready = true;
                 };
+                */
                 res.end(JSON.stringify(matchingGame));
 
             } else {

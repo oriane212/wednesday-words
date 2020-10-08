@@ -21,6 +21,10 @@ section.welcome {
     justify-content: space-evenly;
 }
 
+div.indexinner section.demo {
+    display: none;
+}
+
 div.indexinner section.start {
     display: none;
 }
@@ -87,7 +91,11 @@ h2 {
     color: lightgoldenrodyellow;
     font-weight: 400;
     letter-spacing: 0.5px;
-    margin: 36px;
+    margin: 36px 0;
+}
+
+#name {
+    
 }
 
 #mainbtns {

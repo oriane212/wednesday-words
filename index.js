@@ -44,6 +44,46 @@ document.addEventListener('click', (e) => {
         })
 
 
+    } else if (e.target.id == 'demo') {
+
+        console.log('demo clicked');
+        const input_name = document.getElementById('namedemo').value;
+
+        playername = input_name;
+
+        let request = new Request('demo', {
+            method: 'POST',
+            body: ` {
+                "player": "${playername}",
+                "numOfPlayers": "4" 
+            } `
+        });
+
+        fetch(request).then((res) => {
+            return res.json();
+        }).then((res) => {
+            let serverGame2 = res;
+            currentGame = Object.assign({}, serverGame2);
+
+            
+            for (let player of currentGame.players) {
+                if (playername === player.name) {
+                    playerid = player.id;
+                }
+            }
+            
+
+            refreshGameInterval = setInterval(refreshGame, 1000, currentGame);
+        })
+
+    } else if (e.target.id == 'demolink') {
+
+        welcome.style.display = "none";
+
+        let demosection = document.querySelector('.demo');
+        demosection.style.display = "flex";
+        demosection.style.flexDirection = "column";
+
     } else if (e.target.id == 'startlink') {
 
         welcome.style.display = "none";
