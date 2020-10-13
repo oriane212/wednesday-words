@@ -22,12 +22,12 @@
 
 #### create demo game
 - [x] new game with 4 players, user by name as first player
-- [ ] add 4 words to the board, add points to each player's score accordingly
-- [ ] look up player 4's word w Webster API, set game.lastwordsplayed array to word-def obj(s) played by player 4, and set game.lastplayed to player 4's word
+- [x] add 4 words to the board, add points to each player's score accordingly
+- [x] look up player 4's word w Webster API, set game.lastwordsplayed array to word-def obj(s) played by player 4, and set game.lastplayed to player 4's word
 
 #### other
 - [x] add a check for game readiness each time a player is added
-- [ ] add demo property to game obj set false?
+- [x] add demo property to game obj set false?
 
 ### Client
 - [ ] add tooltips

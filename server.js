@@ -155,8 +155,8 @@ class Player {
     }
     */
 
-    updateScore() {
-        this.score += this.pointsInPlay;
+    updateScore(pointsInPlay) {
+        this.score += pointsInPlay;
         this.pointsInPlay = 0;
     }
 
@@ -220,12 +220,68 @@ class Game {
             { letter: 'Y', distributed: 0, fakecountfortesting: 1, tiles: 2, points: 4 },
             { letter: 'Z', distributed: 0, fakecountfortesting: 1, tiles: 1, points: 10 }
         ];
-        this.tiles = [];
+        this.tiles = this.generateAllTiles();;
         this.tiles_drawn = [];
         this.gameover = false;
         this.lastplayed = [];
         this.lastplayedwords = [];
         //this.distributedAll = [];
+        this.demowords = [
+            
+            { play: 'WED', vertical: false, start: [7, 5], score: 14, tiles: [] },
+            { play: 'NESDAY', vertical: false, start: [7, 8], score: 19, tiles: [] },
+            { play: 'EMO', vertical: true, start: [8, 11], score: 7, tiles: [] },
+            { play: 'WORDS', vertical: true, start: [4, 7], score: 9, tiles: [] }
+        ]
+        this.demo = false;
+    }
+
+    addDemoWordsToBoard() {
+        console.log('addDemoWordsToBoard');
+        for (let word of this.demowords) {
+            console.log(word);
+
+            let pos = word.start;
+            let i = word.vertical ? 0 : 1; // if word is played vertically, increment row by 1, otherwise increment col by 1
+            console.log('pos: ', pos);
+            console.log('i = ', i);
+
+            for (let letter of word.play) {
+                console.log('letter: ', letter);
+                let boardcell = this.board.cellsAll[pos[0]][pos[1]];
+                console.log('boardcell: ', boardcell);
+                // if no tile is already in that spot on board, add tile for that letter
+                if (boardcell.tile === '') {
+                    let tile = this.getTileForDemoWord(letter);
+                    tile.used = true;
+                    tile.cellid = `${pos[0]}_${pos[1]}`;
+                    word.tiles.push(tile);
+                    this.board.updateCell(boardcell, tile);
+                }
+                pos[i] += 1;
+            }
+        }
+    }
+
+    websterLookUp(word) {
+        let promise = (fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=a662cfbc-08de-4c57-afe6-989722d50903`).then((res) => {
+            return res.json();
+        }).then((res) => {
+            let firstresult = res[0];
+            let shortdef_arry = firstresult.shortdef;
+            //value = shortdef_arry[0];
+            //console.log('value being returned: ', value);
+            //return value;
+            console.log('returned ', shortdef_arry[0]);
+            return { word: word, def: shortdef_arry[0] };
+        }).catch(error => {
+            console.error(error.message);
+            invalidword = word;
+            validword = false;
+            return 'Not a valid word';
+        })
+        )
+        return promise;
     }
 
     endgame() {
@@ -339,23 +395,8 @@ class Game {
                 if (validword) {
                     //let eachPromise = checkDef(obj.word);
 
-                    let eachPromise = (fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=a662cfbc-08de-4c57-afe6-989722d50903`).then((res) => {
-                        return res.json();
-                    }).then((res) => {
-                        let firstresult = res[0];
-                        let shortdef_arry = firstresult.shortdef;
-                        //value = shortdef_arry[0];
-                        //console.log('value being returned: ', value);
-                        //return value;
-                        console.log('returned ', shortdef_arry[0]);
-                        return { word: word, def: shortdef_arry[0] };
-                    }).catch(error => {
-                        console.error(error.message);
-                        invalidword = word;
-                        validword = false;
-                        return 'Not a valid word';
-                    })
-                    )
+
+                    let eachPromise = this.websterLookUp(word);
 
                     promises.push(eachPromise);
 
@@ -381,7 +422,7 @@ class Game {
                     })
                     */
 
-                    this.players[this.turn].updateScore();
+                    this.players[this.turn].updateScore(this.players[this.turn].pointsInPlay);
 
                     // if player played all tiles in rack and no tiles left in the game, then end game
                     if ((this.players[this.turn].tilesInPlay.length === this.players[this.turn].rack.length) && this.tiles.length === 0) {
@@ -452,6 +493,7 @@ class Game {
 
 
     generateAllTiles() {
+        let tiles = [];
         let count = 0;
         this.letters.map((letter) => {
             for (let i = 0; i < letter.tiles; i++) {
@@ -460,10 +502,11 @@ class Game {
                     newtile.blank = true;
                 }
                 count += 1;
-                this.tiles.push(newtile);
+                tiles.push(newtile);
             }
 
         })
+        return tiles;
     }
 
     addPlayer(name) {
@@ -1413,7 +1456,6 @@ class Game {
 
     readyToStart() {
         if (this.numOfPlayers === this.players.length) {
-            this.generateAllTiles();
             this.ready = true;
             this.distribute_init();
             return true;
@@ -1437,6 +1479,23 @@ class Game {
         this.tiles.splice(index, 1);
 
         return tiledrawn;
+    }
+
+    getTileForDemoWord(letter) {
+        let emptyhanded = true;
+        let i = 0;
+        let matchingtile = '';
+        while (emptyhanded) {
+            if (this.tiles[i].letter === letter) {
+                matchingtile = this.tiles[i];
+                this.tiles_drawn.push(matchingtile);
+                this.tiles.splice(i, 1);
+                emptyhanded = false;
+            } else {
+                i++;
+            }
+        }
+        return matchingtile;
     }
 
     distributeTilesToPlayer(player) {
@@ -1471,7 +1530,7 @@ class Game {
             const temp = array[i];
             array[i] = array[j];
             array[j] = temp;
-          }
+        }
     }
 
     updateTurn() {
@@ -1579,26 +1638,43 @@ http.createServer(function (req, res) {
     }
 
     if (req.url.endsWith('demo')) {
-        
+
         let body = '';
 
         req.on('data', (chunk) => {
             body += chunk;
         })
-        
+
         req.on('end', () => {
             let parsedBody = JSON.parse(body);
             console.log('demo request on server');
             let numOfPlayers = parsedBody.numOfPlayers;
             let newGame = new Game(numOfPlayers);
-            
+            newGame.demo = true;
+
             // add words to board using tiles from newGame.tiles before adding players (which distributes tiles from actual remaining tiles to each player)
-            // newGame.demo()
+            newGame.addDemoWordsToBoard();
 
             newGame.addPlayer(parsedBody.player);
-            for (let i=2; i <= Number(numOfPlayers); i++) {
-                newGame.addPlayer(`Player ${i}`);
+            let playerscore = newGame.demowords[0].score;
+            newGame.players[0].updateScore(playerscore);
+
+            for (let n = 2; n <= Number(numOfPlayers); n++) {
+                newGame.addPlayer(`Player ${n}`);
+                newGame.players[n - 1].updateScore(newGame.demowords[n - 1].score);
             }
+
+            newGame.demowords[3].tiles.forEach((tile) => {
+                tile.lastplayed = true;
+                newGame.lastplayed.push(tile);
+            })
+
+            let lastWordLookUp = newGame.websterLookUp('WORDS');
+            console.log(lastWordLookUp);
+            lastWordLookUp.then((val) => {
+                newGame.lastplayedwords.push(val);
+            })
+
             activeGames.push(newGame);
             //console.log(activeGames);
             res.end(JSON.stringify(newGame));
