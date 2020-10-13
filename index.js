@@ -84,6 +84,22 @@ document.addEventListener('click', (e) => {
         demosection.style.display = "flex";
         demosection.style.flexDirection = "column";
 
+    } else if (e.target.id == 'demoexit') {
+
+        window.location.reload();
+        /*
+        fetch('index.html')
+        .then(res => res.text())
+        //.then(html => document.body.innerHTML = html);
+        .then((html) => {
+            let parser = new DOMParser();
+            let doc = parser.parseFromString(html, "text/html");
+            document.head.innerHTML = doc.head.innerHTML;
+            document.body.innerHTML = doc.body.innerHTML;
+            return doc;
+        })
+        */
+
     } else if (e.target.id == 'startlink') {
 
         welcome.style.display = "none";
@@ -210,6 +226,8 @@ document.addEventListener('click', (e) => {
             let serverGame2 = res;
             currentGame = Object.assign({}, serverGame2);
 
+            return currentGame;
+
             /*
             if (currentGame.players[playerid].invalidword !== '') {
                 let word = currentGame.players[id].invalidword;
@@ -222,6 +240,10 @@ document.addEventListener('click', (e) => {
                 endOfGameModal();
             }
             */
+        }).then((currentGame) => {
+            if (currentGame.demo) {
+                window.setTimeout(endOfDemoModal, 2000);
+            }
         })
 
 
@@ -395,6 +417,9 @@ function refreshGame(currentGame) {
 
             boardContainer.append(board);
 
+            game.append(playerDash, boardContainer);
+            let disposableContainer = document.createElement('div');
+
             if (!currentGame.ready) {
                 let p = document.createElement('p');
                 p.innerHTML = `Waiting for others to join using game code:`;
@@ -407,16 +432,14 @@ function refreshGame(currentGame) {
                 overlay.setAttribute('id', 'overlay');
 
                 overlay.append(p, p2);
-                boardContainer.append(overlay);
+                //boardContainer.append(overlay);
+                disposableContainer.append(overlay);
             }
 
             if (currentGame.gameover) {
 
             }
 
-            game.append(playerDash, boardContainer);
-
-            let disposableContainer = document.createElement('div');
             disposableContainer.append(game);
 
             let disposableContainerInner = disposableContainer.innerHTML;
@@ -657,10 +680,54 @@ function renderBoard(currentGame) {
     return container;
 }
 
+function endOfDemoModal() {
+    modal = true;
+
+    //let boardcontainer = document.getElementById('boardcontainer');
+    let gameContainer = document.getElementById('gameContainer');
+
+    let overlay = document.createElement('div');
+    overlay.setAttribute('id', 'overlay');
+
+    let h2 = document.createElement('h2');
+    h2.innerHTML = `End of Demo`;
+
+    /*
+    let exitlink = document.createElement('a');
+    exitlink.setAttribute('href', 'index.html');
+    exitlink.innerText = `Exit Demo`;
+    */
+
+    /*
+    let btncontainer = document.createElement('div');
+    btncontainer.style.display = 'flex';
+    btncontainer.style.flexDirection = "column";
+
+    let restart = document.createElement('button');
+    restart.setAttribute('id', 'demolink');
+    restart.innerText = `Restart`;
+    */
+
+    let exit = document.createElement('button');
+    exit.setAttribute('id', 'demoexit');
+    exit.innerText = `Exit`;
+    
+
+    // btncontainer.append(restart, exit);
+    
+
+    overlay.append(h2, exit);
+
+    //boardcontainer.append(overlay);
+    gameContainer.prepend(overlay);
+
+}
+
 function endOfGameModal() {
     modal = true;
 
-    let boardcontainer = document.getElementById('boardcontainer');
+    //let boardcontainer = document.getElementById('boardcontainer');
+    let gameContainer = document.getElementById('gameContainer');
 
     let overlay = document.createElement('div');
     overlay.setAttribute('id', 'overlay');
@@ -685,14 +752,16 @@ function endOfGameModal() {
     */
 
     overlay.append(winnerEl);
-    boardcontainer.append(overlay);
+    //boardcontainer.append(overlay);
+    gameContainer.prepend(overlay);
 
 }
 
 function invalidwordModal(word) {
     modal = true;
 
-    let boardcontainer = document.getElementById('boardcontainer');
+    //let boardcontainer = document.getElementById('boardcontainer');
+    let gameContainer = document.getElementById('gameContainer');
 
     let overlay = document.createElement('div');
     overlay.setAttribute('id', 'overlay');
@@ -718,7 +787,8 @@ function invalidwordModal(word) {
     btncontainer.append(btn);
 
     overlay.append(p,btncontainer);
-    boardcontainer.append(overlay);
+    //boardcontainer.append(overlay);
+    gameContainer.prepend(overlay);
 
 }
 
@@ -731,7 +801,8 @@ function blankTileModal(draggableElid) {
     modal = true;
     blanktileid = draggableElid;
 
-    let boardcontainer = document.getElementById('boardcontainer');
+    //let boardcontainer = document.getElementById('boardcontainer');
+    let gameContainer = document.getElementById('gameContainer');
 
     let overlay = document.createElement('div');
     overlay.setAttribute('id', 'overlay');
@@ -757,7 +828,8 @@ function blankTileModal(draggableElid) {
     btncontainer.append(btn, btn2);
 
     overlay.append(blankletterinput, btncontainer);
-    boardcontainer.append(overlay);
+    //boardcontainer.append(overlay);
+    gameContainer.prepend(overlay);
 
 }
 

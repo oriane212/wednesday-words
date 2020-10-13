@@ -31,5 +31,5 @@
 
 ### Client
 - [ ] add tooltips
-- [ ] add top notifcation
+- [x] add exit modal
 
