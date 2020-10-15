@@ -61,7 +61,7 @@ section.playerDash {
 }
 
 header {
-    margin: 0 6px;
+    margin: 6px;
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -71,15 +71,29 @@ header {
 }
 
 header.playerturn {
-    padding: 0px 12px;
-    margin: 0;
+    padding: 10px 12px 4px;
+    margin: 26px 0 0;
     font-size: smaller;
     font-weight: 900;
-    background-color: rgb(188,77,74);
+    background-color: rgb(254, 244, 242);
+    color: #2f4f2f;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
+    height: 42px;
+}
+
+header.playerturn.yourturn {
+    background-color: rgb(188,77,74);
+}
+
+.yourturn #turnstatus {
+    color: white;
+}
+
+.yourturn #pointsInPlay {
+    color: white;
 }
 
 h1 {
@@ -88,14 +102,14 @@ h1 {
 }
 
 h2 {
-    color: lightgoldenrodyellow;
+    color: blanchedalmond;
     font-weight: 400;
     letter-spacing: 0.5px;
     margin: 36px 0;
 }
 
 #name {
-    
+    margin: 18px 0;
 }
 
 #mainbtns {
@@ -110,6 +124,8 @@ h2 {
     text-align: center;
     font-size: larger;
     margin: 16px auto;
+    transform: rotate(-90deg);
+    width: 32px;
 }
 
 h3 {
@@ -163,6 +179,10 @@ div.tile {
     border-radius: 3px;
 }
 
+div.tile.notready {
+    background-color: #cc5c5c;
+}
+
 div.blank-tile {
     color: burlywood;
 }
@@ -187,11 +207,11 @@ div.tile.blank-tile.selectable:hover {
 }
 
 #turnstatus {
-    color: antiquewhite;
+    color: #2f4f2f;
     font-family: sans-serif;
     font-weight: 600;
     text-transform: uppercase;
-    width: 55%;
+    /* width: 55%; */
     padding-left: 4px;
 }
 
@@ -200,7 +220,7 @@ div.tile.blank-tile.selectable:hover {
     font-weight: 500;
     /* width: 12%; */
     font-family: sans-serif;
-    color: antiquewhite;
+    color: #2f4f2f;
     /* padding-right: 4px; */
 }
 
@@ -230,7 +250,7 @@ div.tile.blank-tile.selectable:hover {
 
 div.playerdiv.turn {
     font-weight: 700;
-    background-color: rgb(255,245,242);
+    background-color: rgb(234,219,198);
 }
 
 div.playerdashsection {
@@ -239,10 +259,11 @@ div.playerdashsection {
     border-radius: 8px;
     color: darkslategray;
 }
-
+/*
 div.playerdashsection.playerlist {
     background-color: rgb(234, 202, 201);
 }
+*/
 
 div.cell {
     background-color: rgba(211,192,168, 0.8);

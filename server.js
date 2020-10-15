@@ -276,9 +276,9 @@ class Game {
             return { word: word, def: shortdef_arry[0] };
         }).catch(error => {
             console.error(error.message);
-            invalidword = word;
-            validword = false;
-            return 'Not a valid word';
+            //invalidword = word;
+            //validword = false;
+            return { word: word, def: 'NA' };
         })
         )
         return promise;
@@ -404,6 +404,12 @@ class Game {
             })
 
             Promise.all(promises).then((values) => {
+                values.forEach((value) => {
+                    if (value.def === 'NA') {
+                        invalidword = value.word;
+                        validword = false;
+                    }
+                })
                 if (invalidword !== '') {
                     // a word played does not exist in Merriam Webster dictionary
                     this.players[this.turn].invalidword = invalidword;

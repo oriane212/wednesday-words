@@ -29,7 +29,11 @@
 - [x] add a check for game readiness each time a player is added
 - [x] add demo property to game obj set false?
 
+
 ### Client
 - [ ] add tooltips
 - [x] add exit modal
+- [x] add invalid play/word modal
+- [ ] restart demo button?
+- [ ] demo start modal with basic intro?
 

@@ -8,6 +8,8 @@ let modal = false;
 let blanktileid = '';
 let dropzoneid = '';
 let acknowledged = false;
+let demoendturnclicked = false;
+let timeoutcount = 0;
 
 let currentGame = {};
 
@@ -65,13 +67,13 @@ document.addEventListener('click', (e) => {
             let serverGame2 = res;
             currentGame = Object.assign({}, serverGame2);
 
-            
+
             for (let player of currentGame.players) {
                 if (playername === player.name) {
                     playerid = player.id;
                 }
             }
-            
+
 
             refreshGameInterval = setInterval(refreshGame, 1000, currentGame);
         })
@@ -109,7 +111,7 @@ document.addEventListener('click', (e) => {
         startsection.style.flexDirection = "column";
 
     } else if (e.target.id == 'joinlink') {
-        
+
         welcome.style.display = "none";
 
         let joinsection = document.querySelector('.join');
@@ -241,9 +243,28 @@ document.addEventListener('click', (e) => {
             }
             */
         }).then((currentGame) => {
+
             if (currentGame.demo) {
-                window.setTimeout(endOfDemoModal, 2000);
+
+                console.log('demo endturn clicked');
+                demoendturnclicked = true;
+
+                /*
+                function checkDemo() {
+                    let demostartscore = currentGame.demowords[playerid].score;
+                    console.log(currentGame.players[playerid].score);
+                    if (currentGame.players[playerid].score > demostartscore) {
+                        
+                        //window.setTimeout(endOfDemoModal, 2000);
+                        endOfDemoModal();
+                    }
+                }
+                
+                window.setTimeout(checkDemo, 4000);
+                */
+
             }
+
         })
 
 
@@ -297,7 +318,7 @@ document.addEventListener('click', (e) => {
             currentGame = Object.assign({}, serverGame2);
         })
 
-    } 
+    }
     else {
         console.log(e.target);
     }
@@ -467,6 +488,22 @@ function refreshGame(currentGame) {
 
         }
 
+        if (currentGame.demo && demoendturnclicked) {
+            if (timeoutcount < 3) {
+                timeoutcount += 1;
+            } else {
+                let demostartscore = currentGame.demowords[playerid].score;
+                console.log(currentGame.players[playerid].score);
+                if (currentGame.players[playerid].score > demostartscore) {
+                    endOfDemoModal();
+                } 
+
+                //reset
+                demoendturnclicked = false;
+                timeoutcount = 0;
+            }
+        }
+
         //currentGame = res;
 
 
@@ -507,7 +544,7 @@ function playerDashboard(playername, currentGame) {
         } else {
             pointsInPlay.innerHTML = `0`;
         }
-        
+
 
         if (currentGame.players[playerid].tilesInPlay.length > 0) {
             undoPlay.classList.add('selectable');
@@ -558,8 +595,9 @@ function playerDashboard(playername, currentGame) {
             bell.setAttribute('id', 'bell');
             bell.innerHTML = `<i class="fas fa-bell"></i>`;
             */
+            headerplayerturn.classList.add('yourturn');
 
-           headerplayerturn.append(turnstatus, pointsInPlay);
+            headerplayerturn.append(turnstatus, pointsInPlay);
 
         } else {
             turnstatus.innerHTML = `${currentGame.players[currentGame.turn].name}'s turn`;
@@ -711,10 +749,10 @@ function endOfDemoModal() {
     let exit = document.createElement('button');
     exit.setAttribute('id', 'demoexit');
     exit.innerText = `Exit`;
-    
+
 
     // btncontainer.append(restart, exit);
-    
+
 
     overlay.append(h2, exit);
 
@@ -786,7 +824,7 @@ function invalidwordModal(word) {
 
     btncontainer.append(btn);
 
-    overlay.append(p,btncontainer);
+    overlay.append(p, btncontainer);
     //boardcontainer.append(overlay);
     gameContainer.prepend(overlay);
 
@@ -885,29 +923,41 @@ function renderRack(currentGame, playerid) {
     //rack.setAttribute('ondragover', 'onDragOver(event);');
     //rack.setAttribute('ondrop', `onRackDrop(event);`)
 
-    currentGame.players[playerid].rack.forEach((tile) => {
+    if (!currentGame.ready) {
+        for (let i = 0; i < 7; i++) {
+            let div = renderTile('notready');
+            rack.append(div);
+        }
+    } else {
 
-        // check for no tiles left in newrack
-        if (tile !== 'no tiles left') {
-            
-            if (tile.inplay === false) {
+        currentGame.players[playerid].rack.forEach((tile) => {
 
-                let div = renderTile(tile);
-    
-                if (currentGame.turn === playerid) {
-                    div.classList.add('selectable');
-                    div.setAttribute('draggable', 'true');
-                    div.setAttribute('ondragstart', 'onDragStart(event);')
+            // check for no tiles left in newrack
+            if (tile !== 'no tiles left') {
+
+                if (tile.inplay === false) {
+
+                    let div = renderTile(tile);
+
+                    if (currentGame.turn === playerid) {
+                        div.classList.add('selectable');
+                        div.setAttribute('draggable', 'true');
+                        div.setAttribute('ondragstart', 'onDragStart(event);')
+                    }
+
+                    rack.append(div);
+
                 }
-    
-                rack.append(div);
-    
+
             }
 
-        }
+
+        })
 
 
-    })
+    }
+
+
 
     return rack;
 }
@@ -916,41 +966,46 @@ function renderTile(tile) {
 
     let div = document.createElement('div');
     div.classList.add('tile');
-    div.setAttribute('id', tile.id);
 
-    let letter = document.createElement('span');
-    letter.classList.add('letter');
+    if (tile === 'notready') {
+        div.classList.add('notready');
+    } else {
+        div.setAttribute('id', tile.id);
 
-    let ptvalue = document.createElement('span');
-    ptvalue.classList.add('ptvalue');
+        let letter = document.createElement('span');
+        letter.classList.add('letter');
 
-    if (tile.blank) {
+        let ptvalue = document.createElement('span');
+        ptvalue.classList.add('ptvalue');
+
+        if (tile.blank) {
+            if (tile.letter === '-') {
+                div.classList.add('blank-tile');
+            } else {
+                div.classList.add('blank-tile-assigned')
+            }
+
+        }
+
+        if (tile.lastplayed) {
+            div.classList.add('lastplayed');
+        }
+
+        /*
         if (tile.letter === '-') {
             div.classList.add('blank-tile');
-        } else {
-            div.classList.add('blank-tile-assigned')
         }
-        
+    
+        if (tile.highlight) {
+            div.classList.add('highlight');
+        }
+        */
+
+        letter.innerHTML = tile.letter;
+        ptvalue.innerHTML = tile.points;
+
+        div.append(letter, ptvalue);
     }
-
-    if (tile.lastplayed) {
-        div.classList.add('lastplayed');
-    }
-
-    /*
-    if (tile.letter === '-') {
-        div.classList.add('blank-tile');
-    }
-
-    if (tile.highlight) {
-        div.classList.add('highlight');
-    }
-    */
-
-    letter.innerHTML = tile.letter;
-    ptvalue.innerHTML = tile.points;
-
-    div.append(letter, ptvalue);
 
     return div;
 
@@ -1077,7 +1132,7 @@ function checkDef(word) {
             })
             value = shortdef_arry[0];
         }
-        
+
     })
 
     return value;
