@@ -105,7 +105,7 @@ h2 {
     color: blanchedalmond;
     font-weight: 400;
     letter-spacing: 0.5px;
-    margin: 36px 0;
+    margin: 24px 0;
 }
 
 #name {
@@ -308,5 +308,60 @@ div.tile.lastplayed {
     width: 5%;
     font-size: medium;
     color: sandybrown;
+}
+
+div.back {
+    align-self: flex-start;
+    color: white;
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    height: 20px;
+    box-sizing: border-box;
+}
+
+div.back:hover {
+    border-bottom: 1px solid white;
+}
+
+.back a, .back p {
+    color: white;
+    text-decoration: none;
+}
+
+.fa-arrow-left {
+    font-size: smaller;
+    margin-right: 6px;
+}
+
+/*
+#exitgame {
+    margin: auto;
+    background-color: brown;
+    border: 1px solid white;
+}
+
+#exitgame:hover {
+    background-color: red;
+}
+*/
+
+.fa-sign-out-alt {
+    font-size: smaller;
+    margin-right: 6px;
+    transform: rotate(180deg);
+}
+
+#exitgamecancel, #blanklettercancel {
+    background-color: rgba(0,0,0,0.4);
+    border: 1px solid white;
+}
+
+#exitgamecancel:hover, #blanklettercancel:hover {
+    background-color: black;
+}
+
+#exitgamecancel, #exitgameconfirm {
+    margin: 12px 24px;
 }
 

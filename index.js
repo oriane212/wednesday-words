@@ -102,6 +102,19 @@ document.addEventListener('click', (e) => {
         })
         */
 
+    } else if (e.target.id == 'exitgame') {
+
+        //alert(`This game can't be saved for later. Are you sure you want to exit the game?`);
+        exitGameModal();
+
+    } else if (e.target.id == 'exitgameconfirm') {
+
+        window.location.reload();
+
+    } else if (e.target.id == 'exitgamecancel') {
+
+        modal = false;
+
     } else if (e.target.id == 'startlink') {
 
         welcome.style.display = "none";
@@ -654,9 +667,36 @@ function playerDashboard(playername, currentGame) {
 
     lastplayedwords.append(div, content);
 
+    // EXIT GAME
+
+    let back = document.createElement('div');
+    back.classList.add('back');
+
+    /*
+    let exiticon = document.createElement('div');
+    exiticon.setAttribute('id', 'exiticon');
+    exiticon.innerHTML = `<i class="fas fa-sign-out-alt"></i>`;
+    */
+
+    let i = document.createElement('i');
+    i.classList.add('fa', 'fa-sign-out-alt');
+
+    let a = document.createElement('a');
+    a.setAttribute('id', 'exitgame');
+    a.innerHTML = 'Exit Game';
+    a.setAttribute('href', '#');
+
+    back.append(i, a);
+
+    /*
+    let exitgame = document.createElement('button');
+    exitgame.setAttribute('id', 'exitgame');
+    exitgame.innerText = 'Exit Game';
+    */
+
     // APPEND ALL TO PLAYER DASHBOARD
 
-    playerDash.append(header, rack, shuffle, headerplayerturn, playerList, lastplayedwords);
+    playerDash.append(header, rack, shuffle, headerplayerturn, playerList, lastplayedwords, back);
 
     return playerDash;
 
@@ -716,6 +756,39 @@ function renderBoard(currentGame) {
         container.append($row);
     })
     return container;
+}
+
+function exitGameModal() {
+
+    modal = true;
+
+    let gameContainer = document.getElementById('gameContainer');
+
+    let overlay = document.createElement('div');
+    overlay.setAttribute('id', 'overlay');
+
+    let h2 = document.createElement('h2');
+    h2.innerHTML = `Are you sure you want to exit?`;
+
+    let p = document.createElement('p');
+    p.innerHTML = `This game can't be saved for later.`;
+
+    let exit = document.createElement('button');
+    exit.setAttribute('id', 'exitgameconfirm');
+    exit.innerText = `Confirm`;
+
+    let cancel = document.createElement('button');
+    cancel.setAttribute('id', 'exitgamecancel');
+    cancel.innerText = `Cancel`;
+
+    let btncontainer = document.createElement('div');
+
+    btncontainer.append(exit, cancel);
+
+    overlay.append(h2, p, btncontainer);
+
+    gameContainer.prepend(overlay);
+
 }
 
 function endOfDemoModal() {
@@ -849,8 +922,9 @@ function blankTileModal(draggableElid) {
     blankletterinput.setAttribute('type', 'text');
     blankletterinput.setAttribute('id', 'blankletterinput');
     blankletterinput.setAttribute('name', 'blankletterinput');
-    blankletterinput.setAttribute('placeholder', 'Enter letter for blank tile');
-    blankletterinput.setAttribute('aria-placeholder', 'Enter letter for blank tile');
+    blankletterinput.setAttribute('placeholder', 'Enter a letter for blank tile');
+    blankletterinput.setAttribute('aria-placeholder', 'Enter a letter for blank tile');
+    blankletterinput.setAttribute('maxlength', '1');
 
     let btncontainer = document.createElement('div');
     btncontainer.classList.add('btncontainer');
@@ -861,9 +935,9 @@ function blankTileModal(draggableElid) {
 
     let btn2 = document.createElement('button');
     btn2.setAttribute('id', 'blanklettersubmit');
-    btn2.innerHTML = 'OK';
+    btn2.innerHTML = 'Assign';
 
-    btncontainer.append(btn, btn2);
+    btncontainer.append(btn2, btn);
 
     overlay.append(blankletterinput, btncontainer);
     //boardcontainer.append(overlay);
