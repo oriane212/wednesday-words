@@ -64,8 +64,8 @@ header {
     margin: 6px;
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
-    width: 92%;
+    align-items: center;
+    /* width: 92%; */
     border-radius: 4px;
     background-color: brown;
 }
@@ -82,10 +82,11 @@ header.playerturn {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     height: 42px;
+    width: 92%;
 }
 
 header.playerturn.yourturn {
-    background-color: rgb(188,77,74);
+    background-color: rgb(208 59 55);
 }
 
 .yourturn #turnstatus {
@@ -113,10 +114,10 @@ h2 {
 }
 
 #mainbtns {
-    display: inline-flex;
-    width: 16%;
+    display: flex;
+    width: 90px;
     justify-content: space-between;
-    padding: 0 6px;
+    /* padding: 0 6px; */
 }
 
 #shuffle {
@@ -125,7 +126,15 @@ h2 {
     font-size: larger;
     margin: 16px auto;
     transform: rotate(-90deg);
-    width: 32px;
+    /* width: 32px; */
+}
+
+#undo svg, #shuffle svg {
+    margin: 10px;
+}
+
+#done svg {
+    margin: 10px 12px;
 }
 
 h3 {
@@ -226,9 +235,14 @@ div.tile.blank-tile.selectable:hover {
 
 #done, #undo, #shuffle {
     font-size: large;
-    width: 10%;
-    color: indianred;
+    color: rgb(250,235,215,0.2);
+    width: 40px;
+    height: 40px;
+    /* background-color: rgba(206,120,120,0.7); */
+    background-color: rgba(205,92,92,0.4);
+    border-radius: 50px;
 }
+
 
 #done.selectable, #undo.selectable, #shuffle.selectable {
     color: antiquewhite;
@@ -236,10 +250,14 @@ div.tile.blank-tile.selectable:hover {
 
 #done.selectable:hover, #undo.selectable:hover, #shuffle.selectable:hover {
     color: white;
+    background-color: #941f1f;
 }
 
 #done.disabled, #undo.disabled, #shuffle.disabled {
-    color: indianred;
+    /* color: indianred; */
+    background-color: rgba(205,92,92,0.4);
+    /* color: rgb(160 75 75 / 1); */
+    color: rgb(250,235,215,0.2);
 }
 
 #playerdivscontainer.playerdashsection {
