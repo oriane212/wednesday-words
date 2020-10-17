@@ -75,7 +75,7 @@ header.playerturn {
     margin: 26px 0 0;
     font-size: smaller;
     font-weight: 900;
-    background-color: rgb(254, 244, 242);
+    background-color: #f9b4ad;
     color: #2f4f2f;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
@@ -86,7 +86,7 @@ header.playerturn {
 }
 
 header.playerturn.yourturn {
-    background-color: rgb(208 59 55);
+    background-color: #bd1313;
 }
 
 .yourturn #turnstatus {
@@ -167,7 +167,8 @@ p.listitem {
 }
 
 span.word {
-    color: rgb(244,164,96);
+    /* color: rgb(244,164,96); */
+    color: firebrick;
     font-weight: 700;
     font-family: sans-serif;
     padding-right: 6px;
@@ -192,27 +193,38 @@ div.tile.notready {
     background-color: #cc5c5c;
 }
 
-div.blank-tile {
-    color: burlywood;
+.rack .tile {
+    background-color: rgba(198, 89, 89, 1);
+    color: white;
+}
+
+.rack .blank-tile {
+    color:  rgba(198, 89, 89, 1);
+}
+
+div.blank-tile.selectable {
+    color: #c71717;
 }
 
 div.tile.selectable {
-    border: 1px solid darkred; /* or saddlebrown? */
+    border: 1px solid #b22322;
     border-radius: 4px;
     width: 38px;
     height: 38px;
     cursor: move;
-    box-shadow: 1px 1px 1px saddlebrown;
+    /* box-shadow: 1px 1px 1px saddlebrown; */
+    box-shadow: 1px 1px 3px #6d0000;
+    background-color: #c71717;
 }
 
 div.tile.selectable:hover {
-    border: 1px solid navajowhite;
-    background-color: cadetblue;
-    color: antiquewhite;
+    border: 1px solid antiquewhite;
+    background-color: antiquewhite;
+    color: darkred;
 }
 
 div.tile.blank-tile.selectable:hover {
-    color: cadetblue;
+    color: antiquewhite;
 }
 
 #turnstatus {
@@ -239,7 +251,6 @@ div.tile.blank-tile.selectable:hover {
     width: 40px;
     height: 40px;
     /* background-color: rgba(206,120,120,0.7); */
-    background-color: rgba(205,92,92,0.4);
     border-radius: 50px;
 }
 
@@ -250,12 +261,12 @@ div.tile.blank-tile.selectable:hover {
 
 #done.selectable:hover, #undo.selectable:hover, #shuffle.selectable:hover {
     color: white;
-    background-color: #941f1f;
+    background-color: rgba(205,92,92,0.4);
 }
 
 #done.disabled, #undo.disabled, #shuffle.disabled {
     /* color: indianred; */
-    background-color: rgba(205,92,92,0.4);
+    /* background-color: rgba(205,92,92,0.4); */
     /* color: rgb(160 75 75 / 1); */
     color: rgb(250,235,215,0.2);
 }
@@ -268,7 +279,7 @@ div.tile.blank-tile.selectable:hover {
 
 div.playerdiv.turn {
     font-weight: 700;
-    background-color: rgb(234,219,198);
+    background-color: rgb(255 218 216);
 }
 
 div.playerdashsection {
@@ -294,11 +305,11 @@ div.blank {
 div.cell.live {
     width: 36px;
     height: 36px;
-    border: 2px dotted dimgray;
+    border: 2px dotted #8b0100;
 }
 
 div.TW {
-    background-color: red;
+    background-color: #ec403c;
 }
 
 div.DL {
@@ -314,10 +325,9 @@ div.TL {
 }
 
 div.tile.lastplayed {
-    background-color: lightyellow;
-    border: 1px solid peru;
-    color: darkred;
-    color: peru;
+    background-color: rgba(136,1,0,0.2);
+    border: 1px solid #f1d5d3;
+    color: black;
     width: 38px;
     height: 38px;
 }
