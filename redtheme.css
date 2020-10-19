@@ -1,10 +1,10 @@
 
 button {
-    border: 1px solid cadetblue;
+    border: 1px solid rgba(244,82,82,0.8);
 }
 
 button:hover {
-    border: 1px solid darkcyan;
+    border: 1px solid #d63434;
 }
 
 div.indexinner section {
@@ -168,7 +168,7 @@ p.listitem {
 
 span.word {
     /* color: rgb(244,164,96); */
-    color: firebrick;
+    color: goldenrod;
     font-weight: 700;
     font-family: sans-serif;
     padding-right: 6px;
@@ -325,9 +325,9 @@ div.TL {
 }
 
 div.tile.lastplayed {
-    background-color: rgba(136,1,0,0.2);
-    border: 1px solid #f1d5d3;
-    color: black;
+    background-color: goldenrod;
+    border: 1px solid goldenrod;
+    color: white;
     width: 38px;
     height: 38px;
 }
