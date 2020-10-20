@@ -227,7 +227,7 @@ class Game {
         this.lastplayedwords = [];
         //this.distributedAll = [];
         this.demowords = [
-            
+
             { play: 'WED', vertical: false, start: [7, 5], score: 14, tiles: [] },
             { play: 'NESDAY', vertical: false, start: [7, 8], score: 19, tiles: [] },
             { play: 'EMO', vertical: true, start: [8, 11], score: 7, tiles: [] },
@@ -252,7 +252,7 @@ class Game {
                 console.log('boardcell: ', boardcell);
                 // if no tile is already in that spot on board, add tile for that letter
                 if (boardcell.tile === '') {
-                    let tile = this.getTileForDemoWord(letter);
+                    let tile = this.getTileForDemo(letter);
                     tile.used = true;
                     tile.cellid = `${pos[0]}_${pos[1]}`;
                     word.tiles.push(tile);
@@ -1487,7 +1487,7 @@ class Game {
         return tiledrawn;
     }
 
-    getTileForDemoWord(letter) {
+    getTileForDemo(letter) {
         let emptyhanded = true;
         let i = 0;
         let matchingtile = '';
@@ -1506,27 +1506,33 @@ class Game {
 
     distributeTilesToPlayer(player) {
         let n = 7 - player.rack.length;
-        //console.log('n = ', n);
+        let iBlankTile = 5;
+        let tiledrawn;
+
         for (let i = 0; i < n; i++) {
-            let index = Math.floor(Math.random() * this.tiles.length);
-            let tiledrawn = this.tiles[index];
+
+            if (this.demo && i === iBlankTile) {
+                if (player.id === 0) {
+                    tiledrawn = this.getTileForDemo('-');
+                } else {
+                    tiledrawn = this.getRandomTile();
+                }
+            } else {
+                tiledrawn = this.getRandomTile();
+            }
 
             player.rack.push(tiledrawn);
-            //player.rack[i].id = `tile_${i}`;
 
-            this.tiles_drawn.push(tiledrawn);
-            this.tiles.splice(index, 1);
-
-            /*
-            tiledrawn.distributed += 1;
-            if (tiledrawn.distributed === tiledrawn.tiles) {
-                this.distributedAll.push(tiledrawn);
-                this.tiles.splice(index, 1);
-            }
-    
-            console.log('i = ', i);
-            */
         }
+
+    }
+
+    getRandomTile() {
+        let index = Math.floor(Math.random() * this.tiles.length);
+        let tiledrawn = this.tiles[index];
+        this.tiles_drawn.push(tiledrawn);
+        this.tiles.splice(index, 1);
+        return tiledrawn;
     }
 
     shuffleRack(player) {
