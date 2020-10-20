@@ -21,6 +21,20 @@ section.welcome {
     justify-content: space-evenly;
 }
 
+.welcome div {
+    display: flex;
+    flex-direction: column;
+    align-content: space-around;
+}
+
+.welcome div p {
+    font-size: small;
+    color: antiquewhite;
+    font-weight: 100;
+    font-family: sans-serif;
+    margin-top: 8px;
+}
+
 div.indexinner section.demo {
     display: none;
 }
