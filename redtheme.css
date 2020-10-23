@@ -243,7 +243,7 @@ div.blank-tile.selectable {
 }
 
 div.tile.blank-tile.selectable:hover {
-    color: antiquewhite;
+    color: white;
 }
 
 #turnstatus {
@@ -412,3 +412,32 @@ div.back:hover {
     margin: 12px 24px;
 }
 
+div#demoinstructions {
+    display: flex;
+    justify-content: space-evenly;
+    height: 120px;
+    align-items: baseline;
+    padding-top: 30px;
+}
+
+div#demoinstructions p {
+    margin: 8px;
+    font-family: sans-serif;
+    font-weight: 100;
+    font-size: medium;
+}
+
+div#demoinstructions span {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: goldenrod;
+}
+
+.fa-smile {
+    display: block;
+    margin: auto;
+    font-size: x-large;
+    color: lightgoldenrodyellow;
+    margin-bottom: 30px;
+}

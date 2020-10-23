@@ -10,10 +10,64 @@ let dropzoneid = '';
 let acknowledged = false;
 let demoendturnclicked = false;
 let timeoutcount = 0;
+let yourturnsoundplayed = false;
+let demoinstructionsread = false;
 
 let currentGame = {};
 
 let welcome = document.querySelector('.welcome');
+
+
+
+// SOUNDS
+
+// Request sound file names
+// Create Audio el with Source el for each sound
+
+let audioElsObj = {};
+
+fetch('soundFileNames').then((res) => {
+    return res.json();
+}).then((res) => {
+
+    let soundFileNames = res.names;
+    let audiocontainer = document.createElement('div');
+
+    soundFileNames.forEach((filename) => {
+
+        let splitname = filename.split('.');
+        let audioID = splitname[0];
+        let sourceSRC = `/sounds/${filename}`;
+        let sourceTYPE = `audio/${splitname[1]}`;
+
+        // create an Audio element
+        let audio = document.createElement('audio');
+        audio.setAttribute('id', audioID);
+
+        // append a Source element to Audio
+        let source = document.createElement('source');
+        source.setAttribute('src', sourceSRC);
+        source.setAttribute('type', sourceTYPE);
+
+        audio.append(source);
+
+        // save locally so they don't need to be retrieved from DOM to play
+        audioElsObj[audioID] = audio;
+
+        // return Audio el
+        audiocontainer.append(audio);
+
+    })
+
+    return audiocontainer;
+
+}).then((div) => {
+    document.body.append(div);
+})
+
+
+
+// DOCUMENT EVENT LISTENER
 
 document.addEventListener('click', (e) => {
 
@@ -74,7 +128,6 @@ document.addEventListener('click', (e) => {
                 }
             }
 
-
             refreshGameInterval = setInterval(refreshGame, 1000, currentGame);
         })
 
@@ -85,6 +138,10 @@ document.addEventListener('click', (e) => {
         let demosection = document.querySelector('.demo');
         demosection.style.display = "flex";
         demosection.style.flexDirection = "column";
+
+    } else if (e.target.id == 'demoinstructions') {
+
+        modal = false;
 
     } else if (e.target.id == 'demoexit') {
 
@@ -241,6 +298,8 @@ document.addEventListener('click', (e) => {
             let serverGame2 = res;
             currentGame = Object.assign({}, serverGame2);
 
+            audioElsObj['tilebagshake'].play();
+
             return currentGame;
 
             /*
@@ -311,6 +370,7 @@ document.addEventListener('click', (e) => {
             //currentGame = res;
             let serverGame2 = res;
             currentGame = Object.assign({}, serverGame2);
+            audioElsObj['tileonrack'].play();
         })
 
     } else if ((e.target.id === 'shuffle' && e.target.classList.contains('selectable')) || (e.target.parentNode.classList.contains('selectable') && e.target.classList.contains('fa-random')) || (e.target.parentNode.parentNode.classList.contains('selectable') && e.target.parentNode.classList.contains('fa-random'))) {
@@ -329,13 +389,28 @@ document.addEventListener('click', (e) => {
         }).then((res) => {
             let serverGame2 = res;
             currentGame = Object.assign({}, serverGame2);
+            audioElsObj['shuffle1'].play();
         })
+
+
 
     }
     else {
         console.log(e.target);
     }
 })
+
+/*
+function playSoundAutomatically(audioID) {
+    let playPromise = audioElsObj[audioID].play();
+    if (playPromise !== undefined) {
+        playPromise.then(function () {
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+}
+*/
 
 function render(name) {
     let container = document.createElement('div');
@@ -470,6 +545,17 @@ function refreshGame(currentGame) {
                 disposableContainer.append(overlay);
             }
 
+            if (currentGame.ready && currentGame.turn === playerid) {
+                if (!yourturnsoundplayed) {
+                    audioElsObj['success-04'].play();
+                    yourturnsoundplayed = true;
+                }
+            } else {
+                if (!yourturnsoundplayed) {
+                    yourturnsoundplayed = false;
+                }
+            }
+
             if (currentGame.gameover) {
 
             }
@@ -509,12 +595,17 @@ function refreshGame(currentGame) {
                 console.log(currentGame.players[playerid].score);
                 if (currentGame.players[playerid].score > demostartscore) {
                     endOfDemoModal();
-                } 
+                }
 
                 //reset
                 demoendturnclicked = false;
                 timeoutcount = 0;
             }
+        }
+
+        if (currentGame.demo && !demoinstructionsread) {
+            startOfDemoModal();
+            demoinstructionsread = true;
         }
 
         //currentGame = res;
@@ -761,6 +852,7 @@ function renderBoard(currentGame) {
 function exitGameModal() {
 
     modal = true;
+    audioElsObj['hint'].play();
 
     let gameContainer = document.getElementById('gameContainer');
 
@@ -791,8 +883,70 @@ function exitGameModal() {
 
 }
 
+function startOfDemoModal() {
+    modal = true;
+
+    let gameContainer = document.getElementById('gameContainer');
+
+    let overlay = document.createElement('div');
+    overlay.setAttribute('id', 'overlay');
+
+    let h2 = document.createElement('h2');
+    h2.innerHTML = `It's your turn!`;
+
+    let demoinstructions = document.createElement('div');
+    demoinstructions.setAttribute('id', 'demoinstructions');
+
+
+    let div1 = document.createElement('div');
+    let i1 = document.createElement('i');
+    i1.classList.add('fas', 'fa-random');
+    let p1 = document.createElement('p');
+    p1.innerHTML = `<span>Shuffle</span> your rack`;
+
+    div1.append(i1,p1);
+
+
+    let div2 = document.createElement('div');
+    let tile = document.createElement('div');
+    tile.classList.add('tile');
+    let p2 = document.createElement('p');
+    p2.innerHTML = `<span>Drag</span> and <span>Drop</span> tiles`;
+
+    div2.append(tile, p2);
+
+
+    let div3 = document.createElement('div');
+    let i3 = document.createElement('i');
+    i3.classList.add('fas', 'fa-undo');
+    let p3 = document.createElement('p');
+    p3.innerHTML = `<span>Undo</span> last tile drop`;
+
+    div3.append(i3, p3);
+
+    let div4 = document.createElement('div');
+    let i4 = document.createElement('i');
+    i4.classList.add('fas', 'fa-play');
+    let p4 = document.createElement('p');
+    p4.innerHTML = `<span>Play</span> your word`;
+
+    div4.append(i4, p4);
+
+    demoinstructions.append(div1, div2, div3, div4);
+
+    let ok = document.createElement('button');
+    ok.setAttribute('id', 'demoinstructions');
+    ok.innerText = 'OK';
+
+    overlay.append(h2, demoinstructions, ok);
+
+    gameContainer.prepend(overlay);
+
+}
+
 function endOfDemoModal() {
     modal = true;
+    audioElsObj['hint'].play();
 
     //let boardcontainer = document.getElementById('boardcontainer');
     let gameContainer = document.getElementById('gameContainer');
@@ -802,6 +956,12 @@ function endOfDemoModal() {
 
     let h2 = document.createElement('h2');
     h2.innerHTML = `End of Demo`;
+
+    let p = document.createElement('p');
+    p.innerHTML = `You're ready to start a real game with friends!`;
+
+    let smile = document.createElement('i');
+    smile.classList.add('fas', 'fa-smile');
 
     /*
     let exitlink = document.createElement('a');
@@ -827,7 +987,7 @@ function endOfDemoModal() {
     // btncontainer.append(restart, exit);
 
 
-    overlay.append(h2, exit);
+    overlay.append(h2, p, smile, exit);
 
     //boardcontainer.append(overlay);
     gameContainer.prepend(overlay);
@@ -836,6 +996,7 @@ function endOfDemoModal() {
 
 function endOfGameModal() {
     modal = true;
+    audioElsObj['hint'].play();
 
     //let boardcontainer = document.getElementById('boardcontainer');
     let gameContainer = document.getElementById('gameContainer');
@@ -870,6 +1031,7 @@ function endOfGameModal() {
 
 function invalidwordModal(word) {
     modal = true;
+    audioElsObj['hint'].play();
 
     //let boardcontainer = document.getElementById('boardcontainer');
     let gameContainer = document.getElementById('gameContainer');
@@ -910,6 +1072,7 @@ function clickedOK() {
 
 function blankTileModal(draggableElid) {
     modal = true;
+    audioElsObj['hint'].play();
     blanktileid = draggableElid;
 
     //let boardcontainer = document.getElementById('boardcontainer');
@@ -1097,6 +1260,14 @@ function selected(target) {
 }
 
 function onDragStart(event) {
+
+    let inplay = event.target.classList.contains('inplay');
+    if (inplay) {
+        audioElsObj['tilemovestart'].play();
+    } else {
+        audioElsObj['grabtilefromrack'].play();
+    }
+
     event.dataTransfer.setData('text/plain', event.target.id);
 }
 
@@ -1115,7 +1286,6 @@ function onBoardDrop(event) {
         dropzone = starcell;
         //starcell.parentNode.replaceChild(draggableEl, starcell);
     }
-
 
     //dropzone.parentNode.replaceChild(draggableEl, dropzone);
 
@@ -1181,6 +1351,8 @@ function sendTileMoveToServer(tileid, cellid) {
         //currentGame = res;
         let serverGame2 = res;
         currentGame = Object.assign({}, serverGame2);
+
+        audioElsObj['tileplaceonboard'].play();
     })
 
 }

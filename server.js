@@ -1626,6 +1626,14 @@ http.createServer(function (req, res) {
     }
     */
 
+    if (req.url.endsWith('soundFileNames')) {
+
+        let sounds_dir = {};
+        sounds_dir.names = fs.readdirSync('./sounds/');
+        res.end(JSON.stringify(sounds_dir));
+        return;
+
+    }
 
     if (req.url.endsWith('start')) {
         let body = '';
@@ -1908,6 +1916,16 @@ http.createServer(function (req, res) {
         return;
     }
 */
+
+
+
+
+    if (req.url.startsWith('/sounds/')) {
+        res.write(fs.readFileSync('.' + req.url));
+        console.log('sound file requested');
+        res.end();
+        return;
+    }
 
     // /MWlogo.png
     if (req.url.endsWith('MWlogo.png')) {
