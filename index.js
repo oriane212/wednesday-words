@@ -298,9 +298,7 @@ document.addEventListener('click', (e) => {
             let serverGame2 = res;
             currentGame = Object.assign({}, serverGame2);
 
-            audioElsObj['tilebagshake'].play();
-
-            return currentGame;
+            return serverGame2;
 
             /*
             if (currentGame.players[playerid].invalidword !== '') {
@@ -314,9 +312,14 @@ document.addEventListener('click', (e) => {
                 endOfGameModal();
             }
             */
-        }).then((currentGame) => {
+        }).then((game) => {
 
-            if (currentGame.demo) {
+            console.log('game.players[playerid].invalidword = ', game.players[playerid].invalidword);
+            if (game.players[playerid].invalidword == '') {
+                audioElsObj['tilebagshake'].play();
+            }
+
+            if (game.demo) {
 
                 console.log('demo endturn clicked');
                 demoendturnclicked = true;
@@ -550,10 +553,8 @@ function refreshGame(currentGame) {
                     audioElsObj['success-04'].play();
                     yourturnsoundplayed = true;
                 }
-            } else {
-                if (!yourturnsoundplayed) {
+            } else if (currentGame.ready && currentGame.turn !== playerid) {
                     yourturnsoundplayed = false;
-                }
             }
 
             if (currentGame.gameover) {
@@ -908,12 +909,28 @@ function startOfDemoModal() {
 
 
     let div2 = document.createElement('div');
-    let tile = document.createElement('div');
-    tile.classList.add('tile');
+
+    let container = document.createElement('div');
+    container.classList.add('container');
+
+    let tiledrag = document.createElement('div');
+    tiledrag.classList.add('tile');
+    tiledrag.setAttribute('id', 'demo_modal_drag');
+
+    let longarrow = document.createElement('i');
+    longarrow.classList.add('fas', 'fa-long-arrow-alt-right');
+    longarrow.setAttribute('id', 'drag_drop_arrow');
+
+    let tiledrop = document.createElement('div');
+    tiledrop.classList.add('tile');
+    tiledrop.setAttribute('id', 'demo_modal_drop');
+
+    container.append(tiledrag, longarrow, tiledrop);
+
     let p2 = document.createElement('p');
     p2.innerHTML = `<span>Drag</span> and <span>Drop</span> tiles`;
 
-    div2.append(tile, p2);
+    div2.append(container, p2);
 
 
     let div3 = document.createElement('div');

@@ -6,7 +6,7 @@ const fetch = require('node-fetch');
 console.log('yo yo yo');
 
 const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-let port = process.env.PORT || 3000;
+let port = process.env.PORT || 5000;
 
 function generateCode(length) {
     const letters_no_o = "ABCDEFGHIJKLMNPQRSTUVWXYZ";
@@ -359,140 +359,147 @@ class Game {
 
     endturn() {
 
-        this.players[this.turn].invalidword = '';
-        let isValidPlay = this.players[this.turn].hasvalidplay;
 
-        if (isValidPlay) {
+        return new Promise(function (resolve, reject) {
 
-            // look up words
-            let validword = true;
-            let invalidword = '';
-            let words = [];
-            let main = this.players[this.turn].mainword;
-            words.push(main);
-            //words.push({ word: main, def: '' });
-            let others = this.players[this.turn].otherwords;
-            if (others.length > 0) {
-                others.forEach((other) => {
-                    //words.push({ word: other, def: '' });
-                    words.push(other);
-                })
-            }
+            this.players[this.turn].invalidword = '';
+            let isValidPlay = this.players[this.turn].hasvalidplay;
 
+            if (isValidPlay) {
 
-            ///////// TODO: remove duplicate words before lookup, but make sure it doesn't affect points in play and final score
-
-            /////// TODO: handle 'undefined' response (eg. def lookup for 'ME');
-
-            //// TODO: do not allow so many abbreviations?
-
-
-            //let definitions = [];
-
-            let promises = [];
-
-            words.forEach((word) => {
-                if (validword) {
-                    //let eachPromise = checkDef(obj.word);
-
-
-                    let eachPromise = this.websterLookUp(word);
-
-                    promises.push(eachPromise);
-
+                // look up words
+                let validword = true;
+                let invalidword = '';
+                let words = [];
+                let main = this.players[this.turn].mainword;
+                words.push(main);
+                //words.push({ word: main, def: '' });
+                let others = this.players[this.turn].otherwords;
+                if (others.length > 0) {
+                    others.forEach((other) => {
+                        //words.push({ word: other, def: '' });
+                        words.push(other);
+                    })
                 }
-            })
 
-            Promise.all(promises).then((values) => {
-                values.forEach((value) => {
-                    if (value.def === 'NA') {
-                        invalidword = value.word;
-                        validword = false;
+
+                ///////// TODO: remove duplicate words before lookup, but make sure it doesn't affect points in play and final score
+
+                /////// TODO: handle 'undefined' response (eg. def lookup for 'ME');
+
+                //// TODO: do not allow so many abbreviations?
+
+
+                //let definitions = [];
+
+                let promises = [];
+
+                words.forEach((word) => {
+                    if (validword) {
+                        //let eachPromise = checkDef(obj.word);
+
+
+                        let eachPromise = this.websterLookUp(word);
+
+                        promises.push(eachPromise);
+
                     }
                 })
-                if (invalidword !== '') {
-                    // a word played does not exist in Merriam Webster dictionary
-                    this.players[this.turn].invalidword = invalidword;
-                } else {
 
-                    // all words are valid
-
-                    this.updateLastPlayed();
-                    this.lastplayedwords = [];
-                    this.lastplayedwords = values;
-
-                    /*
-                    this.lastplayedwords.push(this.players[this.turn].mainword);
-                    this.players[this.turn].otherwords.forEach((word) => {
-                        this.lastplayedwords.push(word);
+                Promise.all(promises).then((values) => {
+                    values.forEach((value) => {
+                        if (value.def === 'NA') {
+                            invalidword = value.word;
+                            validword = false;
+                        }
                     })
-                    */
-
-                    this.players[this.turn].updateScore(this.players[this.turn].pointsInPlay);
-
-                    // if player played all tiles in rack and no tiles left in the game, then end game
-                    if ((this.players[this.turn].tilesInPlay.length === this.players[this.turn].rack.length) && this.tiles.length === 0) {
-
-                        this.endgame();
-
+                    if (invalidword !== '') {
+                        // a word played does not exist in Merriam Webster dictionary
+                        this.players[this.turn].invalidword = invalidword;
                     } else {
 
-                        /*
+                        // all words are valid
+
                         this.updateLastPlayed();
-        
                         this.lastplayedwords = [];
-        
+                        this.lastplayedwords = values;
+
+                        /*
                         this.lastplayedwords.push(this.players[this.turn].mainword);
                         this.players[this.turn].otherwords.forEach((word) => {
                             this.lastplayedwords.push(word);
                         })
                         */
 
-                        let newrack = [];
-                        this.players[this.turn].rack.forEach((tile, i) => {
-                            if (tile.inplay) {
+                        this.players[this.turn].updateScore(this.players[this.turn].pointsInPlay);
 
-                                tile.lastplayed = true;
-                                this.lastplayed.push(tile);
+                        // if player played all tiles in rack and no tiles left in the game, then end game
+                        if ((this.players[this.turn].tilesInPlay.length === this.players[this.turn].rack.length) && this.tiles.length === 0) {
 
-                                tile.inplay = false;
-                                tile.used = true;
-                                //tile.id = tile.creationID;
+                            this.endgame();
 
-                                if (this.tiles.length > 0) {
-                                    // draw a new tile to add to the rack at that index
-                                    let drawnTile = this.drawNewTileForRack(i);
-                                    newrack.push(drawnTile);
+                        } else {
+
+                            /*
+                            this.updateLastPlayed();
+            
+                            this.lastplayedwords = [];
+            
+                            this.lastplayedwords.push(this.players[this.turn].mainword);
+                            this.players[this.turn].otherwords.forEach((word) => {
+                                this.lastplayedwords.push(word);
+                            })
+                            */
+
+                            let newrack = [];
+                            this.players[this.turn].rack.forEach((tile, i) => {
+                                if (tile.inplay) {
+
+                                    tile.lastplayed = true;
+                                    this.lastplayed.push(tile);
+
+                                    tile.inplay = false;
+                                    tile.used = true;
+                                    //tile.id = tile.creationID;
+
+                                    if (this.tiles.length > 0) {
+                                        // draw a new tile to add to the rack at that index
+                                        let drawnTile = this.drawNewTileForRack(i);
+                                        newrack.push(drawnTile);
+                                    }
+
+                                } else {
+                                    newrack.push(tile);
                                 }
+                            })
 
-                            } else {
-                                newrack.push(tile);
-                            }
-                        })
+                            // reset rack
+                            this.players[this.turn].rack = newrack;
 
-                        // reset rack
-                        this.players[this.turn].rack = newrack;
+                            // reset tilesinplay
+                            this.players[this.turn].tilesInPlay = [];
 
-                        // reset tilesinplay
-                        this.players[this.turn].tilesInPlay = [];
+                            // reset valid play
+                            this.players[this.turn].hasvalidplay = false;
 
-                        // reset valid play
-                        this.players[this.turn].hasvalidplay = false;
+                            // update game turn
+                            this.updateTurn();
 
-                        // update game turn
-                        this.updateTurn();
+                        }
+
+
 
                     }
 
+                }).then(() => {
+                    console.log('RESOLVE');
+                    resolve();
+                })
 
 
-                }
+            }
 
-            })
-
-
-        }
-
+        }.bind(this))
 
     }
 
@@ -1824,9 +1831,10 @@ http.createServer(function (req, res) {
             let parsedBody = JSON.parse(body);
             console.log('endturn body: ', parsedBody);
             let matchingGame = findMatchingGameCode(parsedBody.id);
-            matchingGame.endturn();
+            matchingGame.endturn().then(() => {
+                res.end(JSON.stringify(matchingGame));
+            });
 
-            res.end(JSON.stringify(matchingGame));
             return;
         })
 

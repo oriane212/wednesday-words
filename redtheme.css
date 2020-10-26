@@ -139,8 +139,12 @@ h2 {
     text-align: center;
     font-size: larger;
     margin: 16px auto;
-    transform: rotate(-90deg);
+    /*transform: rotate(-90deg);
     /* width: 32px; */
+}
+
+.fa-random {
+    transform: rotate(-90deg);
 }
 
 #undo svg, #shuffle svg {
@@ -421,7 +425,6 @@ div#demoinstructions {
 }
 
 div#demoinstructions p {
-    margin: 8px;
     font-family: sans-serif;
     font-weight: 100;
     font-size: medium;
@@ -440,4 +443,24 @@ div#demoinstructions span {
     font-size: x-large;
     color: lightgoldenrodyellow;
     margin-bottom: 30px;
+}
+
+#demo_modal_drag {
+    background-color: white;
+}
+
+#demo_modal_drop {
+    background-color: rgba(255,255,255,0.2);
+    border: 2px dotted white;
+    box-sizing: border-box;
+}
+
+#drag_drop_arrow {
+    color: rgba(255,255,255,0.6);
+    align-self: center;
+    margin: 4px;
+}
+
+div.container {
+    display: inline-flex;
 }
