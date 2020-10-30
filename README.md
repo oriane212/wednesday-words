@@ -1,18 +1,26 @@
 Wednesday Words
 ===================================
-Remote multiplayer web game
+Remote multiplayer desktop web game
 
-![Side-by-side views for two players in a game](GJplays.gif)
+![Player drags a tile from their rack and drops it onto an interactive game board in a multiplayer game](gameplay.gif)
 
-## Start a game
-1. Using Google Chrome on a desktop, go to [wednesday-words.herokuapp.com](https://wednesday-words.herokuapp.com/).
-2. Start a game with your name and select the total number of players (2 minimum).
-3. Share the unique 4-digit game code generated for your game and wait for others to join. Your game will start when all players have joined :-)
+## Play a game!
+Using Google Chrome on a desktop, go to [wednesday-words.herokuapp.com](https://wednesday-words.herokuapp.com/).
+
+### Demo 
+To just see how gameplay is, try the single player demo! Shuffle your rack tiles, drag and drop tiles onto and across the board, assign a blank tile a letter, undo tile moves to remove last dropped tiles from the board and return them to your rack, and end your turn by playing your word.
+
+### Start
+Start a multiplayer game with your name and select the total number of players (2 to 4). A code for your game will be generated. Share the game code with your friends to join. Your game will start when all players have joined :-)
+
+### Join
+Join a game that a friend started by entering your name and the game code. 
 
 ## Features
 - 2 to 4 remote players
-- Player dashboard with drag-and-drop tiles, scoreboard, turn status, points-in-play (dynamically calculated with each tile move), and definitions of last word played using Merriam Webster's API
+- Player dashboard with drag-and-drop tiles, scoreboard, turn status, points-in-play (dynamically calculated with each tile move), and definitions of last word(s) played using Merriam Webster's API
 - Live board displays real-time updates to all players
+- Sound effects from freesound.org
 
 ## Development
 
@@ -21,26 +29,20 @@ Remote multiplayer web game
 - ES6 Class-based game model
 - Merriam Webster's API word definition lookup
 
-### Client-Server Flow
-The diagram shows each client request, server response, and rendered UI for starting, joining, and playing a 2-player game.
-
-(To zoom in, click the image and download for full view in the browser)
-
-![Client-Server flow diagram](WednesdayWordsFlowDiagram_cropped.png)
-
 ### To do
 
 #### refactor
 - [ ] React-based UI (in progress)
 
 #### features
-- [ ] user action: shuffle rack tiles
+- [x] user action: shuffle rack tiles
+- [x] user action: exit game w confirm
+- [x] sound effects
+- [x] demo game for 1 player
 - [ ] user action: save/pause game
 - [ ] user action: rejoin in-progress game
-- [ ] sound effects
 - [ ] user action: exchange tiles
 - [ ] chat widget in player dashboard
-- [ ] demo game for 1 player
 
 #### tests
 - [ ] UI component tests
@@ -49,4 +51,6 @@ The diagram shows each client request, server response, and rendered UI for star
  
 #### bugs
 
-- [ ] Fix: look and feel of drag and drop in Safari
+##### Safari
+- [ ] Fix: look and feel of drag and drop
+- [ ] Fix: sounds
